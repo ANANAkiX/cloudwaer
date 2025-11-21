@@ -183,7 +183,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         
         // 更新拥有该角色的所有用户的Token权限信息（不删除Token，只更新权限）
         updateUserTokenPermissionsByRoleId(roleId);
-        
         // 更新Redis中的权限缓存（权限映射：API路径 -> 权限代码）
         refreshPermissionCache();
         // 手动更新TOKEN对应的权限映射

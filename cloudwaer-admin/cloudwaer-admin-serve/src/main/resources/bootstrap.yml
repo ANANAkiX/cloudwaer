@@ -20,3 +20,18 @@ spring:
           - data-id: application-cloudwaer-admin-serve-dev.yml
             group: DEFAULT_GROUP
             refresh: true
+
+cloudwaer:
+  log:
+    enabled: true
+    exclude-paths:
+      - /actuator/**
+      - /auth/captcha
+      - /swagger-ui.html
+      - /v3/api-docs/**
+    exclude-http-methods:
+      - OPTIONS
+    exclude-class-names:
+      - com.cloudwaer.gateway.filter.HealthController
+    exclude-method-names:
+      - ping

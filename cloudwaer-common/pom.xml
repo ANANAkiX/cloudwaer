@@ -23,6 +23,7 @@
         <module>cloudwaer-common-swagger</module>
         <module>cloudwaer-common-api-scanner</module>
         <module>cloudwaer-common-security</module>
+        <module>cloudwaer-common-log</module>
     </modules>
 </project>
 
