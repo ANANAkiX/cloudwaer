@@ -42,6 +42,12 @@ public enum ResultCode {
      */
     NOT_FOUND(404, "数据不存在"),
 
+
+    /**
+     * 服务未找到
+     */
+    NOT_SERVE_FOUND(503, "服务未找到"),
+
     /**
      * 用户名或密码错误
      */

@@ -17,6 +17,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -52,6 +54,8 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
 
     private static final String ADMIN_SERVICE_NAME = "cloudwaer-admin-serve";
     private static final String GATEWAY_ROUTE_LIST_URL = "/admin/gateway-route/list";
+    private static final String REDIS_ROUTES_KEY = "gateway:routes:v1";
+    private static final long REDIS_CACHE_SECONDS = 300L;
     
     // 缓存路由定义，避免重复调用
     private final AtomicReference<List<RouteDefinition>> cachedRoutes = new AtomicReference<>(Collections.emptyList());
@@ -60,6 +64,9 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
     
     // 应用是否已启动
     private final AtomicBoolean applicationReady = new AtomicBoolean(false);
+
+    @Autowired(required = false)
+    private StringRedisTemplate stringRedisTemplate;
 
     @Override
     public Flux<RouteDefinition> getRouteDefinitions() {
@@ -74,10 +81,21 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
             return Flux.fromIterable(cachedRoutes.get());
         }
 
-        // 异步加载路由（避免阻塞）
+        // 刷新时优先从 admin 数据库获取，失败时才回退 Redis
         return loadRoutesAsync()
+                .switchIfEmpty(Flux.defer(() -> {
+                    // admin 成功返回空列表时，表示无路由，直接返回空或使用缓存
+                    List<RouteDefinition> cache = cachedRoutes.get();
+                    return cache.isEmpty() ? Flux.empty() : Flux.fromIterable(cache);
+                }))
                 .onErrorResume(error -> {
-                    log.debug("加载动态路由配置失败，使用缓存: {}", error.getMessage());
+                    log.debug("从 admin 加载路由失败，回退 Redis 或缓存: {}", error.getMessage());
+                    List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
+                    if (!redisRoutes.isEmpty()) {
+                        cachedRoutes.set(redisRoutes);
+                        lastLoadTime = System.currentTimeMillis();
+                        return Flux.fromIterable(redisRoutes);
+                    }
                     return Flux.fromIterable(cachedRoutes.get());
                 });
     }
@@ -101,41 +119,32 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
                     .subscribeOn(Schedulers.boundedElastic())  // 使用有界弹性调度器
                     .flatMapMany(result -> {
                         if (result == null || result.getCode() == null || !result.getCode().equals(ResultCode.SUCCESS.getCode()) || result.getData() == null) {
-                            log.debug("获取网关路由配置失败，使用缓存的路由列表");
-                            return Flux.fromIterable(cachedRoutes.get());
+                            return Flux.error(new IllegalStateException("admin路由接口返回无效结果"));
                         }
 
                         List<GatewayRouteDTO> routeDTOs = result.getData();
                         if (routeDTOs.isEmpty()) {
-                            log.debug("未找到网关路由配置");
+                            log.debug("admin 返回空路由列表");
                             cachedRoutes.set(Collections.emptyList());
                             lastLoadTime = System.currentTimeMillis();
+                            // 空列表也视为成功，不触发回退
+                            saveRoutesToRedis(routeDTOs);
                             return Flux.empty();
                         }
 
                         // 转换为RouteDefinition
-                        List<RouteDefinition> routeDefinitions = new ArrayList<>();
-                        for (GatewayRouteDTO routeDTO : routeDTOs) {
-                            try {
-                                RouteDefinition routeDefinition = convertToRouteDefinition(routeDTO);
-                                routeDefinitions.add(routeDefinition);
-                            } catch (Exception e) {
-                                log.error("转换路由定义失败: routeId={}", routeDTO.getRouteId(), e);
-                            }
-                        }
+                        List<RouteDefinition> routeDefinitions = convertFromDTOList(routeDTOs);
                         log.info("成功加载 {} 个动态路由配置", routeDefinitions.size());
                         // 更新缓存
                         cachedRoutes.set(routeDefinitions);
                         lastLoadTime = System.currentTimeMillis();
+                        // 落地到Redis缓存
+                        saveRoutesToRedis(routeDTOs);
                         return Flux.fromIterable(routeDefinitions);
                     })
-                    .onErrorResume(error -> {
-                        log.debug("加载动态路由配置失败，使用缓存: {}", error.getMessage());
-                        return Flux.fromIterable(cachedRoutes.get());
-                    });
+                    .doOnError(error -> log.debug("加载动态路由配置失败: {}", error.getMessage()));
         } catch (Exception e) {
-            log.debug("获取动态路由配置异常，使用缓存: {}", e.getMessage());
-            return Flux.fromIterable(cachedRoutes.get());
+            return Flux.error(e);
         }
     }
 
@@ -146,16 +155,21 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
     public void onApplicationEvent(ApplicationReadyEvent event) {
         applicationReady.set(true);
         log.info("应用启动完成，开始加载动态路由配置");
-        // 异步加载路由，不阻塞
-        loadRoutesAsync()
-                .subscribe(
-                        routeDefinition -> {
-                            // 路由加载成功，不需要处理
-                        },
-                        error -> {
-                            log.warn("启动时加载动态路由配置失败，将在后续请求中重试: {}", error.getMessage());
-                        }
-                );
+        // 优先尝试从Redis加载
+        List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
+        if (!redisRoutes.isEmpty()) {
+            cachedRoutes.set(redisRoutes);
+            lastLoadTime = System.currentTimeMillis();
+            log.info("从Redis加载到 {} 条网关路由", redisRoutes.size());
+            // 后台刷新一次
+            loadRoutesAsync().subscribe();
+        } else {
+            // 异步加载路由，不阻塞
+            loadRoutesAsync().subscribe(
+                    rd -> {},
+                    error -> log.warn("启动时加载动态路由配置失败，将在后续请求中重试: {}", error.getMessage())
+            );
+        }
     }
 
     /**
@@ -226,6 +240,66 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
         }
 
         return definition;
+    }
+
+    /**
+     * 批量将 DTO 列表转换为 RouteDefinition 列表
+     */
+    private List<RouteDefinition> convertFromDTOList(List<GatewayRouteDTO> routeDTOs) {
+        if (routeDTOs == null || routeDTOs.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<RouteDefinition> list = new ArrayList<>();
+        for (GatewayRouteDTO dto : routeDTOs) {
+            try {
+                list.add(convertToRouteDefinition(dto));
+            } catch (Exception e) {
+                log.error("转换路由定义失败: routeId={}", dto.getRouteId(), e);
+            }
+        }
+        return list;
+    }
+
+    /**
+     * 从 Redis 读取并转换为 RouteDefinition 列表
+     */
+    private List<RouteDefinition> loadRoutesFromRedisAsDefinitions() {
+        List<GatewayRouteDTO> dtos = loadRoutesFromRedisDTOs();
+        if (dtos == null || dtos.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return convertFromDTOList(dtos);
+    }
+
+    /**
+     * 从 Redis 读取 DTO 列表
+     */
+    private List<GatewayRouteDTO> loadRoutesFromRedisDTOs() {
+        if (stringRedisTemplate == null || objectMapper == null) return Collections.emptyList();
+        try {
+            String json = stringRedisTemplate.opsForValue().get(REDIS_ROUTES_KEY);
+            if (json == null || json.isEmpty()) return Collections.emptyList();
+            return objectMapper.readValue(
+                    json,
+                    objectMapper.getTypeFactory().constructCollectionType(List.class, GatewayRouteDTO.class)
+            );
+        } catch (Exception e) {
+            log.debug("读取Redis路由缓存失败: {}", e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
+    /**
+     * 将最新路由写入 Redis 做缓存
+     */
+    private void saveRoutesToRedis(List<GatewayRouteDTO> routeDTOs) {
+        if (stringRedisTemplate == null || objectMapper == null || routeDTOs == null) return;
+        try {
+            String json = objectMapper.writeValueAsString(routeDTOs);
+            stringRedisTemplate.opsForValue().set(REDIS_ROUTES_KEY, json, REDIS_CACHE_SECONDS, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.debug("写入Redis路由缓存失败: {}", e.getMessage());
+        }
     }
 }
 
