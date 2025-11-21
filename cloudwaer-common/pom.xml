@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.cloudwaer</groupId>
+        <artifactId>cloudwaer</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>cloudwaer-common</artifactId>
+    <packaging>pom</packaging>
+
+    <name>cloudwaer-common</name>
+    <description>公共模块父模块</description>
+
+    <modules>
+        <module>cloudwaer-common-core</module>
+        <module>cloudwaer-common-version</module>
+        <module>cloudwaer-common-swagger</module>
+        <module>cloudwaer-common-api-scanner</module>
+        <module>cloudwaer-common-security</module>
+    </modules>
+</project>
+
+

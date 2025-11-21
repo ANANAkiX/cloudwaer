@@ -1,0 +1,32 @@
+spring:
+  main:
+    web-application-type: reactive
+  application:
+    name: cloudwaer-gateway
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: ""
+      config:
+        server-addr: localhost:8848
+        namespace: ""
+        file-extension: yml
+        import-check:
+          enabled: false
+        shared-configs:
+          - data-id: application-common.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          # 加载服务特定配置文件
+          - data-id: application-cloudwaer-gateway-dev.yml
+            group: DEFAULT_GROUP
+            refresh: true
+
+    gateway:
+      discovery:
+        locator:
+          enabled: false  # 禁用自动发现路由，使用动态路由管理
+          lower-case-service-id: true

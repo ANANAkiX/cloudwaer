@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: cloudwaer-admin-serve
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: ""
+      config:
+        server-addr: localhost:8848
+        namespace: ""
+        file-extension: yml
+        shared-configs:
+          - data-id: application-common.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          # 加载服务特定配置文件
+          - data-id: application-cloudwaer-admin-serve-dev.yml
+            group: DEFAULT_GROUP
+            refresh: true

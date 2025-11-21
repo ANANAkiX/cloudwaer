@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.cloudwaer</groupId>
+        <artifactId>cloudwaer</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>cloudwaer-integration-serve</artifactId>
+    <packaging>pom</packaging>
+
+    <name>cloudwaer-integration-serve</name>
+    <description>集成服务（支付、短信、邮件等）</description>
+
+    <modules>
+        <module>cloudwaer-codegen</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- 版本管理模块 -->
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-version</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+
+</project>
+
+

@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: cloudwaer-codegen-serve
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: ""
+      config:
+        server-addr: localhost:8848
+        namespace: ""
+        file-extension: yml
+        import-check:
+          enabled: false
+        shared-configs:
+          # 加载服务特定配置文件
+          - data-id: application-cloudwaer-codegen-serve-dev.yml
+            group: DEFAULT_GROUP
+            refresh: true
