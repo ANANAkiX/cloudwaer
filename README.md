@@ -44,9 +44,9 @@ cloudwaer/
 
 ## 端口约定（默认）
 - Nacos: 8848
-- Gateway: 8080
-- Authentication: 9000
-- Admin-Serve: 9001
+- Gateway: 4100
+- Authentication: 4101
+- Admin-Serve: 4102
 
 实际端口请以各模块 `application.yml` 或 Nacos 配置为准。
 
