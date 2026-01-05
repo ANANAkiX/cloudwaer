@@ -52,21 +52,18 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
     @Autowired(required = false)
     private ObjectMapper objectMapper;
 
-    private static final String ADMIN_SERVICE_NAME = "cloudwaer-admin-serve";
-    private static final String GATEWAY_ROUTE_LIST_URL = "/admin/gateway-route/list";
-    private static final String REDIS_ROUTES_KEY = "gateway:routes:v1";
-    private static final long REDIS_CACHE_SECONDS = 300L;
-    
     // 缓存路由定义，避免重复调用
     private final AtomicReference<List<RouteDefinition>> cachedRoutes = new AtomicReference<>(Collections.emptyList());
     private volatile long lastLoadTime = 0;
-    private static final long CACHE_DURATION_MS = 30000; // 缓存30秒
     
     // 应用是否已启动
     private final AtomicBoolean applicationReady = new AtomicBoolean(false);
 
     @Autowired(required = false)
     private StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    private DynamicRouteProperties dynamicRouteProperties;
 
     @Override
     public Flux<RouteDefinition> getRouteDefinitions() {
@@ -77,7 +74,7 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
 
         // 检查缓存是否有效
         long currentTime = System.currentTimeMillis();
-        if (currentTime - lastLoadTime < CACHE_DURATION_MS && !cachedRoutes.get().isEmpty()) {
+        if (currentTime - lastLoadTime < dynamicRouteProperties.getCacheDurationMs() && !cachedRoutes.get().isEmpty()) {
             return Flux.fromIterable(cachedRoutes.get());
         }
 
@@ -113,7 +110,7 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
             
             // 异步调用，使用subscribeOn避免阻塞
             return webClient.get()
-                    .uri("http://" + ADMIN_SERVICE_NAME + GATEWAY_ROUTE_LIST_URL)
+                    .uri(buildAdminRouteListUri())
                     .retrieve()
                     .bodyToMono(new ParameterizedTypeReference<Result<List<GatewayRouteDTO>>>() {})
                     .subscribeOn(Schedulers.boundedElastic())  // 使用有界弹性调度器
@@ -277,7 +274,7 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
     private List<GatewayRouteDTO> loadRoutesFromRedisDTOs() {
         if (stringRedisTemplate == null || objectMapper == null) return Collections.emptyList();
         try {
-            String json = stringRedisTemplate.opsForValue().get(REDIS_ROUTES_KEY);
+            String json = stringRedisTemplate.opsForValue().get(dynamicRouteProperties.getRedisRoutesKey());
             if (json == null || json.isEmpty()) return Collections.emptyList();
             return objectMapper.readValue(
                     json,
@@ -296,10 +293,22 @@ public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, Ap
         if (stringRedisTemplate == null || objectMapper == null || routeDTOs == null) return;
         try {
             String json = objectMapper.writeValueAsString(routeDTOs);
-            stringRedisTemplate.opsForValue().set(REDIS_ROUTES_KEY, json, REDIS_CACHE_SECONDS, TimeUnit.SECONDS);
+            stringRedisTemplate.opsForValue().set(
+                    dynamicRouteProperties.getRedisRoutesKey(),
+                    json,
+                    dynamicRouteProperties.getRedisCacheSeconds(),
+                    TimeUnit.SECONDS
+            );
         } catch (Exception e) {
             log.debug("写入Redis路由缓存失败: {}", e.getMessage());
         }
     }
-}
 
+    private String buildAdminRouteListUri() {
+        String scheme = dynamicRouteProperties.getAdminScheme();
+        String serviceName = dynamicRouteProperties.getAdminServiceName();
+        String path = dynamicRouteProperties.getRouteListPath();
+        String normalizedPath = path.startsWith("/") ? path : "/" + path;
+        return String.format("%s://%s%s", scheme, serviceName, normalizedPath);
+    }
+}

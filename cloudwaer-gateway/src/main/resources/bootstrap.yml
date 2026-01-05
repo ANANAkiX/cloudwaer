@@ -5,7 +5,7 @@ spring:
     name: cloudwaer-gateway
   profiles:
     active: dev
-  cloud:
+cloud:
     nacos:
       discovery:
         server-addr: localhost:8848
@@ -30,3 +30,19 @@ spring:
         locator:
           enabled: false  # 禁用自动发现路由，使用动态路由管理
           lower-case-service-id: true
+
+cloudwaer:
+  gateway:
+    dynamic-route:
+      # 管理端服务名（用于拉取动态路由列表）
+      admin-service-name: cloudwaer-admin-serve
+      # 管理端请求协议（用于动态路由拉取）
+      admin-scheme: http
+      # 管理端路由列表接口路径
+      route-list-path: /admin/gateway-route/list
+      # Redis 中缓存路由的 Key
+      redis-routes-key: gateway:routes:v1
+      # Redis 缓存路由过期时间（秒）
+      redis-cache-seconds: 300
+      # 本地内存路由缓存有效期（毫秒）
+      cache-duration-ms: 30000

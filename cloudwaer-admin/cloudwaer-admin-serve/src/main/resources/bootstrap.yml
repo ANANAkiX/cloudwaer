@@ -35,3 +35,11 @@ cloudwaer:
       - com.cloudwaer.gateway.filter.HealthController
     exclude-method-names:
       - ping
+  gateway:
+    refresh:
+      # 网关服务的服务ID（用于发现实例）
+      service-id: cloudwaer-gateway
+      # 刷新网关路由请求协议
+      scheme: http
+      # 刷新网关路由接口路径
+      path: /actuator/gateway/refresh

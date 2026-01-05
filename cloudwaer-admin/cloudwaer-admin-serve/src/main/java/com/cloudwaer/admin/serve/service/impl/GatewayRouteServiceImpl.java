@@ -5,10 +5,11 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
+import com.cloudwaer.admin.serve.config.GatewayRefreshProperties;
 import com.cloudwaer.admin.serve.entity.GatewayRoute;
 import com.cloudwaer.admin.serve.mapper.GatewayRouteMapper;
-import com.cloudwaer.admin.serve.service.GatewayRouteService;
 import com.cloudwaer.admin.serve.service.GatewayRouteCacheService;
+import com.cloudwaer.admin.serve.service.GatewayRouteService;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
@@ -52,6 +53,9 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
 
     @Autowired(required = false)
     private GatewayRouteCacheService gatewayRouteCacheService;
+
+    @Autowired
+    private GatewayRefreshProperties gatewayRefreshProperties;
 
     @Override
     public List<GatewayRouteDTO> getAllRoutes() {
@@ -208,7 +212,7 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
                 return false;
             }
 
-            List<ServiceInstance> instances = discoveryClient.getInstances("cloudwaer-gateway");
+            List<ServiceInstance> instances = discoveryClient.getInstances(gatewayRefreshProperties.getServiceId());
             if (instances == null || instances.isEmpty()) {
                 log.warn("未找到网关服务实例，无法刷新路由");
                 return false;
@@ -217,8 +221,13 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
             // 向所有网关实例发送刷新请求
             boolean allSuccess = true;
             for (ServiceInstance instance : instances) {
-                String url = String.format("http://%s:%s/actuator/gateway/refresh", 
-                        instance.getHost(), instance.getPort());
+                String url = String.format(
+                        "%s://%s:%s%s",
+                        gatewayRefreshProperties.getScheme(),
+                        instance.getHost(),
+                        instance.getPort(),
+                        normalizeRefreshPath(gatewayRefreshProperties.getPath())
+                );
                 
                 try {
                     if (restTemplate == null) {
@@ -242,6 +251,13 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
             log.error("刷新网关路由失败", e);
             return false;
         }
+    }
+
+    private String normalizeRefreshPath(String path) {
+        if (path == null || path.isEmpty()) {
+            return "";
+        }
+        return path.startsWith("/") ? path : "/" + path;
     }
 
     /**
@@ -339,4 +355,3 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
         return route;
     }
 }
-
