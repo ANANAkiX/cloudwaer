@@ -77,7 +77,7 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 
         // 获取当前用户的权限代码列表
         List<String> userPermissions = SecurityContextUtil.getCurrentPermissions();
-        
+
         // 如果用户未登录或没有权限信息，拒绝访问
         if (userPermissions == null || userPermissions.isEmpty()) {
             log.warn("用户未登录或没有权限信息: method={}, path={}", method, path);
@@ -87,7 +87,7 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 
         // 检查用户是否有该权限
         if (!userPermissions.contains(requiredPermissionCode)) {
-            log.warn("用户没有访问权限: method={}, path={}, requiredPermission={}, userPermissions={}", 
+            log.warn("用户没有访问权限: method={}, path={}, requiredPermission={}, userPermissions={}",
                     method, path, requiredPermissionCode, userPermissions);
             writeErrorResponse(response, Result.fail(ResultCode.FORBIDDEN.getCode(), "没有访问权限"));
             return;
@@ -119,7 +119,6 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
             response.setStatus(HttpServletResponse.SC_OK);
             response.setContentType("application/json;charset=UTF-8");
             response.setCharacterEncoding("UTF-8");
-            
             PrintWriter writer = response.getWriter();
             String json = getObjectMapper().writeValueAsString(result);
             writer.write(json);

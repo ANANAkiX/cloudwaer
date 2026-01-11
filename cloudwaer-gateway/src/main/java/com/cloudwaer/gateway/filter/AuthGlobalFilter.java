@@ -48,6 +48,7 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
             "/actuator/**"
     );
 
+
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
     @Override

@@ -19,6 +19,7 @@ import java.util.Map;
  * @author cloudwaer
  * @deprecated 请使用admin服务中的PermissionInitService
  */
+@Deprecated
 @Slf4j
 // @Component  // 已禁用，使用admin服务中的PermissionInitService
 public class PermissionInitConfig implements CommandLineRunner {

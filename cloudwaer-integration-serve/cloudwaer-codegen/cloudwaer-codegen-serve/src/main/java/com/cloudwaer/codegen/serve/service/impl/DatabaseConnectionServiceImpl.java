@@ -52,7 +52,7 @@ public class DatabaseConnectionServiceImpl extends ServiceImpl<DatabaseConnectio
         if (Boolean.FALSE.equals(connection.getEnabled())) {
             throw new BusinessException("数据库连接配置未启用");
         }
-        
+
         DatabaseConnectionDTO connectionDTO = new DatabaseConnectionDTO();
         BeanUtils.copyProperties(connection, connectionDTO);
         return getConnection(connectionDTO);
@@ -96,7 +96,6 @@ public class DatabaseConnectionServiceImpl extends ServiceImpl<DatabaseConnectio
         BeanUtils.copyProperties(connectionDTO, connection);
 
         // 密码加密存储（这里先简单处理，实际应该使用加密算法）
-        // TODO: 实现密码加密
 
         if (connectionDTO.getId() != null) {
             return this.updateById(connection);

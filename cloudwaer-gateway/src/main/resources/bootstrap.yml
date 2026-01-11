@@ -5,7 +5,7 @@ spring:
     name: cloudwaer-gateway
   profiles:
     active: dev
-cloud:
+  cloud:
     nacos:
       discovery:
         server-addr: localhost:8848
@@ -41,7 +41,7 @@ cloudwaer:
       # 管理端路由列表接口路径
       route-list-path: /admin/gateway-route/list
       # Redis 中缓存路由的 Key
-      redis-routes-key: gateway:routes:v1
+      redis-routes-key: cloudwaer:gateway:route:cache
       # Redis 缓存路由过期时间（秒）
       redis-cache-seconds: 300
       # 本地内存路由缓存有效期（毫秒）

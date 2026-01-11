@@ -31,6 +31,10 @@ public enum ResultCode {
      * 无权限
      */
     FORBIDDEN(403, "无权限访问"),
+    /**
+     * 无权限
+     */
+    NOT_CONFIGURED(405, "未配置接口权限,请联系管理员"),
 
     /**
      * 参数错误

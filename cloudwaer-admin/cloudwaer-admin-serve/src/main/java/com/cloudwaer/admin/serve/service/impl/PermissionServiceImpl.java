@@ -15,6 +15,7 @@ import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.service.PermissionCacheService;
 import com.cloudwaer.common.core.service.TokenService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -630,25 +631,30 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         List<Permission> permissions = this.list(wrapper);
         
         // 构建权限映射：Map<"GET /api/user/list", "admin:user:list">
+        Map<String, String> permissionMap = getStringStringMap(permissions);
+
+        return permissionMap;
+    }
+
+    private static @NonNull Map<String, String> getStringStringMap(List<Permission> permissions) {
         Map<String, String> permissionMap = new HashMap<>();
         for (Permission permission : permissions) {
             String httpMethod = permission.getHttpMethod();
             String apiUrl = permission.getApiUrl();
             String permissionCode = permission.getPermissionCode();
-            
+
             if (httpMethod != null && apiUrl != null && permissionCode != null) {
                 // 规范化API URL（去除末尾的斜杠）
                 String normalizedApiUrl = apiUrl.trim();
                 if (normalizedApiUrl.endsWith("/") && normalizedApiUrl.length() > 1) {
                     normalizedApiUrl = normalizedApiUrl.substring(0, normalizedApiUrl.length() - 1);
                 }
-                
+
                 // 构建Key：GET /api/user/list
                 String key = httpMethod.toUpperCase() + " " + normalizedApiUrl;
                 permissionMap.put(key, permissionCode);
             }
         }
-        
         return permissionMap;
     }
 

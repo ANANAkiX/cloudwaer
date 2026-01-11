@@ -35,7 +35,7 @@ public class TokenService {
     private JwtUtil jwtUtil;
 
     /**
-     * 生成并存储Token
+     * 生成并存储 Token
      *
      * @param userId      用户ID
      * @param username    用户名
@@ -123,7 +123,7 @@ public class TokenService {
 
         try {
             String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-            return Boolean.TRUE.equals(redisTemplate.hasKey(tokenKey));
+            return redisTemplate.hasKey(tokenKey);
         } catch (Exception e) {
             log.error("验证Token失败: tokenUuid={}", tokenUuid, e);
             return false;
