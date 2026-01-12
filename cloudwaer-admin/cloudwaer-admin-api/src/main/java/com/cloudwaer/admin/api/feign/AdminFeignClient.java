@@ -62,6 +62,9 @@ public interface AdminFeignClient {
      */
     @GetMapping("/gateway-route/list")
     Result<List<GatewayRouteDTO>> getAllGatewayRoutes();
+
+    @GetMapping("/user/email")
+    Result<UserDTO> getUserByEmail(@RequestParam("email") String email);
 }
 
 

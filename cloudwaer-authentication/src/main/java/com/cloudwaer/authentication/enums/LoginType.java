@@ -2,7 +2,7 @@ package com.cloudwaer.authentication.enums;
 
 public enum LoginType {
     ACCESS_PASSWORD,
-    EMAIL_CODE,
+    EMAIL_PASSWORD,
     MOBILE_CODE,
     THIRD_PARTY;
 }

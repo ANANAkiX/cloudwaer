@@ -23,9 +23,21 @@ public class LoginRequestDTO implements Serializable {
     /**
      * 用户名
      */
-    @NotBlank(message = "用户名不能为空")
     @Schema(description = "用户名", required = true, example = "admin")
     private String username;
+
+
+    /**
+     * 用户名
+     */
+    @Schema(description = "邮箱", required = true, example = "admin@qq.com")
+    private String email;
+
+    /**
+     * 手机号
+     */
+    @Schema(description = "手机号", required = true, example = "13333333333")
+    private String phone;
 
     /**
      * 密码

@@ -3,6 +3,8 @@ package com.cloudwaer.authentication.authenticator;
 import com.cloudwaer.authentication.dto.LoginRequestDTO;
 import com.cloudwaer.authentication.dto.LoginResponseDTO;
 import com.cloudwaer.authentication.enums.LoginType;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 /**
  * 登录认证扩展点。
@@ -10,6 +12,7 @@ import com.cloudwaer.authentication.enums.LoginType;
  * - 通过实现该接口即可扩展新的登录方式（如：账号密码、邮箱验证码、手机号验证码、第三方登录等）。
  * - 每个实现类声明自己支持的 LoginType，并在 authenticate 中完成校验。
  */
+
 public interface LoginAuthenticator {
 
     /**

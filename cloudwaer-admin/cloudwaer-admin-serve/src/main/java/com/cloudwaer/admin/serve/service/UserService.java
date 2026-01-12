@@ -24,6 +24,15 @@ public interface UserService extends IService<User> {
     UserDTO getUserByUsername(String username);
 
     /**
+     * 根据邮箱获取用户
+     *
+     * @param email 邮箱
+     * @return 用户DTO
+     */
+    UserDTO getUserByEmail(String email);
+
+
+    /**
      * 获取所有用户列表
      *
      * @return 用户列表

@@ -23,13 +23,6 @@ public class AuthService {
     private TokenService tokenService;
 
     public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
-        // 仅实现 账号密码 端登录
-        if (!StringUtils.hasText(loginRequestDTO.getLoginType()) || !"ACCESS_PASSWORD".equalsIgnoreCase(loginRequestDTO.getLoginType())) {
-            throw new IllegalArgumentException("unsupported terminal");
-        }
-        if (!StringUtils.hasText(loginRequestDTO.getScope())) {
-            throw new IllegalArgumentException("scope required");
-        }
         // 交给可插拔认证器完成认证，返回主体标识（用户名/邮箱/手机号等）
         return loginAuthenticationManager.authenticate(loginRequestDTO);
     }

@@ -45,6 +45,16 @@ public class AdminController {
     }
 
     /**
+     * 根据邮箱获取用户信息
+     */
+    @GetMapping("/user/email")
+    @Operation(summary = "根据用户名获取用户信息", description = "通过用户名查询用户详细信息")
+    public Result<UserDTO> getUserByEmail(@RequestParam("email") String email) {
+        UserDTO userDTO = userService.getUserByEmail(email);
+        return Result.success(userDTO);
+    }
+
+    /**
      * 获取当前用户信息
      */
     @GetMapping("/user/current")
