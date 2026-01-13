@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-gateway</artifactId>
@@ -35,7 +35,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Spring Cloud Gateway -->
         <dependency>
@@ -81,7 +80,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-admin-api</artifactId>
-            <version>${version}</version>
             <scope>compile</scope>
             <exclusions>
                 <exclusion>

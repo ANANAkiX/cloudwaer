@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-authentication</artifactId>
@@ -35,13 +35,11 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- 安全模块 -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-security</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Spring Boot Web -->
         <dependency>
@@ -92,7 +90,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-swagger</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
@@ -102,7 +99,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-admin-api</artifactId>
-            <version>${project.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>com.cloudwaer</groupId>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer-common</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-common-version</artifactId>
@@ -18,7 +18,7 @@
     <description>全局依赖版本管理模块</description>
 
     <properties>
-        <!-- 版本号从父 pom.xml 继承，这里可以覆盖特定版本 -->
+        <!-- 版本号从?pom.xml 继承，这里可以覆盖特定版?-->
         <mybatis-spring.version>3.0.3</mybatis-spring.version>
     </properties>
 
@@ -60,7 +60,7 @@
                 <artifactId>mybatis-spring</artifactId>
                 <version>${mybatis-spring.version}</version>
             </dependency>
-            <!-- Hutool工具类 -->
+            <!-- Hutool工具?-->
             <dependency>
                 <groupId>cn.hutool</groupId>
                 <artifactId>hutool-all</artifactId>
@@ -93,6 +93,44 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc.version}</version>
+            </dependency>
+
+
+            <!-- Cloudwaer internal modules -->
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-security</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-swagger</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-api-scanner</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-admin-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-codegen-api</artifactId>
+                <version>${project.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

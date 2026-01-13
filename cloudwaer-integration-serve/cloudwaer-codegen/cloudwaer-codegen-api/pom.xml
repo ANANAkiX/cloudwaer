@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer-codegen</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-codegen-api</artifactId>
@@ -35,7 +35,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Spring Boot Web -->
         <dependency>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer-common</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-common-core</artifactId>

@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer-admin</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-admin-api</artifactId>
@@ -35,7 +35,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Spring Boot Web -->
         <dependency>
@@ -61,7 +60,6 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-api-scanner</artifactId>
-            <version>1.0.0</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

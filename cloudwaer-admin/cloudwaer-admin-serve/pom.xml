@@ -8,7 +8,7 @@
     <parent>
         <groupId>com.cloudwaer</groupId>
         <artifactId>cloudwaer-admin</artifactId>
-        <version>1.0.0</version>
+        <version>${revision}</version>
     </parent>
 
     <artifactId>cloudwaer-admin-serve</artifactId>
@@ -35,24 +35,20 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-admin-api</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- 公共模块 -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- 安全模块 -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-security</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-log</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- Spring Boot Web -->
         <dependency>
@@ -88,13 +84,11 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-swagger</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <!-- API扫描模块 -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-api-scanner</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

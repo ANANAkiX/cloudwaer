@@ -7,7 +7,7 @@
 
     <groupId>com.cloudwaer</groupId>
     <artifactId>cloudwaer</artifactId>
-    <version>1.0.0</version>
+    <version>${revision}</version>
     <packaging>pom</packaging>
 
     <name>cloudwaer</name>
@@ -22,6 +22,9 @@
     </modules>
 
     <properties>
+        <!-- 定义全局版本 -->
+        <revision>1.0.0</revision>
+        <project.version>1.0.0</project.version>
         <java.version>17</java.version>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -34,6 +37,8 @@
         <lombok.version>1.18.30</lombok.version>
         <jwt.version>0.12.3</jwt.version>
         <springdoc.version>2.3.0</springdoc.version>
+        <swagger.core>2.2.19</swagger.core>
+
     </properties>
 
     <dependencyManagement>
@@ -136,5 +141,4 @@
         </pluginManagement>
     </build>
 </project>
-
 
