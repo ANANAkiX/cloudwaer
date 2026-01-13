@@ -2,6 +2,7 @@ package com.cloudwaer.common.security.filter;
 
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
+import com.cloudwaer.common.core.annotation.PermitAll;
 import com.cloudwaer.common.core.service.PermissionCacheService;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -14,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.method.HandlerMethod;
+import org.springframework.web.servlet.HandlerExecutionChain;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 import java.io.PrintWriter;
 import java.util.List;
@@ -34,6 +38,9 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
     @Autowired(required = false)
     private ObjectMapper objectMapper;
 
+    @Autowired(required = false)
+    private RequestMappingHandlerMapping requestMappingHandlerMapping;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, java.io.IOException {
@@ -45,6 +52,12 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         if (isExcludedPath(path)) {
             log.debug("路径在排除列表中，直接放行: {}", path);
+            filterChain.doFilter(request, response);
+            return;
+        }
+        // 检查是否有@PermitAll注解
+        if (isPermitAll(request)) {
+            log.debug("@PermitAll matched, skip auth check: {} {}", request.getMethod(), request.getRequestURI());
             filterChain.doFilter(request, response);
             return;
         }
@@ -109,6 +122,29 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
                path.equals("/doc.html") ||
                path.startsWith("/webjars/") ||
                path.equals("/favicon.ico");
+    }
+
+    private boolean isPermitAll(HttpServletRequest request) {
+        if (requestMappingHandlerMapping == null) {
+            return false;
+        }
+
+        try {
+            HandlerExecutionChain chain = requestMappingHandlerMapping.getHandler(request);
+            if (chain == null) {
+                return false;
+            }
+            Object handler = chain.getHandler();
+            if (!(handler instanceof HandlerMethod)) {
+                return false;
+            }
+            HandlerMethod handlerMethod = (HandlerMethod) handler;
+            return handlerMethod.hasMethodAnnotation(PermitAll.class)
+                    || handlerMethod.getBeanType().isAnnotationPresent(PermitAll.class);
+        } catch (Exception e) {
+            log.debug("PermitAll detection failed: {}", e.getMessage());
+            return false;
+        }
     }
 
     /**
