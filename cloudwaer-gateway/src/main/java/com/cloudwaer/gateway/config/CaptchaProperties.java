@@ -1,8 +1,10 @@
 package com.cloudwaer.gateway.config;
 
+import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
+@Data
 @Component
 @ConfigurationProperties(prefix = "cloudwaer.captcha")
 public class CaptchaProperties {
@@ -16,15 +18,4 @@ public class CaptchaProperties {
     private int height = 40;
     /** 过期秒数 */
     private int expireSeconds = 120;
-
-    public boolean isEnabled() { return enabled; }
-    public void setEnabled(boolean enabled) { this.enabled = enabled; }
-    public int getLength() { return length; }
-    public void setLength(int length) { this.length = length; }
-    public int getWidth() { return width; }
-    public void setWidth(int width) { this.width = width; }
-    public int getHeight() { return height; }
-    public void setHeight(int height) { this.height = height; }
-    public int getExpireSeconds() { return expireSeconds; }
-    public void setExpireSeconds(int expireSeconds) { this.expireSeconds = expireSeconds; }
 }
