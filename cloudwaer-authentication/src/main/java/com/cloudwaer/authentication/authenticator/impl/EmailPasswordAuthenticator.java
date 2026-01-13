@@ -53,7 +53,7 @@ public class EmailPasswordAuthenticator implements LoginAuthenticator {
 
             if (userResult == null || userResult.getCode() != 200 || userResult.getData() == null) {
                 log.error("用户不存在或查询失败: email={}, result={}", email, userResult);
-                throw new BusinessException(ResultCode.LOGIN_ERROR);
+                throw new BusinessException(ResultCode.LOGIN_ERROR_EMAIL);
             }
 
             UserDTO user = userResult.getData();
@@ -61,7 +61,7 @@ public class EmailPasswordAuthenticator implements LoginAuthenticator {
             // 验证密码（实际应该使用加密后的密码进行比对）
             if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
                 log.error("密码验证失败: email={}", email);
-                throw new BusinessException(ResultCode.LOGIN_ERROR);
+                throw new BusinessException(ResultCode.LOGIN_ERROR_EMAIL);
             }
 
             // 获取用户路由和权限代码
@@ -86,6 +86,9 @@ public class EmailPasswordAuthenticator implements LoginAuthenticator {
             }
             log.info("用户登录成功: username={}", username);
             return LoginResponseDTO.builder().token(tokenUuid).username(user.getUsername()).build();
+        } catch (BusinessException exception) {
+            log.error("登录异常: {}", exception.getMessage(), exception);
+            throw new BusinessException(ResultCode.LOGIN_ERROR_EMAIL);
         } catch (Exception e) {
             log.error("登录异常: {}", e.getMessage(), e);
             throw new BusinessException(ResultCode.FAIL);

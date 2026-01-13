@@ -1,14 +1,11 @@
 package com.cloudwaer.authentication.controller;
 
-import com.cloudwaer.admin.api.dto.RouteDTO;
-import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.authentication.dto.LoginRequestDTO;
 import com.cloudwaer.authentication.dto.LoginResponseDTO;
 import com.cloudwaer.authentication.service.AuthService;
 import com.cloudwaer.common.core.annotation.PermitAll;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
-import com.cloudwaer.common.core.util.SecurityContextUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,7 +53,7 @@ public class AuthController {
         LoginResponseDTO login = authService.login(loginRequest);
         if (login == null) {
             log.error("登录失败");
-            return Result.fail(ResultCode.FAIL.getCode(), ResultCode.FAIL.getMessage());
+            return Result.fail(ResultCode.LOGIN_ERROR_ACCOUNT.getCode(), ResultCode.LOGIN_ERROR_ACCOUNT.getMessage());
         }
         Map<String, Object> result = new HashMap<>();
         result.put("token", login.getToken()); // 只返回UUID包装的Token

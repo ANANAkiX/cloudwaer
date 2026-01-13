@@ -55,7 +55,11 @@ public enum ResultCode {
     /**
      * 用户名或密码错误
      */
-    LOGIN_ERROR(1001, "用户名或密码错误"),
+    LOGIN_ERROR_ACCOUNT(1001, "用户名或密码错误"),
+    /**
+     * 邮箱或密码错误
+     */
+    LOGIN_ERROR_EMAIL(1001, "邮箱或密码错误"),
 
     /**
      * Token过期

@@ -74,6 +74,37 @@ public class ApiScannerService {
     public void scanApis() {
         Set<Class<?>> controllerClasses = findControllerClasses();
         cachedApiList = apiScanner.scanControllers(controllerClasses);
+        applyServiceMeta(cachedApiList);
+    }
+
+    private void applyServiceMeta(List<ApiInfo> apis) {
+        if (apis == null || apis.isEmpty() || properties == null) {
+            return;
+        }
+        String serviceId = properties.getServiceId();
+        if (!StringUtils.hasText(serviceId)) {
+            return;
+        }
+        for (ApiInfo api : apis) {
+            api.setServiceId(serviceId);
+            api.setApiId(buildApiId(serviceId, api));
+        }
+    }
+
+    private String buildApiId(String serviceId, ApiInfo api) {
+        StringBuilder builder = new StringBuilder();
+        builder.append(serviceId)
+            .append(":")
+            .append(api.getMethod())
+            .append(":")
+            .append(api.getFullPath());
+        if (StringUtils.hasText(api.getClassName()) || StringUtils.hasText(api.getMethodName())) {
+            builder.append(":")
+                .append(api.getClassName())
+                .append("#")
+                .append(api.getMethodName());
+        }
+        return builder.toString();
     }
 
     /**
@@ -163,4 +194,3 @@ public class ApiScannerService {
         return false;
     }
 }
-

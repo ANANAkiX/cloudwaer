@@ -2,6 +2,7 @@ package com.cloudwaer.common.scanner.dto;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -12,6 +13,7 @@ import java.io.Serializable;
 @Data
 public class ApiInfo implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     /**
@@ -38,6 +40,10 @@ public class ApiInfo implements Serializable {
      * 类名称
      */
     private String className;
+
+    private String serviceId;
+
+    private String apiId;
 
     /**
      * 描述（从@Operation或注释中获取）

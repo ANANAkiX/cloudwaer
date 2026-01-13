@@ -1,6 +1,5 @@
 package com.cloudwaer.authentication.authenticator.impl;
 
-import com.cloudwaer.admin.api.dto.RouteDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.api.feign.AdminFeignClient;
 import com.cloudwaer.authentication.authenticator.LoginAuthenticator;
@@ -13,14 +12,11 @@ import com.cloudwaer.common.core.result.ResultCode;
 import com.cloudwaer.common.core.service.TokenService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 效基于账号+密码的登录认证器。
@@ -66,7 +62,7 @@ public class AccountPasswordAuthenticator implements LoginAuthenticator {
 
             if (userResult == null || userResult.getCode() != 200 || userResult.getData() == null) {
                 log.error("用户不存在或查询失败: username={}, result={}", username, userResult);
-                throw new BusinessException(ResultCode.LOGIN_ERROR);
+                throw new BusinessException(ResultCode.LOGIN_ERROR_ACCOUNT);
             }
 
             UserDTO user = userResult.getData();
@@ -74,7 +70,7 @@ public class AccountPasswordAuthenticator implements LoginAuthenticator {
             // 验证密码（实际应该使用加密后的密码进行比对）
             if (user.getPassword() == null || !passwordEncoder.matches(password, user.getPassword())) {
                 log.error("密码验证失败: username={}", username);
-                throw new BusinessException(ResultCode.LOGIN_ERROR);
+                throw new BusinessException(ResultCode.LOGIN_ERROR_ACCOUNT);
             }
 
             // 获取用户路由和权限代码
@@ -99,6 +95,9 @@ public class AccountPasswordAuthenticator implements LoginAuthenticator {
             }
             log.info("用户登录成功: username={}", username);
             return LoginResponseDTO.builder().token(tokenUuid).username(username).build();
+        } catch (BusinessException exception) {
+            log.error("登录异常: {}", exception.getMessage(), exception);
+            throw new BusinessException(ResultCode.LOGIN_ERROR_ACCOUNT);
         } catch (Exception e) {
             log.error("登录异常: {}", e.getMessage(), e);
             throw new BusinessException(ResultCode.FAIL);
