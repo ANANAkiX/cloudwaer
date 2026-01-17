@@ -12,8 +12,11 @@ import com.cloudwaer.flowable.serve.mapper.WfTaskExtMapper;
 import com.cloudwaer.flowable.serve.service.FlowableTaskService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
+import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -41,6 +44,9 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
     private RepositoryService repositoryService;
 
     @Autowired
+    private RuntimeService runtimeService;
+
+    @Autowired
     private WfTaskExtMapper taskExtMapper;
 
     @Override
@@ -65,6 +71,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setStatus("TODO");
@@ -96,6 +103,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setEndTime(toLocalDateTime(task.getEndTime()));
@@ -143,6 +151,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setStatus("TODO");
@@ -161,6 +170,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         dto.setTaskDefinitionKey(historic.getTaskDefinitionKey());
         dto.setProcessInstanceId(historic.getProcessInstanceId());
         dto.setProcessDefinitionKey(resolveProcessDefinitionKey(historic.getProcessDefinitionId()));
+        dto.setBusinessKey(resolveBusinessKey(historic.getProcessInstanceId()));
         dto.setAssignee(historic.getAssignee());
         dto.setCreateTime(toLocalDateTime(historic.getCreateTime()));
         dto.setEndTime(toLocalDateTime(historic.getEndTime()));
@@ -204,5 +214,21 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
                 .processDefinitionId(processDefinitionId)
                 .singleResult();
         return definition == null ? processDefinitionId : definition.getKey();
+    }
+
+    private String resolveBusinessKey(String processInstanceId) {
+        if (processInstanceId == null || processInstanceId.isBlank()) {
+            return null;
+        }
+        ProcessInstance runtimeInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        if (runtimeInstance != null) {
+            return runtimeInstance.getBusinessKey();
+        }
+        HistoricProcessInstance historicInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        return historicInstance != null ? historicInstance.getBusinessKey() : null;
     }
 }

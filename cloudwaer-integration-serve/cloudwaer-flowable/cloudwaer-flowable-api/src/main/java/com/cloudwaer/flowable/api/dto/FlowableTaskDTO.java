@@ -15,6 +15,7 @@ public class FlowableTaskDTO implements Serializable {
     private String taskDefinitionKey;
     private String processInstanceId;
     private String processDefinitionKey;
+    private String businessKey;
     private String assignee;
     private LocalDateTime createTime;
     private LocalDateTime endTime;

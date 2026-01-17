@@ -10,20 +10,25 @@ import com.cloudwaer.flowable.api.dto.FlowableProcessStartDTO;
 import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
 import com.cloudwaer.flowable.serve.entity.WfModel;
 import com.cloudwaer.flowable.serve.entity.WfProcessExt;
+import com.cloudwaer.flowable.serve.entity.WfNodeAction;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.mapper.WfNodeActionMapper;
 import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
 import com.cloudwaer.flowable.serve.service.FlowableProcessService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.IdentityService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
+import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.engine.task.Comment;
 import org.flowable.task.api.history.HistoricTaskInstance;
 import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +57,9 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
     private RepositoryService repositoryService;
 
     @Autowired
+    private TaskService taskService;
+
+    @Autowired
     private WfProcessExtMapper processExtMapper;
 
     @Autowired
@@ -59,6 +67,9 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
     @Autowired
     private WfNodeActionMapper wfNodeActionMapper;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -538,46 +549,227 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
     @Override
     public List<Map<String, Object>> getProcessHistory(String processInstanceId) {
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        String processDefinitionKey = processInstance != null ? processInstance.getProcessDefinitionKey() : null;
+        if (processInstance != null && processInstance.getStartTime() != null) {
+            result.add(buildHistoryItem(
+                    processInstance.getId() + "_start",
+                    "系统",
+                    "创建流程",
+                    processInstance.getStartTime(),
+                    null,
+                    "start",
+                    "",
+                    ""
+            ));
+        }
+
         // 获取历史任务
         List<HistoricTaskInstance> historicTasks = historyService.createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .orderByHistoricTaskInstanceStartTime()
                 .asc()
                 .list();
-        
-        List<Map<String, Object>> result = new ArrayList<>();
+
         for (HistoricTaskInstance task : historicTasks) {
-            Map<String, Object> taskMap = new HashMap<>();
-            taskMap.put("id", task.getId());
-            taskMap.put("userName", task.getAssignee() != null ? task.getAssignee() : "未分配");
-            taskMap.put("action", task.getName());
-            taskMap.put("time", toLocalDateTime(task.getStartTime()));
-            taskMap.put("endTime", toLocalDateTime(task.getEndTime()));
-            taskMap.put("duration", task.getDurationInMillis() != null ? task.getDurationInMillis() + "ms" : "");
-            taskMap.put("comment", task.getDescription() != null ? task.getDescription() : "");
-            result.add(taskMap);
+            String assignee = task.getAssignee();
+            if (assignee == null || assignee.isBlank()) {
+                assignee = resolveAssigneeFromNodeConfig(processDefinitionKey, task.getTaskDefinitionKey());
+            }
+            if (assignee == null || assignee.isBlank()) {
+                assignee = "未分配";
+            }
+
+            if (task.getStartTime() != null) {
+                result.add(buildHistoryItem(
+                        task.getId() + "_wait",
+                        "系统",
+                        "等待" + assignee + "处理",
+                        task.getStartTime(),
+                        null,
+                        "wait",
+                        "",
+                        ""
+                ));
+            }
+
+            if (task.getEndTime() != null) {
+                String approvalResult = resolveApprovalResult(processInstanceId, task.getEndTime());
+                String resultText = formatApprovalResult(approvalResult);
+                String comment = getLatestTaskComment(task.getId());
+                String action = "已处理 处理结果: " + resultText;
+                String commentText = comment == null || comment.isBlank() ? "" : "处理意见: " + comment;
+                String type = resolveResultType(approvalResult);
+
+                result.add(buildHistoryItem(
+                        task.getId() + "_complete",
+                        assignee,
+                        action,
+                        task.getEndTime(),
+                        task.getEndTime(),
+                        type,
+                        commentText,
+                        task.getDurationInMillis() != null ? task.getDurationInMillis() + "ms" : ""
+                ));
+            }
         }
-        
-        // 获取历史活动实例
-        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery()
-                .processInstanceId(processInstanceId)
-                .orderByHistoricActivityInstanceStartTime()
-                .asc()
-                .list();
-        
-        for (HistoricActivityInstance activity : activities) {
-            Map<String, Object> activityMap = new HashMap<>();
-            activityMap.put("id", activity.getId());
-            activityMap.put("userName", activity.getAssignee() != null ? activity.getAssignee() : "系统");
-            activityMap.put("action", activity.getActivityName());
-            activityMap.put("time", toLocalDateTime(activity.getStartTime()));
-            activityMap.put("endTime", toLocalDateTime(activity.getEndTime()));
-            activityMap.put("duration", activity.getDurationInMillis() != null ? activity.getDurationInMillis() + "ms" : "");
-            activityMap.put("comment", "");
-            result.add(activityMap);
+
+        if (processInstance != null && processInstance.getEndTime() != null) {
+            result.add(buildHistoryItem(
+                    processInstance.getId() + "_end",
+                    "系统",
+                    "结束流程",
+                    processInstance.getEndTime(),
+                    processInstance.getEndTime(),
+                    "end",
+                    "",
+                    ""
+            ));
         }
-        
+
+        result.sort((a, b) -> {
+            LocalDateTime ta = (LocalDateTime) a.get("time");
+            LocalDateTime tb = (LocalDateTime) b.get("time");
+            if (ta == null && tb == null) return 0;
+            if (ta == null) return 1;
+            if (tb == null) return -1;
+            return ta.compareTo(tb);
+        });
+
         return result;
+    }
+
+    private Map<String, Object> buildHistoryItem(String id, String userName, String action, Date time, Date endTime,
+                                                 String type, String comment, String duration) {
+        Map<String, Object> item = new HashMap<>();
+        item.put("id", id);
+        item.put("userName", userName);
+        item.put("action", action);
+        item.put("time", toLocalDateTime(time));
+        item.put("endTime", toLocalDateTime(endTime));
+        item.put("duration", duration != null ? duration : "");
+        item.put("comment", comment != null ? comment : "");
+        item.put("type", type);
+        return item;
+    }
+
+    private String resolveApprovalResult(String processInstanceId, Date taskEndTime) {
+        if (taskEndTime == null) {
+            return null;
+        }
+        List<HistoricVariableInstance> variables = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableName("approvalResult")
+                .list();
+        if (variables == null || variables.isEmpty()) {
+            return null;
+        }
+        HistoricVariableInstance candidate = null;
+        for (HistoricVariableInstance variable : variables) {
+            if (variable.getCreateTime() == null) {
+                continue;
+            }
+            if (variable.getCreateTime().after(taskEndTime)) {
+                continue;
+            }
+            if (candidate == null || variable.getCreateTime().after(candidate.getCreateTime())) {
+                candidate = variable;
+            }
+        }
+        return candidate != null && candidate.getValue() != null ? String.valueOf(candidate.getValue()) : null;
+    }
+
+    private String resolveAssigneeFromNodeConfig(String processDefinitionKey, String taskDefinitionKey) {
+        if (processDefinitionKey == null || taskDefinitionKey == null) {
+            return null;
+        }
+        WfModel wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
+                .eq(WfModel::getModelKey, processDefinitionKey)
+                .orderByDesc(WfModel::getVersion)
+                .last("LIMIT 1"));
+        if (wfModel == null) {
+            return null;
+        }
+        WfNodeAction nodeAction = wfNodeActionMapper.selectOne(
+                new LambdaQueryWrapper<WfNodeAction>()
+                        .eq(WfNodeAction::getModelKey, processDefinitionKey)
+                        .eq(WfNodeAction::getModelVersion, wfModel.getVersion())
+                        .eq(WfNodeAction::getNodeId, taskDefinitionKey)
+                        .in(WfNodeAction::getActionType, "assign", "user_task", "task")
+                        .eq(WfNodeAction::getEnabled, 1)
+                        .last("LIMIT 1")
+        );
+        if (nodeAction == null || nodeAction.getActionConfig() == null) {
+            return null;
+        }
+        return parseAssignee(nodeAction.getActionConfig());
+    }
+
+    private String parseAssignee(String actionConfig) {
+        try {
+            JsonNode root = objectMapper.readTree(actionConfig);
+            if (root != null && root.isObject()) {
+                JsonNode assigneeNode = root.get("assignee");
+                if (assigneeNode != null && !assigneeNode.isNull()) {
+                    String text = assigneeNode.asText();
+                    return text != null && !text.isBlank() ? text : null;
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        return actionConfig != null && !actionConfig.isBlank() ? actionConfig : null;
+    }
+
+    private String getLatestTaskComment(String taskId) {
+        try {
+            List<Comment> comments = taskService.getTaskComments(taskId);
+            if (comments == null || comments.isEmpty()) {
+                return null;
+            }
+            Comment last = comments.get(comments.size() - 1);
+            if (last.getFullMessage() != null && !last.getFullMessage().isBlank()) {
+                return last.getFullMessage();
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String formatApprovalResult(String result) {
+        if (result == null || result.isBlank()) {
+            return "未填写";
+        }
+        switch (result) {
+            case "approve":
+            case "approved":
+                return "同意";
+            case "reject":
+            case "rejected":
+                return "拒绝";
+            default:
+                return result;
+        }
+    }
+
+    private String resolveResultType(String result) {
+        if (result == null) {
+            return "complete";
+        }
+        switch (result) {
+            case "approve":
+            case "approved":
+                return "approve";
+            case "reject":
+            case "rejected":
+                return "reject";
+            default:
+                return "complete";
+        }
     }
     
     /**

@@ -1,8 +1,11 @@
 package com.cloudwaer.flowable.serve.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
 import com.cloudwaer.flowable.serve.entity.WfModel;
+import com.cloudwaer.flowable.serve.entity.WfProcessExt;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
+import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -20,11 +23,16 @@ import org.flowable.engine.repository.ProcessDefinition;
 public class FlowableExecutionListener implements ExecutionListener {
 
     private WfModelMapper wfModelMapper;
+    private WfProcessExtMapper processExtMapper;
     private RepositoryService repositoryService;
 
     // Setter方法用于依赖注入
     public void setWfModelMapper(WfModelMapper wfModelMapper) {
         this.wfModelMapper = wfModelMapper;
+    }
+
+    public void setProcessExtMapper(WfProcessExtMapper processExtMapper) {
+        this.processExtMapper = processExtMapper;
     }
 
     public void setRepositoryService(RepositoryService repositoryService) {
@@ -117,9 +125,19 @@ public class FlowableExecutionListener implements ExecutionListener {
                     .last("LIMIT 1"));
             
             log.info("查询到的流程模型: {}", wfModel);
-            
-            // 这里可以添加流程结束时的自定义逻辑
-            // 例如：清理数据、发送完成通知、更新统计信息等
+
+            if (processExtMapper != null) {
+                WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
+                        .eq(WfProcessExt::getProcessInstanceId, execution.getProcessInstanceId()));
+                if (ext != null) {
+                    ext.setStatus(ProcessStatusEnum.COMPLETED.getCode());
+                    processExtMapper.updateById(ext);
+                } else {
+                    log.warn("未找到流程扩展信息: processInstanceId={}", execution.getProcessInstanceId());
+                }
+            }
+
+            // 这里可以添加流程结束时的其他自定义逻辑
             
             log.info("=== 流程结束事件处理完成 ===");
             
