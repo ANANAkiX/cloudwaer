@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequestMapping("/model")
@@ -40,6 +41,12 @@ public class FlowableModelController {
     @Operation(summary = "Model list")
     public Result<PageResult<FlowableModelListDTO>> list(PageDTO pageDTO) {
         return Result.success(modelService.list(pageDTO));
+    }
+
+    @GetMapping("/versions")
+    @Operation(summary = "Model versions")
+    public Result<List<FlowableModelListDTO>> versions(@RequestParam String modelKey) {
+        return Result.success(modelService.listVersions(modelKey));
     }
 
     @PostMapping("/publish")

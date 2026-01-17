@@ -63,6 +63,14 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
                         .eq(WfModel::getModelStatus, 1)); // 1表示已发布
 
                 if (wfModel == null) {
+                    wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
+                            .eq(WfModel::getModelKey, pd.getKey())
+                            .eq(WfModel::getModelStatus, 1)
+                            .orderByDesc(WfModel::getVersion)
+                            .last("limit 1"));
+                }
+
+                if (wfModel == null) {
                     continue; // 只显示已发布模型的流程定义
                 }
 
@@ -72,7 +80,8 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
                 dto.setProcessName(pd.getName());
                 dto.setCategory(pd.getCategory());
                 dto.setVersion(pd.getVersion());
-                dto.setDescription(pd.getDescription());
+                String remark = wfModel.getRemark();
+                dto.setDescription(remark != null && !remark.isBlank() ? remark : pd.getDescription());
 
                 // 转换时间
                 if (pd.getDeploymentId() != null) {
@@ -125,7 +134,19 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
             dto.setProcessName(processDefinition.getName());
             dto.setCategory(processDefinition.getCategory());
             dto.setVersion(processDefinition.getVersion());
-            dto.setDescription(processDefinition.getDescription());
+            WfModel wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
+                    .eq(WfModel::getModelKey, processDefinition.getKey())
+                    .eq(WfModel::getVersion, processDefinition.getVersion())
+                    .eq(WfModel::getModelStatus, 1));
+            if (wfModel == null) {
+                wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
+                        .eq(WfModel::getModelKey, processDefinition.getKey())
+                        .eq(WfModel::getModelStatus, 1)
+                        .orderByDesc(WfModel::getVersion)
+                        .last("limit 1"));
+            }
+            String remark = wfModel != null ? wfModel.getRemark() : null;
+            dto.setDescription(remark != null && !remark.isBlank() ? remark : processDefinition.getDescription());
             
             // 转换时间
             if (processDefinition.getDeploymentId() != null) {

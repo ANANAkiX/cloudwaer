@@ -1,17 +1,11 @@
 package com.cloudwaer.flowable.serve.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
-import com.cloudwaer.flowable.api.dto.FlowableModelCopyDTO;
-import com.cloudwaer.flowable.api.dto.FlowableModelDetailDTO;
-import com.cloudwaer.flowable.api.dto.FlowableModelListDTO;
-import com.cloudwaer.flowable.api.dto.FlowableModelRollbackDTO;
-import com.cloudwaer.flowable.api.dto.FlowableModelSaveDTO;
-import com.cloudwaer.flowable.api.dto.FlowableNodeActionDTO;
+import com.cloudwaer.flowable.api.dto.*;
 import com.cloudwaer.flowable.serve.constant.FlowableConstants;
 import com.cloudwaer.flowable.serve.entity.WfDeployment;
 import com.cloudwaer.flowable.serve.entity.WfModel;
@@ -104,7 +98,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
             newModel.setModelName(dto.getModelName());
             newModel.setCategory(dto.getCategory());
             newModel.setRemark(dto.getRemark());
-            newModel.setVersion(model.getVersion() + 1);
+            newModel.setVersion(resolveNextVersion(model.getModelKey()));
             newModel.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
             newModel.setBpmnXml(dto.getBpmnXml());
             newModel.setNodeActionsJson(toJson(dto.getNodeActions()));
@@ -130,7 +124,6 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 
     @Override
     public PageResult<FlowableModelListDTO> list(PageDTO pageDTO) {
-        Page<WfModel> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
         LambdaQueryWrapper<WfModel> wrapper = new LambdaQueryWrapper<>();
         // 移除状态过滤，显示所有模型（草稿、已发布、已归档）
         // wrapper.eq(WfModel::getStatus, 1);
@@ -138,15 +131,47 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
             wrapper.and(w -> w.like(WfModel::getModelName, pageDTO.getKeyword())
                     .or().like(WfModel::getModelKey, pageDTO.getKeyword()));
         }
-        wrapper.orderByDesc(WfModel::getUpdateTime);
-        Page<WfModel> result = this.page(page, wrapper);
+        wrapper.orderByDesc(WfModel::getUpdateTime).orderByDesc(WfModel::getVersion);
+        List<WfModel> models = this.list(wrapper);
+        List<WfModel> latestModels = new ArrayList<>();
+        java.util.Set<String> seenKeys = new java.util.HashSet<>();
+        for (WfModel model : models) {
+            if (model.getModelKey() == null) {
+                continue;
+            }
+            if (seenKeys.add(model.getModelKey())) {
+                latestModels.add(model);
+            }
+        }
+
+        long total = latestModels.size();
+        int start = (int) ((pageDTO.getCurrent() - 1) * pageDTO.getSize());
+        int end = Math.toIntExact(Math.min(start + pageDTO.getSize(), latestModels.size()));
+        List<WfModel> pageModels = start < end ? latestModels.subList(start, end) : new ArrayList<>();
         List<FlowableModelListDTO> records = new ArrayList<>();
-        for (WfModel model : result.getRecords()) {
+        for (WfModel model : pageModels) {
             FlowableModelListDTO dto = new FlowableModelListDTO();
             BeanUtils.copyProperties(model, dto);
             records.add(dto);
         }
-        return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize());
+        return new PageResult<>(records, total, pageDTO.getCurrent(), pageDTO.getSize());
+    }
+
+    @Override
+    public List<FlowableModelListDTO> listVersions(String modelKey) {
+        if (modelKey == null || modelKey.isBlank()) {
+            throw new BusinessException("modelKey is required");
+        }
+        List<WfModel> models = this.list(new LambdaQueryWrapper<WfModel>()
+                .eq(WfModel::getModelKey, modelKey)
+                .orderByDesc(WfModel::getVersion));
+        List<FlowableModelListDTO> records = new ArrayList<>();
+        for (WfModel model : models) {
+            FlowableModelListDTO dto = new FlowableModelListDTO();
+            BeanUtils.copyProperties(model, dto);
+            records.add(dto);
+        }
+        return records;
     }
 
     @Override
@@ -155,6 +180,11 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         WfModel model = this.getById(id);
         if (model == null) {
             throw new BusinessException("model not found");
+        }
+        String bpmnXml = ensureExecutableXml(model.getBpmnXml());
+        if (bpmnXml != null && !bpmnXml.equals(model.getBpmnXml())) {
+            model.setBpmnXml(bpmnXml);
+            this.updateById(model);
         }
         Deployment deployment = repositoryService.createDeployment()
                 .name(model.getModelName())
@@ -173,7 +203,8 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         modelWrapper.eq(WfModel::getModelKey, model.getModelKey());
         List<WfModel> models = this.list(modelWrapper);
         for (WfModel item : models) {
-            if (!item.getId().equals(model.getId())) {
+            if (!item.getId().equals(model.getId())
+                    && Objects.equals(item.getModelStatus(), FlowableConstants.MODEL_STATUS_RELEASED)) {
                 item.setModelStatus(FlowableConstants.MODEL_STATUS_ARCHIVED);
                 this.updateById(item);
             }
@@ -255,12 +286,22 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         }
         WfModel model = this.getOne(new LambdaQueryWrapper<WfModel>()
                 .eq(WfModel::getModelKey, dto.getModelKey())
-                .eq(WfModel::getVersion, dto.getVersion())
-                .eq(WfModel::getModelStatus, 1));
+                .eq(WfModel::getVersion, dto.getVersion()));
         if (model == null) {
             throw new BusinessException("target model not found");
         }
-        return publish(model.getId());
+        WfModel newModel = new WfModel();
+        newModel.setModelKey(model.getModelKey());
+        newModel.setModelName(model.getModelName());
+        newModel.setCategory(model.getCategory());
+        newModel.setRemark(model.getRemark());
+        newModel.setVersion(resolveNextVersion(model.getModelKey()));
+        newModel.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
+        newModel.setBpmnXml(model.getBpmnXml());
+        newModel.setNodeActionsJson(model.getNodeActionsJson());
+        this.save(newModel);
+        copyNodeActions(model.getId(), newModel);
+        return true;
     }
 
     @Override
@@ -339,6 +380,42 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
             return objectMapper.writeValueAsString(actions);
         } catch (JsonProcessingException e) {
             throw new BusinessException("nodeActions json invalid");
+        }
+    }
+
+    private String ensureExecutableXml(String xml) {
+        if (xml == null || xml.isBlank()) {
+            return xml;
+        }
+        String cleaned = xml.replaceAll("(<(bpmn:)?process\\b[^>]*?)\\s+isExecutable=\"[^\"]*\"", "$1");
+        if (!cleaned.equals(xml)) {
+            return cleaned.replaceFirst("(<(bpmn:)?process\\b[^>]*)(>)", "$1 isExecutable=\"true\"$3");
+        }
+        return xml.replaceFirst("(<(bpmn:)?process\\b[^>]*)(>)", "$1 isExecutable=\"true\"$3");
+    }
+
+    private int resolveNextVersion(String modelKey) {
+        WfModel latest = this.getOne(new LambdaQueryWrapper<WfModel>()
+                .eq(WfModel::getModelKey, modelKey)
+                .orderByDesc(WfModel::getVersion)
+                .last("limit 1"));
+        if (latest == null || latest.getVersion() == null) {
+            return 1;
+        }
+        return latest.getVersion() + 1;
+    }
+
+    private void copyNodeActions(Long sourceId, WfModel target) {
+        List<WfNodeAction> actions = nodeActionMapper.selectList(new LambdaQueryWrapper<WfNodeAction>()
+                .eq(WfNodeAction::getModelId, sourceId)
+                .eq(WfNodeAction::getEnabled, 1));
+        for (WfNodeAction action : actions) {
+            WfNodeAction copy = new WfNodeAction();
+            BeanUtils.copyProperties(action, copy, "id");
+            copy.setModelId(target.getId());
+            copy.setModelKey(target.getModelKey());
+            copy.setModelVersion(target.getVersion());
+            nodeActionMapper.insert(copy);
         }
     }
 }

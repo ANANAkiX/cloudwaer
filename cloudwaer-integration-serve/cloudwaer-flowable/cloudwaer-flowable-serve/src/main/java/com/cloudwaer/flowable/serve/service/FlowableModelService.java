@@ -7,6 +7,7 @@ import com.cloudwaer.flowable.api.dto.FlowableModelDetailDTO;
 import com.cloudwaer.flowable.api.dto.FlowableModelListDTO;
 import com.cloudwaer.flowable.api.dto.FlowableModelRollbackDTO;
 import com.cloudwaer.flowable.api.dto.FlowableModelSaveDTO;
+import java.util.List;
 
 public interface FlowableModelService {
 
@@ -15,6 +16,8 @@ public interface FlowableModelService {
     FlowableModelDetailDTO getDetail(Long id);
 
     PageResult<FlowableModelListDTO> list(PageDTO pageDTO);
+
+    List<FlowableModelListDTO> listVersions(String modelKey);
 
     boolean publish(Long id);
 
