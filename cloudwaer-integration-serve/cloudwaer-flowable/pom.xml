@@ -7,24 +7,27 @@
 
     <parent>
         <groupId>com.cloudwaer</groupId>
-        <artifactId>cloudwaer</artifactId>
+        <artifactId>cloudwaer-integration-serve</artifactId>
         <version>${revision}</version>
     </parent>
 
-    <artifactId>cloudwaer-integration-serve</artifactId>
+    <artifactId>cloudwaer-flowable</artifactId>
     <packaging>pom</packaging>
-
-    <name>cloudwaer-integration-serve</name>
-    <description>集成服务（支付、短信、邮件等）</description>
+    <name>cloudwaer-flowable</name>
+    <description>Flowable integration module</description>
 
     <modules>
-        <module>cloudwaer-codegen</module>
-        <module>cloudwaer-flowable</module>
+        <module>cloudwaer-flowable-api</module>
+        <module>cloudwaer-flowable-serve</module>
     </modules>
+
+    <properties>
+        <flowable.version>7.0.1</flowable.version>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- 版本管理模块 -->
+            <!-- Version management module -->
             <dependency>
                 <groupId>com.cloudwaer</groupId>
                 <artifactId>cloudwaer-common-version</artifactId>
@@ -32,10 +35,14 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <!-- Flowable BOM -->
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-bom</artifactId>
+                <version>${flowable.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-
 </project>
-
-

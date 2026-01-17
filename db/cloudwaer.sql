@@ -1,4 +1,4 @@
-/*
+﻿/*
  Navicat Premium Dump SQL
 
  Source Server         : 本地my_sql
@@ -392,4 +392,56 @@ INSERT INTO `sys_user_role` VALUES (2, 2, 1, '2025-11-20 02:28:41', NULL, '2025-
 INSERT INTO `sys_user_role` VALUES (1991967599781089282, 1, 1, '2025-11-22 04:30:59', NULL, '2025-11-22 04:30:59', NULL, 1);
 INSERT INTO `sys_user_role` VALUES (2008296925178875906, 1992208936665325569, 2, '2026-01-06 05:57:54', NULL, '2026-01-06 05:57:54', NULL, 1);
 
+
+-- ----------------------------
+-- Flowable gateway route
+-- ----------------------------
+INSERT INTO `sys_gateway_route` VALUES (2009000000000000001, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{"name":"Path","args":{"pattern":"/flowable/**"}}]', NULL, 0, '流程服务的网关转发配置', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+
+-- ----------------------------
+-- Flowable permissions
+-- ----------------------------
+INSERT INTO `sys_permission` VALUES (2009000000000000100, 'flowable', '流程管理', 1, NULL, NULL, 200, 'Share', '流程管理菜单', NULL, NULL, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000000110, 'flowable:model', '流程设计', 1, '/flowable/Modeler', 2009000000000000100, 1, 'EditPen', '流程设计页面', NULL, NULL, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000000120, 'flowable:process', '流程实例', 1, '/flowable/Process', 2009000000000000100, 2, 'List', '流程实例页面', NULL, NULL, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000000130, 'flowable:task', '流程任务', 1, '/flowable/Task', 2009000000000000100, 3, 'Check', '流程任务页面', NULL, NULL, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+
+INSERT INTO `sys_permission` VALUES (2009000000000001001, 'flowable:model:list', '模型列表', 3, NULL, 2009000000000000110, 10, NULL, '查询模型列表', '/flowable/model/list', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001002, 'flowable:model:detail', '模型详情', 3, NULL, 2009000000000000110, 11, NULL, '查询模型详情', '/flowable/model/detail', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001003, 'flowable:model:save', '保存模型', 3, NULL, 2009000000000000110, 12, NULL, '保存模型', '/flowable/model/save', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001004, 'flowable:model:publish', '发布模型', 3, NULL, 2009000000000000110, 13, NULL, '发布模型', '/flowable/model/publish', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001005, 'flowable:model:copy', '复制模型', 3, NULL, 2009000000000000110, 14, NULL, '复制模型', '/flowable/model/copy', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001006, 'flowable:model:rollback', '回滚模型', 3, NULL, 2009000000000000110, 15, NULL, '回滚模型', '/flowable/model/rollback', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001007, 'flowable:model:bpmn', '获取BPMN', 3, NULL, 2009000000000000110, 16, NULL, '获取BPMN', '/flowable/model/bpmn', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+
+INSERT INTO `sys_permission` VALUES (2009000000000001101, 'flowable:process:start', '启动流程', 3, NULL, 2009000000000000120, 10, NULL, '启动流程', '/flowable/process/start', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001102, 'flowable:process:started', '我发起的流程', 3, NULL, 2009000000000000120, 11, NULL, '我发起的流程', '/flowable/process/started', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+
+INSERT INTO `sys_permission` VALUES (2009000000000001201, 'flowable:task:todo', '待办任务', 3, NULL, 2009000000000000130, 10, NULL, '待办任务', '/flowable/task/todo', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001202, 'flowable:task:done', '已办任务', 3, NULL, 2009000000000000130, 11, NULL, '已办任务', '/flowable/task/done', 'GET', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001203, 'flowable:task:claim', '领取任务', 3, NULL, 2009000000000000130, 12, NULL, '领取任务', '/flowable/task/claim', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2009000000000001204, 'flowable:task:complete', '完成任务', 3, NULL, 2009000000000000130, 13, NULL, '完成任务', '/flowable/task/complete', 'POST', '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+
+-- ----------------------------
+-- Flowable role permissions (role_id=1)
+-- ----------------------------
+INSERT INTO `sys_role_permission` VALUES (2009000000000100001, 1, 2009000000000000100, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100002, 1, 2009000000000000110, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100003, 1, 2009000000000000120, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100004, 1, 2009000000000000130, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100005, 1, 2009000000000001001, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100006, 1, 2009000000000001002, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100007, 1, 2009000000000001003, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100008, 1, 2009000000000001004, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100009, 1, 2009000000000001005, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100010, 1, 2009000000000001006, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100011, 1, 2009000000000001007, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100012, 1, 2009000000000001101, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100013, 1, 2009000000000001102, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100014, 1, 2009000000000001201, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100015, 1, 2009000000000001202, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100016, 1, 2009000000000001203, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2009000000000100017, 1, 2009000000000001204, '2026-01-14 00:00:00', NULL, '2026-01-14 00:00:00', NULL, 1);
 SET FOREIGN_KEY_CHECKS = 1;
+
+

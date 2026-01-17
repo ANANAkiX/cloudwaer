@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xmlns:flowable="http://flowable.org/bpmn"
+             targetNamespace="http://www.flowable.org/processdef">
+
+  <process id="test-process-1" name="测试流程1" isExecutable="true">
+    
+    <!-- 开始事件 -->
+    <startEvent id="startEvent1" name="开始">
+    </startEvent>
+    
+    <!-- 用户任务1 -->
+    <userTask id="userTask1" name="用户任务1" flowable:assignee="${userTask1_assignee}">
+      <extensionElements>
+        <flowable:taskListener event="create" delegateExpression="${flowableTaskListener}"/>
+      </extensionElements>
+    </userTask>
+    
+    <!-- 用户任务2 -->
+    <userTask id="userTask2" name="用户任务2" flowable:assignee="${userTask2_assignee}">
+      <extensionElements>
+        <flowable:taskListener event="create" delegateExpression="${flowableTaskListener}"/>
+      </extensionElements>
+    </userTask>
+    
+    <!-- 结束事件 -->
+    <endEvent id="endEvent1" name="结束">
+    </endEvent>
+    
+    <!-- 流程连线 -->
+    <sequenceFlow id="flow1" sourceRef="startEvent1" targetRef="userTask1"></sequenceFlow>
+    <sequenceFlow id="flow2" sourceRef="userTask1" targetRef="userTask2"></sequenceFlow>
+    <sequenceFlow id="flow3" sourceRef="userTask2" targetRef="endEvent1"></sequenceFlow>
+    
+  </process>
+  
+</definitions>

@@ -1,6 +1,8 @@
+server:
+  port: 4343
 spring:
   application:
-    name: cloudwaer-admin-serve
+    name: cloudwaer-flowable-serve
   profiles:
     active: dev
   cloud:
@@ -17,6 +19,7 @@ spring:
             group: DEFAULT_GROUP
             refresh: true
           # 加载服务特定配置文件
-          - data-id: application-cloudwaer-admin-serve-dev.yml
+          - data-id: application-cloudwaer-flowable-serve-dev.yml
             group: DEFAULT_GROUP
             refresh: true
+

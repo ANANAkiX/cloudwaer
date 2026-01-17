@@ -1,4 +1,4 @@
-/*
+﻿/*
  Navicat Premium Dump SQL
 
  Source Server         : 本地my_sql
@@ -56,6 +56,7 @@ INSERT INTO `config_info` VALUES (7, 'application-cloudwaer-gateway-dev.yml', 'D
 INSERT INTO `config_info` VALUES (8, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin', '89c100afec11c88baf208d34a48755cf', '2025-11-22 04:17:06', '2025-11-22 04:23:40', 'nacos_namespace_migrate', '0:0:0:0:0:0:0:1', '', '', '', NULL, NULL, 'yaml', NULL, '');
 INSERT INTO `config_info` VALUES (9, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', '9a04b5aae9e02f5938c54deee0dfc6e7', '2026-01-07 07:37:37', '2026-01-07 07:37:37', 'nacos_namespace_migrate', '0:0:0:0:0:0:0:1', '', '', '', NULL, NULL, 'yaml', NULL, '');
 
+INSERT INTO `config_info` VALUES (10, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\\n  datasource:\\n    driver-class-name: com.mysql.cj.jdbc.Driver\\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\\n    username: root\\n    password: root\\n\\nflowable:\\n  database-schema-update: true\\n  async-executor-activate: false\\n  idm:\\n    enabled: false\\n\\nmybatis-plus:\\n  mapper-locations: classpath*:mapper/**/*.xml\\n  type-aliases-package: com.cloudwaer.**.entity\\n  configuration:\\n    map-underscore-to-camel-case: true\\n\\ncloudwaer:\\n  swagger:\\n    title: Flowable流程服务API\\n    version: 1.0\\n    description: Flowable流程服务的API文档\\n  api-scanner:\\n    enabled: true\\n    service-id: cloudwaer-flowable-serve\\n    exclude-methods:\\n      - error\\n      - health\\n    exclude-paths:\\n      - /actuator/**\\n      - /error\\n      - /swagger-ui/**\\n      - /v3/api-docs/**\\n    base-packages:\\n      - com.cloudwaer.flowable\\n\\nserver:\\n  port: 4344', '93991a90e16a0d23920335b96c8c01fe', '2026-01-13 00:00:00', '2026-01-13 00:00:00', 'nacos', '0:0:0:0:0:0:0:1', '', 'public', 'Flowable服务配置', NULL, NULL, 'yaml', NULL, '');
 -- ----------------------------
 -- Table structure for config_info_gray
 -- ----------------------------
@@ -262,3 +263,9 @@ CREATE TABLE `users`  (
 INSERT INTO `users` VALUES ('nacos', '$2a$10$W74BAP0.FMDcLygXBXUvc.6MPyvs4Oy59KVFBKRv5KN.eDe9hME5i', 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+
+
+
+
+
