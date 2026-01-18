@@ -189,6 +189,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         Deployment deployment = repositoryService.createDeployment()
                 .name(model.getModelName())
                 .key(model.getModelKey())
+                .category(model.getCategory())
                 .addString(model.getModelKey() + ".bpmn20.xml", model.getBpmnXml())
                 .deploy();
 
@@ -197,6 +198,9 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
                 .singleResult();
         if (definition == null) {
             throw new BusinessException("deployment failed");
+        }
+        if (model.getCategory() != null && !model.getCategory().isBlank()) {
+            repositoryService.setProcessDefinitionCategory(definition.getId(), model.getCategory());
         }
 
         LambdaQueryWrapper<WfModel> modelWrapper = new LambdaQueryWrapper<>();

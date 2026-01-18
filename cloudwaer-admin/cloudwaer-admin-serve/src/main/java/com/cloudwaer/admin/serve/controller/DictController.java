@@ -1,6 +1,7 @@
 package com.cloudwaer.admin.serve.controller;
 
 import com.cloudwaer.admin.api.dto.DictDTO;
+import com.cloudwaer.admin.api.dto.DictItemDTO;
 import com.cloudwaer.admin.serve.service.DictService;
 import com.cloudwaer.common.core.annotation.PermitAll;
 import com.cloudwaer.common.core.dto.PageDTO;
@@ -17,36 +18,29 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("/admin/dict")
-@Tag(name = "通用字典", description = "通用字典接口：按类型查询与立即刷新")
+@Tag(name = "Dictionary", description = "Dictionary APIs")
 public class DictController {
 
     @Autowired
     private DictService dictService;
 
-    /**
-     * 按类型查询字典
-     */
     @GetMapping("/list")
-    @Operation(summary = "按类型查询字典", description = "按类型返回字典项列表（优先从Redis读取，缺失时自动重建缓存）")
+    @Operation(summary = "List items by type")
     @PermitAll
-    public Result<List<DictDTO>> listByType(@RequestParam String type) {
-        List<DictDTO> list = dictService.getByType(type);
-        return Result.success(list);
+    public Result<List<DictItemDTO>> listByType(@RequestParam String type) {
+        return Result.success(dictService.getItemsByType(type));
     }
 
-    /**
-     * 立即刷新字典缓存
-     */
     @PostMapping("/refresh")
-    @Operation(summary = "刷新字典缓存", description = "清空Redis后从数据库重建字典缓存")
+    @Operation(summary = "Refresh dict cache")
     public Result<Boolean> refresh() {
         dictService.rebuildCache();
         return Result.success(true);
     }
 
-    // ====== 管理端 CRUD ======
+    // ===== Dict headers =====
     @GetMapping("/page")
-    @Operation(summary = "分页查询字典", description = "按类型与关键字分页查询字典")
+    @Operation(summary = "Page dictionaries")
     public Result<PageResult<DictDTO>> page(@RequestParam(value = "current", defaultValue = "1") Long current,
                                             @RequestParam(value = "size", defaultValue = "10") Long size,
                                             @RequestParam(value = "keyword", required = false) String keyword,
@@ -55,31 +49,56 @@ public class DictController {
         pageDTO.setCurrent(current);
         pageDTO.setSize(size);
         pageDTO.setKeyword(keyword);
-        PageResult<DictDTO> pageResult = dictService.page(pageDTO, type);
+        PageResult<DictDTO> pageResult = dictService.page(pageDTO, keyword, type);
         return Result.success(pageResult);
     }
 
     @GetMapping("/detail")
-    @Operation(summary = "字典详情", description = "根据ID获取字典详情")
+    @Operation(summary = "Dict detail")
     public Result<DictDTO> detail(@RequestParam("id") Long id) {
         return Result.success(dictService.detail(id));
     }
 
     @PostMapping("/save")
-    @Operation(summary = "新增字典", description = "新增字典项并重建缓存")
+    @Operation(summary = "Create dict")
     public Result<Boolean> save(@RequestBody DictDTO dto) {
         return Result.success(dictService.save(dto));
     }
 
     @PutMapping("/update")
-    @Operation(summary = "更新字典", description = "更新字典项并重建缓存")
+    @Operation(summary = "Update dict")
     public Result<Boolean> update(@RequestBody DictDTO dto) {
         return Result.success(dictService.update(dto));
     }
 
     @DeleteMapping("/delete")
-    @Operation(summary = "删除字典", description = "逻辑删除字典项并重建缓存")
+    @Operation(summary = "Delete dict")
     public Result<Boolean> delete(@RequestParam("id") Long id) {
         return Result.success(dictService.delete(id));
+    }
+
+    // ===== Dict items =====
+    @GetMapping("/item/list")
+    @Operation(summary = "List dict items")
+    public Result<List<DictItemDTO>> listItems(@RequestParam("dictId") Long dictId) {
+        return Result.success(dictService.listItems(dictId));
+    }
+
+    @PostMapping("/item/save")
+    @Operation(summary = "Create dict item")
+    public Result<Boolean> saveItem(@RequestBody DictItemDTO dto) {
+        return Result.success(dictService.saveItem(dto));
+    }
+
+    @PutMapping("/item/update")
+    @Operation(summary = "Update dict item")
+    public Result<Boolean> updateItem(@RequestBody DictItemDTO dto) {
+        return Result.success(dictService.updateItem(dto));
+    }
+
+    @DeleteMapping("/item/delete")
+    @Operation(summary = "Delete dict item")
+    public Result<Boolean> deleteItem(@RequestParam("id") Long id) {
+        return Result.success(dictService.deleteItem(id));
     }
 }

@@ -1,6 +1,6 @@
 package com.cloudwaer.admin.serve.service;
 
-import com.cloudwaer.admin.api.dto.DictDTO;
+import com.cloudwaer.admin.api.dto.DictItemDTO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 字典缓存服务
+ * Dictionary cache service.
  */
 @Slf4j
 @Service
@@ -27,31 +27,25 @@ public class DictCacheService {
     private ObjectMapper objectMapper;
 
     /**
-     * Redis Key：全部字典(type->list)
+     * Redis key for all dictionaries (type -> items).
      */
     private static final String DICT_ALL_CACHE_KEY = "cloudwaer:dict:all";
 
-    /**
-     * 将所有字典缓存至Redis（覆盖重建）
-     */
-    public void cacheAll(Map<String, List<DictDTO>> dictMap) {
+    public void cacheAll(Map<String, List<DictItemDTO>> dictMap) {
         if (redisTemplate == null || objectMapper == null) {
-            log.warn("未启用Redis或ObjectMapper，跳过字典缓存");
+            log.warn("Redis or ObjectMapper not available, skip dict cache.");
             return;
         }
         try {
             String json = objectMapper.writeValueAsString(dictMap);
             redisTemplate.opsForValue().set(DICT_ALL_CACHE_KEY, json, 30, TimeUnit.DAYS);
-            log.info("字典缓存成功，类型数:{}", dictMap != null ? dictMap.size() : 0);
+            log.info("Dict cache updated, type count: {}", dictMap != null ? dictMap.size() : 0);
         } catch (Exception e) {
-            log.error("缓存字典失败", e);
+            log.error("Failed to cache dict data", e);
         }
     }
 
-    /**
-     * 读取全部字典(type->list)
-     */
-    public Map<String, List<DictDTO>> getAll() {
+    public Map<String, List<DictItemDTO>> getAll() {
         if (redisTemplate == null || objectMapper == null) {
             return null;
         }
@@ -60,34 +54,30 @@ public class DictCacheService {
             if (json == null || json.isEmpty()) {
                 return null;
             }
-            return objectMapper.readValue(json, new TypeReference<Map<String, List<DictDTO>>>(){});
+            return objectMapper.readValue(json, new TypeReference<Map<String, List<DictItemDTO>>>() {});
         } catch (Exception e) {
-            log.error("读取字典缓存失败", e);
+            log.error("Failed to read dict cache", e);
             return null;
         }
     }
 
-    /**
-     * 按类型读取列表（从总缓存中拆分）
-     */
-    public List<DictDTO> getByTypeFromCache(String type) {
-        Map<String, List<DictDTO>> all = getAll();
+    public List<DictItemDTO> getByTypeFromCache(String type) {
+        Map<String, List<DictItemDTO>> all = getAll();
         if (all == null) {
             return null;
         }
         return all.getOrDefault(type, Collections.emptyList());
     }
 
-    /** 清缓存 */
     public void clear() {
         if (redisTemplate == null) {
             return;
         }
         try {
             redisTemplate.delete(DICT_ALL_CACHE_KEY);
-            log.info("字典缓存已清除");
+            log.info("Dict cache cleared.");
         } catch (Exception e) {
-            log.error("清除字典缓存失败", e);
+            log.error("Failed to clear dict cache", e);
         }
     }
 }

@@ -20,13 +20,12 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 -- Table structure for sys_dict
 -- ----------------------------
+DROP TABLE IF EXISTS `sys_dict_item`;
 DROP TABLE IF EXISTS `sys_dict`;
 CREATE TABLE `sys_dict`  (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
-  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典类型，如status、delete_flag',
-  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典编码/键',
-  `value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '值',
-  `label` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '展示标签',
+  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典类型',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典名称',
   `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
   `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
   `create_time` datetime NOT NULL COMMENT '创建时间',
@@ -35,21 +34,54 @@ CREATE TABLE `sys_dict`  (
   `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
   `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
   PRIMARY KEY (`id`) USING BTREE,
-  INDEX `idx_type`(`type` ASC) USING BTREE,
-  INDEX `idx_type_code`(`type` ASC, `code` ASC) USING BTREE,
+  UNIQUE INDEX `uk_type`(`type` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_sort`(`sort` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典主表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for sys_dict_item
+-- ----------------------------
+CREATE TABLE `sys_dict_item`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `dict_id` bigint(20) NOT NULL COMMENT '字典ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '字典编码',
+  `value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '字典值',
+  `label` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '显示名称',
+  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_dict_id`(`dict_id` ASC) USING BTREE,
+  INDEX `idx_dict_id_code`(`dict_id` ASC, `code` ASC) USING BTREE,
   INDEX `idx_status`(`status` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '通用字典表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典明细表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of sys_dict
 -- ----------------------------
-INSERT INTO `sys_dict` VALUES (1992000000000000001, 'status', '0', '0', '删除', 0, '状态-删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000002, 'status', '1', '1', '有效', 1, '状态-有效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000003, 'status', '2', '2', '无效', 2, '状态-无效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000011, 'delete_flag', '0', '0', '未删除', 0, '删除标识-未删除', '2025-11-21 20:40:17', 'system', '2025-11-21 22:28:07', NULL, 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000012, 'delete_flag', '1', '1', '已删除', 1, '删除标识-已删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000021, 'boolean', 'true', 'true', '是', 0, '布尔-是', '2025-11-21 20:40:17', 'system', '2025-11-21 22:23:50', NULL, 1);
-INSERT INTO `sys_dict` VALUES (1992000000000000022, 'boolean', 'false', 'false', '否', 1, '布尔-否', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000001000, 'status', '状态', 0, '状态字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000002000, 'delete_flag', '删除标识', 0, '删除标识字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000003000, 'boolean', '布尔', 0, '布尔字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000004000, 'flowable_type', '流程类型', 0, '流程类型字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+
+-- ----------------------------
+-- Records of sys_dict_item
+-- ----------------------------
+INSERT INTO `sys_dict_item` VALUES (1992000000000001001, 1992000000000001000, '0', '0', '删除', 0, '状态-删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000001002, 1992000000000001000, '1', '1', '有效', 1, '状态-有效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000001003, 1992000000000001000, '2', '2', '无效', 2, '状态-无效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000002001, 1992000000000002000, '0', '0', '未删除', 0, '删除标识-未删除', '2025-11-21 20:40:17', 'system', '2025-11-21 22:28:07', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000002002, 1992000000000002000, '1', '1', '已删除', 1, '删除标识-已删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000003001, 1992000000000003000, 'true', 'true', '是', 0, '布尔-是', '2025-11-21 20:40:17', 'system', '2025-11-21 22:23:50', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000003002, 1992000000000003000, 'false', 'false', '否', 1, '布尔-否', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004001, 1992000000000004000, 'leave', 'leave', '请假类型', 0, '流程类型-请假', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004002, 1992000000000004000, 'ea', 'ea', '审批类型', 1, '流程类型-审批', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004003, 1992000000000004000, 'expense', 'expense', '报销类型', 2, '流程类型-报销', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
 
 -- ----------------------------
 -- Table structure for sys_gateway_route

@@ -36,7 +36,7 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
             List<ProcessDefinition> processDefinitions = repositoryService.createProcessDefinitionQuery()
                     .latestVersion()
                     .active()
-                    .list();
+                    .list().parallelStream().toList();
 
             List<FlowableProcessDefinitionDTO> result = new ArrayList<>();
 
