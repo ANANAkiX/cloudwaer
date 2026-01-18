@@ -20,26 +20,3 @@ spring:
           - data-id: application-cloudwaer-admin-serve-dev.yml
             group: DEFAULT_GROUP
             refresh: true
-
-cloudwaer:
-  log:
-    enabled: true
-    exclude-paths:
-      - /actuator/**
-      - /auth/captcha
-      - /swagger-ui.html
-      - /v3/api-docs/**
-    exclude-http-methods:
-      - OPTIONS
-    exclude-class-names:
-      - com.cloudwaer.gateway.filter.HealthController
-    exclude-method-names:
-      - ping
-  gateway:
-    refresh:
-      # 网关服务的服务ID（用于发现实例）
-      service-id: cloudwaer-gateway
-      # 刷新网关路由请求协议
-      scheme: http
-      # 刷新网关路由接口路径
-      path: /actuator/gateway/refresh

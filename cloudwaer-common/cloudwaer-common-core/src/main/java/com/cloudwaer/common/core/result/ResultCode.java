@@ -53,6 +53,11 @@ public enum ResultCode {
     NOT_SERVE_FOUND(503, "服务未找到"),
 
     /**
+     * 服务未找到
+     */
+    FLOWABLE_ERROR(503, "审批出错"),
+
+    /**
      * 用户名或密码错误
      */
     LOGIN_ERROR_ACCOUNT(1001, "用户名或密码错误"),

@@ -1,1 +1,17 @@
 /.idea/
+# 忽略编译文件
+*.class
+
+# 忽略 Maven 构建输出目录
+/target/
+
+# 忽略 IntelliJ IDEA 特定文件
+.idea/
+*.iml
+
+# 忽略 Eclipse 特定文件
+/.project
+/.classpath
+.classpath
+.project
+

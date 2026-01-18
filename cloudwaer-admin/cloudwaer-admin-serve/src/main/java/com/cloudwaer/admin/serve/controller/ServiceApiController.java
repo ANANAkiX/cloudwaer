@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 服务API控制器（用于级联选择器）
@@ -103,6 +102,10 @@ public class ServiceApiController {
                 return "认证授权服务";
             case "cloudwaer-integration-serve":
                 return "集成服务";
+            case "cloudwaer-flowable-serve":
+                return "流程服务";
+            case "cloudwaer-codegen-serve":
+                return "代码生成服务";
             default:
                 return serviceName;
         }

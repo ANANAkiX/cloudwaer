@@ -85,39 +85,40 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 .collect(Collectors.toMap(Permission::getId, p -> p));
 
         // 5. 收集所有菜单权限ID（包括用户直接拥有的菜单权限和通过子权限继承的父菜单权限）
-        Set<Long> menuPermissionIds = new HashSet<>();
-        
-        // 5.1 首先添加用户直接拥有的菜单权限
+        Set<Long> routePermissionIds = new HashSet<>();
+
+        // 5.1 添加用户直接拥有的菜单/页面权限
         for (Permission permission : userPermissions) {
-            if (permission.getPermissionType() != null && permission.getPermissionType() == 1) {
-                menuPermissionIds.add(permission.getId());
+            Integer type = permission.getPermissionType();
+            if (type != null && (type == 1 || type == 2)) {
+                routePermissionIds.add(permission.getId());
             }
         }
-        
-        // 5.2 对于用户拥有的每个权限，递归查找所有父级菜单权限
+
+        // 5.2 递归查找所有父级菜单权限
         for (Permission permission : userPermissions) {
-            addParentMenuPermissionIds(permission.getParentId(), allPermissionMap, menuPermissionIds);
+            addParentMenuPermissionIds(permission.getParentId(), allPermissionMap, routePermissionIds);
         }
 
-        if (menuPermissionIds.isEmpty()) {
+        if (routePermissionIds.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // 6. 查询所有菜单权限（permission_type = 1）
+        // 6. 查询所有菜单/页面权限（permission_type = 1/2）
         List<Permission> menuPermissions = allPermissions.stream()
-                .filter(p -> menuPermissionIds.contains(p.getId()))
-                .filter(p -> p.getPermissionType() != null && p.getPermissionType() == 1)
+                .filter(p -> routePermissionIds.contains(p.getId()))
+                .filter(p -> p.getPermissionType() != null && (p.getPermissionType() == 1 || p.getPermissionType() == 2))
                 .sorted(Comparator.comparing(Permission::getSort, Comparator.nullsLast(Comparator.naturalOrder())))
                 .collect(Collectors.toList());
 
-        // 7. 构建权限ID到Permission的映射（只包含菜单权限）
+        // 7. 构建权限ID到Permission的映射（包含菜单与页面权限）
         Map<Long, Permission> permissionMap = menuPermissions.stream()
                 .collect(Collectors.toMap(Permission::getId, p -> p));
 
         // 8. 转换为RouteDTO列表，同时建立权限ID到RouteDTO的映射
         Map<Long, RouteDTO> routeMap = new java.util.HashMap<>();
         List<RouteDTO> routeList = new ArrayList<>();
-        
+
         for (Permission permission : menuPermissions) {
             RouteDTO routeDTO = convertToRouteDTO(permission);
             routeMap.put(permission.getId(), routeDTO);
@@ -162,7 +163,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
      */
     private RouteDTO convertToRouteDTO(Permission permission) {
         RouteDTO routeDTO = new RouteDTO();
-        
+
         // 设置路径：如果有route_path则使用，否则使用权限编码生成虚拟路径（用于父级菜单）
         if (permission.getRoutePath() != null && !permission.getRoutePath().isEmpty()) {
             routeDTO.setPath(permission.getRoutePath());
@@ -172,7 +173,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
             String virtualPath = permission.getPermissionCode().toLowerCase().replace(":", "-");
             routeDTO.setPath("/" + virtualPath);
         }
-        
+
         routeDTO.setName(permission.getPermissionCode());
         routeDTO.setParentId(permission.getParentId());
         routeDTO.setApiUrl(permission.getApiUrl());
@@ -340,12 +341,12 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
         // 构建树形结构
         List<PermissionDTO> tree = buildPermissionTree(permissionDTOList);
-        
+
         // 如果有搜索关键词，标记所有节点为展开状态
         if (keyword != null && !keyword.trim().isEmpty()) {
             markAllExpanded(tree);
         }
-        
+
         return tree;
     }
 
@@ -397,7 +398,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         BeanUtils.copyProperties(permissionDTO, permission);
         // ID的自动生成已在MetaObjectHandler中统一处理，无需在此判断
         boolean result = this.save(permission);
-        
+
         // 如果保存成功，更新权限缓存和用户Token权限信息
         if (result) {
             // 更新权限映射缓存（如果是操作类型权限）
@@ -407,7 +408,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
             // 注意：新增权限后，如果该权限还没有被分配给任何角色，则不需要更新用户Token
             // 只有当权限被分配给角色后，才会通过分配权限的逻辑更新用户Token
         }
-        
+
         return result;
     }
 
@@ -435,22 +436,22 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         // 保存旧的权限编码，用于判断是否需要更新用户Token
         String oldPermissionCode = permission.getPermissionCode();
         boolean permissionCodeChanged = !oldPermissionCode.equals(permissionDTO.getPermissionCode());
-        
+
         BeanUtils.copyProperties(permissionDTO, permission);
         boolean result = this.updateById(permission);
-        
+
         // 如果更新成功，更新权限缓存和用户Token权限信息
         if (result) {
             // 更新权限映射缓存（因为可能修改了API地址或请求方法）
             refreshPermissionCache();
-            
+
             // 如果权限编码改变了，需要更新所有拥有该权限的用户的Token权限信息
             // 因为权限编码改变会影响用户的权限代码列表
             if (permissionCodeChanged) {
                 updateUserTokensByPermissionId(permissionDTO.getId());
             }
         }
-        
+
         return result;
     }
 
@@ -476,14 +477,14 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         // 在删除前，先更新所有拥有该权限的用户的Token权限信息
         // 因为删除权限后，这些用户应该失去该权限
         updateUserTokensByPermissionId(id);
-        
+
         boolean result = this.removeById(id);
-        
+
         // 如果删除成功，更新权限缓存
         if (result) {
             refreshPermissionCache();
         }
-        
+
         return result;
     }
 
@@ -627,9 +628,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 .isNotNull(Permission::getApiUrl)
                 .ne(Permission::getHttpMethod, "")
                 .ne(Permission::getApiUrl, "");
-        
+
         List<Permission> permissions = this.list(wrapper);
-        
+
         // 构建权限映射：Map<"GET /api/user/list", "admin:user:list">
         Map<String, String> permissionMap = getStringStringMap(permissions);
 
@@ -670,7 +671,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         try {
             // 从数据库获取最新的权限API映射
             Map<String, String> permissionMap = getPermissionApiMapping();
-            
+
             if (permissionMap != null && !permissionMap.isEmpty()) {
                 // 更新Redis中的权限缓存
                 permissionCacheService.cachePermissions(permissionMap);
@@ -698,7 +699,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         try {
             // 1. 查询拥有该权限的所有角色ID
             List<Long> roleIds = rolePermissionMapper.selectRoleIdsByPermissionId(permissionId);
-            
+
             if (roleIds == null || roleIds.isEmpty()) {
                 log.debug("权限 {} 没有被分配给任何角色，无需更新用户Token", permissionId);
                 return;
@@ -723,17 +724,17 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
                 try {
                     // 从数据库获取用户的最新权限
                     List<String> latestPermissions = getPermissionCodesByUserId(userId);
-                    
+
                     // 更新Token中的权限信息（不删除Token，只更新权限）
                     int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
-                    log.debug("更新用户Token权限: userId={}, tokenCount={}, permissions={}", 
+                    log.debug("更新用户Token权限: userId={}, tokenCount={}, permissions={}",
                             userId, updateCount, latestPermissions);
                 } catch (Exception e) {
                     log.error("更新用户Token权限失败: userId={}", userId, e);
                     // 单个用户更新失败不影响其他用户，继续处理
                 }
             }
-            
+
             log.info("已更新权限 {} 的所有用户Token权限，用户数量: {}", permissionId, userIds.size());
         } catch (Exception e) {
             log.error("更新用户Token权限失败: permissionId={}", permissionId, e);
@@ -741,4 +742,5 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
         }
     }
 }
+
 

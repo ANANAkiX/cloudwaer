@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.cloudwaer</groupId>
+        <artifactId>cloudwaer-integration-serve</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>cloudwaer-flowable</artifactId>
+    <packaging>pom</packaging>
+    <name>cloudwaer-flowable</name>
+    <description>Flowable integration module</description>
+
+    <modules>
+        <module>cloudwaer-flowable-api</module>
+        <module>cloudwaer-flowable-serve</module>
+    </modules>
+
+    <properties>
+        <flowable.version>7.0.1</flowable.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Version management module -->
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-common-version</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Flowable BOM -->
+            <dependency>
+                <groupId>org.flowable</groupId>
+                <artifactId>flowable-bom</artifactId>
+                <version>${flowable.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
