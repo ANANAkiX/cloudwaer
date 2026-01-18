@@ -1,10 +1,15 @@
 package com.cloudwaer.flowable.serve.listener;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
 import com.cloudwaer.flowable.serve.entity.WfModel;
 import com.cloudwaer.flowable.serve.entity.WfNodeAction;
+import com.cloudwaer.flowable.serve.entity.WfProcessExt;
+import com.cloudwaer.flowable.serve.entity.WfTaskHandleRecord;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.mapper.WfNodeActionMapper;
+import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
+import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
 import com.cloudwaer.flowable.serve.service.WfNodeActionService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +24,7 @@ import java.util.List;
 
 /**
  * Flowable 任务监听器
- * 
+ *
  * @author cloudwaer
  * @since 2026-01-15
  */
@@ -31,6 +36,8 @@ public class FlowableTaskListener implements TaskListener {
     private WfNodeActionMapper wfNodeActionMapper;
     private WfModelMapper wfModelMapper;
     private RepositoryService repositoryService;
+    private WfTaskHandleRecordMapper taskHandleRecordMapper;
+    private WfProcessExtMapper processExtMapper;
 
     // Setter方法用于依赖注入
     public void setNodeActionService(WfNodeActionService nodeActionService) {
@@ -53,6 +60,14 @@ public class FlowableTaskListener implements TaskListener {
         this.repositoryService = repositoryService;
     }
 
+    public void setTaskHandleRecordMapper(WfTaskHandleRecordMapper taskHandleRecordMapper) {
+        this.taskHandleRecordMapper = taskHandleRecordMapper;
+    }
+
+    public void setProcessExtMapper(WfProcessExtMapper processExtMapper) {
+        this.processExtMapper = processExtMapper;
+    }
+
     @Override
     public void notify(DelegateTask delegateTask) {
         try {
@@ -60,8 +75,8 @@ public class FlowableTaskListener implements TaskListener {
             String taskDefinitionKey = delegateTask.getTaskDefinitionKey();
             String processInstanceId = delegateTask.getProcessInstanceId();
             String processDefinitionId = delegateTask.getProcessDefinitionId();
-            
-            log.info("任务监听器触发: 事件={}, 任务Key={}, 流程实例ID={}", 
+
+            log.info("任务监听器触发: 事件={}, 任务Key={}, 流程实例ID={}",
                     eventName, taskDefinitionKey, processInstanceId);
 
             // 处理不同的事件类型
@@ -83,8 +98,8 @@ public class FlowableTaskListener implements TaskListener {
             }
 
             // 执行节点动作
-            nodeActionService.executeNodeActions(processDefinitionId, taskDefinitionKey, 
-                                               eventName, processInstanceId);
+            nodeActionService.executeNodeActions(processDefinitionId, taskDefinitionKey,
+                    eventName, processInstanceId);
 
         } catch (Exception e) {
             log.error("任务监听器处理异常: {}", e.getMessage(), e);
@@ -97,21 +112,21 @@ public class FlowableTaskListener implements TaskListener {
      */
     private void handleTaskCreate(DelegateTask delegateTask) {
         log.info("=== 任务创建监听器被调用 ===");
-        log.info("任务创建: 任务ID={}, 任务名称={}, 处理人={}", 
+        log.info("任务创建: 任务ID={}, 任务名称={}, 处理人={}",
                 delegateTask.getId(), delegateTask.getName(), delegateTask.getAssignee());
-        log.info("任务定义Key={}, 流程定义ID={}", 
+        log.info("任务定义Key={}, 流程定义ID={}",
                 delegateTask.getTaskDefinitionKey(), delegateTask.getProcessDefinitionId());
-
+        String processInstanceId = delegateTask.getProcessInstanceId();
         // 根据当前运行的节点动态查询处理人配置
         String taskDefinitionKey = delegateTask.getTaskDefinitionKey();
         String processDefinitionId = delegateTask.getProcessDefinitionId();
-        
+
         // 通过RepositoryService获取流程定义Key
         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                 .processDefinitionId(processDefinitionId)
                 .singleResult();
         String processDefinitionKey = processDefinition != null ? processDefinition.getKey() : null;
-        
+
         try {
             log.info("查询流程模型信息: processKey={}", processDefinitionKey);
             // 获取流程模型信息
@@ -119,28 +134,28 @@ public class FlowableTaskListener implements TaskListener {
                     .eq(WfModel::getModelKey, processDefinitionKey)
                     .orderByDesc(WfModel::getVersion)
                     .last("LIMIT 1"));
-            
+
             log.info("查询到的流程模型: {}", wfModel);
-            
+
             if (wfModel != null) {
                 log.info("查询节点配置: taskKey={}, modelVersion={}", taskDefinitionKey, wfModel.getVersion());
                 // 查询当前节点的处理人配置
                 WfNodeAction nodeAction = wfNodeActionMapper.selectOne(
-                    new LambdaQueryWrapper<WfNodeAction>()
-                        .eq(WfNodeAction::getModelKey, processDefinitionKey)
-                        .eq(WfNodeAction::getModelVersion, wfModel.getVersion())
-                        .eq(WfNodeAction::getNodeId, taskDefinitionKey)
-                        .in(WfNodeAction::getActionType, Arrays.asList("assign", "user_task", "task"))
-                        .eq(WfNodeAction::getEnabled, 1)
-                        .last("LIMIT 1")
+                        new LambdaQueryWrapper<WfNodeAction>()
+                                .eq(WfNodeAction::getModelKey, processDefinitionKey)
+                                .eq(WfNodeAction::getModelVersion, wfModel.getVersion())
+                                .eq(WfNodeAction::getNodeId, taskDefinitionKey)
+                                .in(WfNodeAction::getActionType, Arrays.asList("assign", "user_task", "task"))
+                                .eq(WfNodeAction::getEnabled, 1)
+                                .last("LIMIT 1")
                 );
-                
+
                 log.info("查询到的节点配置: {}", nodeAction);
-                
+
                 if (nodeAction != null && nodeAction.getActionConfig() != null) {
                     applyAssignmentFromConfig(delegateTask, nodeAction.getActionConfig(), taskDefinitionKey);
                 } else {
-                    log.warn("未找到节点配置的处理人: 任务Key={}, 流程Key={}", 
+                    log.warn("未找到节点配置的处理人: 任务Key={}, 流程Key={}",
                             taskDefinitionKey, processDefinitionKey);
                 }
             } else {
@@ -151,6 +166,27 @@ public class FlowableTaskListener implements TaskListener {
         }
 
         // 保存任务扩展信息
+        if (taskHandleRecordMapper != null) {
+            boolean rejected = false;
+            if (processExtMapper != null) {
+                WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
+                        .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
+                rejected = ext != null && ProcessStatusEnum.REJECTED.getCode().equals(ext.getStatus());
+            }
+            if (!rejected) {
+                WfTaskHandleRecord record = new WfTaskHandleRecord();
+                record.setProcessInstanceId(processInstanceId);
+                record.setTaskId(delegateTask.getId());
+                record.setTaskDefinitionKey(delegateTask.getTaskDefinitionKey());
+                record.setTaskName(delegateTask.getName());
+                record.setAssignee(delegateTask.getAssignee());
+                record.setRecordType("wait");
+                String assignee = delegateTask.getAssignee();
+                record.setAction("等待 " + (assignee == null || assignee.isBlank() ? "未知" : assignee) + " 处理");
+                taskHandleRecordMapper.insert(record);
+            }
+        }
+
         saveTaskExtension(delegateTask, "create");
         log.info("=== 任务创建监听器处理完成 ===");
     }
@@ -159,7 +195,7 @@ public class FlowableTaskListener implements TaskListener {
      * 处理任务完成事件
      */
     private void handleTaskComplete(DelegateTask delegateTask) {
-        log.info("任务完成: 任务ID={}, 任务名称={}, 处理人={}", 
+        log.info("任务完成: 任务ID={}, 任务名称={}, 处理人={}",
                 delegateTask.getId(), delegateTask.getName(), delegateTask.getAssignee());
 
         // 保存任务扩展信息
@@ -170,7 +206,7 @@ public class FlowableTaskListener implements TaskListener {
      * 处理任务分配事件
      */
     private void handleTaskAssignment(DelegateTask delegateTask) {
-        log.info("任务分配: 任务ID={}, 任务名称={}, 处理人={}", 
+        log.info("任务分配: 任务ID={}, 任务名称={}, 处理人={}",
                 delegateTask.getId(), delegateTask.getName(), delegateTask.getAssignee());
 
         // 保存任务扩展信息
@@ -181,7 +217,7 @@ public class FlowableTaskListener implements TaskListener {
      * 处理任务删除事件
      */
     private void handleTaskDelete(DelegateTask delegateTask) {
-        log.info("任务删除: 任务ID={}, 任务名称={}", 
+        log.info("任务删除: 任务ID={}, 任务名称={}",
                 delegateTask.getId(), delegateTask.getName());
 
         // 保存任务扩展信息
@@ -195,7 +231,7 @@ public class FlowableTaskListener implements TaskListener {
         try {
             // 这里可以保存任务扩展信息到数据库
             // 例如：任务变量、处理时间、处理人等
-            
+
             // 获取任务变量
             Object actionConfig = delegateTask.getVariable("actionConfig");
             if (actionConfig != null) {
@@ -232,7 +268,7 @@ public class FlowableTaskListener implements TaskListener {
             }
         }
 
-        log.info("根据节点配置动态分配处理人: 任务Key={}, 处理人={}", 
+        log.info("根据节点配置动态分配处理人: 任务Key={}, 处理人={}",
                 taskDefinitionKey, assignee);
     }
 

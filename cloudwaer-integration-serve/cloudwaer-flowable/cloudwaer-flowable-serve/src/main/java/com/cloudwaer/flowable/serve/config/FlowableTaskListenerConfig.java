@@ -5,6 +5,7 @@ import com.cloudwaer.flowable.serve.listener.FlowableTaskListener;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.mapper.WfNodeActionMapper;
 import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
+import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
 import com.cloudwaer.flowable.serve.service.WfNodeActionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.flowable.engine.RepositoryService;
@@ -30,7 +31,9 @@ public class FlowableTaskListenerConfig {
             ObjectMapper objectMapper,
             WfNodeActionMapper wfNodeActionMapper,
             WfModelMapper wfModelMapper,
-            RepositoryService repositoryService) {
+            RepositoryService repositoryService,
+            WfTaskHandleRecordMapper taskHandleRecordMapper,
+            WfProcessExtMapper processExtMapper) {
         
         FlowableTaskListener listener = new FlowableTaskListener();
         
@@ -40,6 +43,8 @@ public class FlowableTaskListenerConfig {
         listener.setWfNodeActionMapper(wfNodeActionMapper);
         listener.setWfModelMapper(wfModelMapper);
         listener.setRepositoryService(repositoryService);
+        listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
+        listener.setProcessExtMapper(processExtMapper);
         
         return listener;
     }
@@ -52,7 +57,8 @@ public class FlowableTaskListenerConfig {
     public FlowableExecutionListener flowableExecutionListener(
             WfModelMapper wfModelMapper,
             WfProcessExtMapper processExtMapper,
-            RepositoryService repositoryService) {
+            RepositoryService repositoryService,
+            WfTaskHandleRecordMapper taskHandleRecordMapper) {
         
         FlowableExecutionListener listener = new FlowableExecutionListener();
         
@@ -60,6 +66,7 @@ public class FlowableTaskListenerConfig {
         listener.setWfModelMapper(wfModelMapper);
         listener.setProcessExtMapper(processExtMapper);
         listener.setRepositoryService(repositoryService);
+        listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
         
         return listener;
     }

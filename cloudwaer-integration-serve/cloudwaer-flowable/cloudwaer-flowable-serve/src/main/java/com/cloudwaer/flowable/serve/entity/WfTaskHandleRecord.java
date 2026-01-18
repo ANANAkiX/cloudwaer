@@ -15,6 +15,8 @@ public class WfTaskHandleRecord extends BaseEntity {
     private String taskDefinitionKey;
     private String taskName;
     private String assignee;
+    private String recordType;
+    private String action;
     private String result;
     private String comment;
     private Long durationMs;

@@ -22,6 +22,8 @@ public interface FlowableProcessService {
 
     boolean activateProcess(String processInstanceId);
 
+    boolean restartProcess(String processInstanceId);
+
     boolean terminateProcess(String processInstanceId);
 
     String getProcessDiagram(String processInstanceId);

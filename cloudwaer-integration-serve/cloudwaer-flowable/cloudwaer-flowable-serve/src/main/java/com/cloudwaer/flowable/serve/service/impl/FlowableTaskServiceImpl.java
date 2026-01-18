@@ -7,8 +7,11 @@ import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.cloudwaer.flowable.api.dto.FlowableTaskCompleteDTO;
 import com.cloudwaer.flowable.api.dto.FlowableTaskDTO;
+import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
+import com.cloudwaer.flowable.serve.entity.WfProcessExt;
 import com.cloudwaer.flowable.serve.entity.WfTaskExt;
 import com.cloudwaer.flowable.serve.entity.WfTaskHandleRecord;
+import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
 import com.cloudwaer.flowable.serve.mapper.WfTaskExtMapper;
 import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
 import com.cloudwaer.flowable.serve.service.FlowableTaskService;
@@ -30,9 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class FlowableTaskServiceImpl implements FlowableTaskService {
@@ -54,6 +55,9 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 
     @Autowired
     private WfTaskHandleRecordMapper taskHandleRecordMapper;
+
+    @Autowired
+    private WfProcessExtMapper processExtMapper;
 
     @Override
     public PageResult<FlowableTaskDTO> listTodo(PageDTO pageDTO) {
@@ -148,17 +152,66 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         if (dto.getComment() != null && !dto.getComment().isBlank()) {
             taskService.addComment(dto.getTaskId(), null, dto.getComment());
         }
-        saveTaskHandleRecord(task, dto, username);
-        taskService.complete(dto.getTaskId(), dto.getVariables());
+
+        Map<String, Object> variables = dto.getVariables() != null
+                ? new HashMap<>(dto.getVariables())
+                : new HashMap<>();
+        Object approvalResult = variables.get("approvalResult");
+        if (approvalResult != null && username != null && !username.isBlank()) {
+            variables.put(username + ":approvalResult", approvalResult);
+        }
+
+        saveTaskHandleRecord(task, dto, username, approvalResult);
+
+        if (approvalResult != null && "reject".equalsIgnoreCase(String.valueOf(approvalResult))) {
+            handleReject(task, variables, username);
+            return true;
+        }
+
+        taskService.complete(dto.getTaskId(), variables);
         return true;
     }
 
-    private void saveTaskHandleRecord(Task task, FlowableTaskCompleteDTO dto, String username) {
-        Long exists = taskHandleRecordMapper.selectCount(new LambdaQueryWrapper<WfTaskHandleRecord>()
-                .eq(WfTaskHandleRecord::getTaskId, task.getId()));
-        if (exists != null && exists > 0) {
+    private void handleReject(Task task, Map<String, Object> variables, String username) {
+        runtimeService.setVariables(task.getProcessInstanceId(), variables);
+        markProcessRejected(task.getProcessInstanceId(), username);
+    }
+
+    private void markProcessRejected(String processInstanceId, String username) {
+        if (processInstanceId == null || processInstanceId.isBlank()) {
             return;
         }
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        if (instance != null && !instance.isSuspended()) {
+            runtimeService.suspendProcessInstanceById(processInstanceId);
+        }
+
+        WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
+                .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
+        if (ext != null) {
+            ext.setStatus(ProcessStatusEnum.REJECTED.getCode());
+            ext.setUpdateUser(username);
+            processExtMapper.updateById(ext);
+        }
+    }
+
+    private String formatApprovalResult(String approvalResult) {
+        if (approvalResult == null) {
+            return "";
+        }
+        String normalized = approvalResult.trim().toLowerCase();
+        if ("approve".equals(normalized) || "approved".equals(normalized)) {
+            return "同意";
+        }
+        if ("reject".equals(normalized) || "rejected".equals(normalized)) {
+            return "拒绝";
+        }
+        return approvalResult;
+    }
+
+    private void saveTaskHandleRecord(Task task, FlowableTaskCompleteDTO dto, String username, Object approvalResult) {
         WfTaskHandleRecord record = new WfTaskHandleRecord();
         record.setProcessInstanceId(task.getProcessInstanceId());
         record.setTaskId(task.getId());
@@ -166,18 +219,33 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         record.setTaskName(task.getName());
         record.setAssignee(task.getAssignee());
         record.setComment(dto.getComment());
-        if (dto.getVariables() != null) {
-            Object result = dto.getVariables().get("approvalResult");
-            if (result != null) {
-                record.setResult(String.valueOf(result));
-            }
+        if (approvalResult != null) {
+            record.setResult(String.valueOf(approvalResult));
         }
+        String resultText = approvalResult != null ? String.valueOf(approvalResult) : "";
+        if ("reject".equalsIgnoreCase(resultText)) {
+            record.setRecordType("reject");
+        } else {
+            record.setRecordType("complete");
+        }
+        record.setAction("已处理 处理结果: " + formatApprovalResult(resultText));
         if (task.getCreateTime() != null) {
             long duration = Duration.between(task.getCreateTime().toInstant(), new Date().toInstant()).toMillis();
             record.setDurationMs(duration);
         }
         record.setCreateUser(username);
         taskHandleRecordMapper.insert(record);
+
+        if (approvalResult != null && "reject".equalsIgnoreCase(String.valueOf(approvalResult))) {
+            WfTaskHandleRecord endRecord = new WfTaskHandleRecord();
+            endRecord.setProcessInstanceId(task.getProcessInstanceId());
+            endRecord.setTaskId("end:" + task.getProcessInstanceId());
+            endRecord.setAssignee("系统");
+            endRecord.setRecordType("end");
+            endRecord.setAction("结束流程");
+            endRecord.setCreateUser(username);
+            taskHandleRecordMapper.insert(endRecord);
+        }
     }
 
     @Override

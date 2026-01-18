@@ -59,7 +59,13 @@ public class FlowableProcessController {
         return Result.success(processService.activateProcess(processInstanceId));
     }
 
-    @PostMapping("/terminate")
+        @PostMapping("/restart")
+    @Operation(summary = "Restart process instance")
+    public Result<Boolean> restart(@RequestParam String processInstanceId) {
+        return Result.success(processService.restartProcess(processInstanceId));
+    }
+
+@PostMapping("/terminate")
     @Operation(summary = "Terminate process instance")
     public Result<Boolean> terminate(@RequestParam String processInstanceId) {
         return Result.success(processService.terminateProcess(processInstanceId));

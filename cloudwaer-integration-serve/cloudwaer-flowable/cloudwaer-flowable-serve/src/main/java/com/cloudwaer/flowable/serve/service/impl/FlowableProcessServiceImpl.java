@@ -28,6 +28,9 @@ import org.flowable.engine.TaskService;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.flowable.engine.repository.ProcessDefinition;
+import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.FlowElement;
+import org.flowable.bpmn.model.StartEvent;
 import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.engine.task.Comment;
 import org.flowable.task.api.history.HistoricTaskInstance;
@@ -81,32 +84,32 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
         String username = SecurityContextUtil.getCurrentUsername();
         try {
             identityService.setAuthenticatedUserId(username);
-            
+
             log.info("=== 开始启动流程 ===");
             log.info("流程定义Key: {}", dto.getProcessDefinitionKey());
             log.info("业务Key: {}", dto.getBusinessKey());
             log.info("流程变量: {}", dto.getVariables());
-            
+
             // 获取流程模型信息
             WfModel wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
                     .eq(WfModel::getModelKey, dto.getProcessDefinitionKey())
                     .orderByDesc(WfModel::getVersion)
                     .last("LIMIT 1"));
-            
+
             log.info("查询到的流程模型: {}", wfModel);
-            
+
             if (wfModel == null) {
                 throw new BusinessException("流程模型不存在: " + dto.getProcessDefinitionKey());
             }
-            
+
             // 启动流程实例（不需要预分配所有节点处理人）
             ProcessInstance instance = runtimeService.startProcessInstanceByKey(
                     dto.getProcessDefinitionKey(), dto.getBusinessKey(), dto.getVariables());
-            
+
             log.info("流程实例启动成功: instanceId={}", instance.getId());
             log.info("流程定义ID: {}", instance.getProcessDefinitionId());
             log.info("流程定义Key: {}", instance.getProcessDefinitionKey());
-            
+
             // 保存流程扩展信息
             WfProcessExt ext = new WfProcessExt();
             ext.setProcessInstanceId(instance.getId());
@@ -115,10 +118,10 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             ext.setCreateUser(username);
             ext.setStatus(ProcessStatusEnum.RUNNING.getCode());
             processExtMapper.insert(ext);
-            
+
             log.info("流程扩展信息保存完成");
             log.info("=== 流程启动完成 ===");
-            
+
             return instance.getId();
         } finally {
             identityService.setAuthenticatedUserId(null);
@@ -148,7 +151,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             dto.setBusinessKey(instance.getBusinessKey());
             dto.setStartTime(toLocalDateTime(instance.getStartTime()));
             dto.setEndTime(toLocalDateTime(instance.getEndTime()));
-            
+
             // 从扩展表获取状态，如果不存在则根据endTime判断
             WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
                     .eq(WfProcessExt::getProcessInstanceId, instance.getId()));
@@ -178,7 +181,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
         dto.setBusinessKey(instance.getBusinessKey());
         dto.setStartTime(toLocalDateTime(instance.getStartTime()));
         dto.setEndTime(toLocalDateTime(instance.getEndTime()));
-        
+
         // 从扩展表获取状态，如果不存在则根据endTime判断
         WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
                 .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
@@ -227,7 +230,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             throw new BusinessException("process instance not found or not running");
         }
         runtimeService.suspendProcessInstanceById(processInstanceId);
-        
+
         // 更新扩展表状态
         WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
                 .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
@@ -252,7 +255,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             throw new BusinessException("process instance not found or not suspended");
         }
         runtimeService.activateProcessInstanceById(processInstanceId);
-        
+
         // 更新扩展表状态
         WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
                 .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
@@ -261,6 +264,65 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             processExtMapper.updateById(ext);
         }
         return true;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public boolean restartProcess(String processInstanceId) {
+        if (processInstanceId == null || processInstanceId.isBlank()) {
+            throw new BusinessException("processInstanceId is required");
+        }
+        WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
+                .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
+        if (ext == null || ext.getStatus() == null || !ext.getStatus().equals(ProcessStatusEnum.REJECTED.getCode())) {
+            throw new BusinessException("process instance not rejected");
+        }
+
+        ProcessInstance instance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .singleResult();
+        if (instance == null) {
+            throw new BusinessException("process instance not found or not running");
+        }
+
+        if (instance.isSuspended()) {
+            runtimeService.activateProcessInstanceById(processInstanceId);
+        }
+
+        String username = SecurityContextUtil.getCurrentUsername();
+        runtimeService.setVariable(processInstanceId, "restart:" + System.currentTimeMillis(), username != null ? username : "system");
+
+        String startEventId = resolveStartEventId(instance.getProcessDefinitionId());
+        if (startEventId != null) {
+            List<String> activeIds = runtimeService.getActiveActivityIds(processInstanceId);
+            if (activeIds != null && !activeIds.isEmpty()) {
+                runtimeService.createChangeActivityStateBuilder()
+                        .processInstanceId(processInstanceId)
+                        .moveActivityIdsToSingleActivityId(activeIds, startEventId)
+                        .changeState();
+            }
+        }
+
+        ext.setStatus(ProcessStatusEnum.RUNNING.getCode());
+        ext.setUpdateUser(username);
+        processExtMapper.updateById(ext);
+        return true;
+    }
+
+    private String resolveStartEventId(String processDefinitionId) {
+        if (processDefinitionId == null) {
+            return null;
+        }
+        BpmnModel model = repositoryService.getBpmnModel(processDefinitionId);
+        if (model == null || model.getMainProcess() == null) {
+            return null;
+        }
+        for (FlowElement element : model.getMainProcess().getFlowElements()) {
+            if (element instanceof StartEvent) {
+                return element.getId();
+            }
+        }
+        return null;
     }
 
     @Override
@@ -276,7 +338,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             throw new BusinessException("process instance not found or not running");
         }
         runtimeService.deleteProcessInstance(processInstanceId, "terminated by user");
-        
+
         // 更新扩展表状态
         WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
                 .eq(WfProcessExt::getProcessInstanceId, processInstanceId));
@@ -321,7 +383,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                     .processDefinitionId(historicProcessInstance.getProcessDefinitionId())
                     .singleResult();
-            
+
             if (processDefinition != null) {
                 String resourceName = processDefinition.getResourceName();
                 if (resourceName != null && !resourceName.endsWith(".png")) {
@@ -331,10 +393,10 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                         if (inputStream != null) {
                             try (inputStream) {
                                 String bpmnXml = new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-                                
+
                                 boolean isValidBpmn = (bpmnXml.contains("<definitions") && bpmnXml.contains("<process")) ||
-                                                   (bpmnXml.contains("<bpmn:definitions") && bpmnXml.contains("<bpmn:process"));
-                                
+                                        (bpmnXml.contains("<bpmn:definitions") && bpmnXml.contains("<bpmn:process"));
+
                                 if (isValidBpmn) {
                                     String svgDiagram = convertBpmnXmlToSvg(bpmnXml, processDefinitionKey);
                                     if (svgDiagram != null && !svgDiagram.trim().isEmpty()) {
@@ -351,16 +413,16 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
             // 生成详细的SVG占位符
             return generateDetailedSvgPlaceholder(
-                processDefinition != null ? processDefinition.getName() : "流程图", 
-                processDefinitionKey,
-                historicProcessInstance.getId()
+                    processDefinition != null ? processDefinition.getName() : "流程图",
+                    processDefinitionKey,
+                    historicProcessInstance.getId()
             );
-            
+
         } catch (Exception e) {
             return generateSvgPlaceholder("获取流程图失败", processInstanceId);
         }
     }
-    
+
     private String generateDetailedSvgPlaceholder(String processName, String processKey, String instanceId) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<svg width=\"900\" height=\"700\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
@@ -476,7 +538,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                 "  </text>\n" +
                 "</svg>";
     }
-    
+
     private String generateSvgPlaceholder(String processName, String processKey) {
         return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<svg width=\"800\" height=\"600\" xmlns=\"http://www.w3.org/2000/svg\">\n" +
@@ -514,7 +576,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
         List<HistoricVariableInstance> variables = historyService.createHistoricVariableInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .list();
-        
+
         List<Map<String, Object>> result = new ArrayList<>();
         for (HistoricVariableInstance variable : variables) {
             Map<String, Object> varMap = new HashMap<>();
@@ -534,8 +596,12 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
         HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .singleResult();
-        String processDefinitionKey = processInstance != null ? processInstance.getProcessDefinitionKey() : null;
-        if (processInstance != null && processInstance.getStartTime() != null) {
+        if (processInstance == null) {
+            return result;
+        }
+
+        String processDefinitionKey = processInstance.getProcessDefinitionKey();
+        if (processInstance.getStartTime() != null) {
             result.add(buildHistoryItem(
                     processInstance.getId() + "_start",
                     "系统",
@@ -548,80 +614,130 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             ));
         }
 
-        // 获取任务处理记录
         List<WfTaskHandleRecord> handleRecords = taskHandleRecordMapper.selectList(
                 new LambdaQueryWrapper<WfTaskHandleRecord>()
                         .eq(WfTaskHandleRecord::getProcessInstanceId, processInstanceId)
         );
         Map<String, WfTaskHandleRecord> handleRecordMap = new HashMap<>();
         for (WfTaskHandleRecord record : handleRecords) {
-            if (record.getTaskId() != null) {
+            if (record.getTaskId() == null) {
+                continue;
+            }
+            String recordType = record.getRecordType();
+            boolean isComplete = "complete".equalsIgnoreCase(recordType);
+            boolean isReject = "reject".equalsIgnoreCase(recordType);
+            if (!isComplete && !isReject) {
+                continue;
+            }
+            WfTaskHandleRecord existing = handleRecordMap.get(record.getTaskId());
+            if (existing == null) {
+                handleRecordMap.put(record.getTaskId(), record);
+                continue;
+            }
+            if (existing.getCreateTime() == null && record.getCreateTime() != null) {
+                handleRecordMap.put(record.getTaskId(), record);
+                continue;
+            }
+            if (existing.getCreateTime() != null && record.getCreateTime() != null
+                    && record.getCreateTime().isAfter(existing.getCreateTime())) {
                 handleRecordMap.put(record.getTaskId(), record);
             }
         }
 
-        // 获取历史任务
+        List<HistoricVariableInstance> restartVariables = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableNameLike("restart:%")
+                .list();
+        restartVariables.sort(Comparator.comparing(HistoricVariableInstance::getCreateTime, Comparator.nullsLast(Date::compareTo)));
+
         List<HistoricTaskInstance> historicTasks = historyService.createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId)
                 .orderByHistoricTaskInstanceStartTime()
                 .asc()
                 .list();
 
-        for (HistoricTaskInstance task : historicTasks) {
-            String assignee = task.getAssignee();
-            if (assignee == null || assignee.isBlank()) {
-                assignee = resolveAssigneeFromNodeConfig(processDefinitionKey, task.getTaskDefinitionKey());
-            }
-            if (assignee == null || assignee.isBlank()) {
-                assignee = "未知";
+        boolean endAdded = false;
+        int taskIndex = 0;
+        Date cycleStart = processInstance.getStartTime();
+
+        for (HistoricVariableInstance restartVar : restartVariables) {
+            Date boundary = restartVar.getCreateTime();
+
+            while (taskIndex < historicTasks.size()) {
+                HistoricTaskInstance task = historicTasks.get(taskIndex);
+                Date taskStartTime = task.getStartTime();
+                if (taskStartTime == null) {
+                    taskIndex++;
+                    continue;
+                }
+                if (cycleStart != null && taskStartTime.before(cycleStart)) {
+                    taskIndex++;
+                    continue;
+                }
+                if (boundary != null && !taskStartTime.before(boundary)) {
+                    break;
+                }
+
+                appendTaskHistoryItems(result, task, processDefinitionKey, handleRecordMap);
+                if (!endAdded && isTaskRejected(processInstanceId, task, handleRecordMap)) {
+                    endAdded = true;
+                }
+                taskIndex++;
             }
 
-            if (task.getStartTime() != null) {
+            String restartUser = restartVar.getValue() != null ? String.valueOf(restartVar.getValue()) : "system";
+            Date restartTime = restartVar.getCreateTime();
+            result.add(buildHistoryItem(
+                    processInstanceId + "_restart_" + restartVar.getId(),
+                    restartUser,
+                    "重新发起",
+                    restartTime,
+                    restartTime,
+                    "restart",
+                    "",
+                    ""
+            ));
+
+            cycleStart = boundary;
+        }
+
+        while (taskIndex < historicTasks.size()) {
+            HistoricTaskInstance task = historicTasks.get(taskIndex);
+            Date taskStartTime = task.getStartTime();
+            if (taskStartTime == null) {
+                taskIndex++;
+                continue;
+            }
+            if (cycleStart != null && taskStartTime.before(cycleStart)) {
+                taskIndex++;
+                continue;
+            }
+
+            appendTaskHistoryItems(result, task, processDefinitionKey, handleRecordMap);
+            if (!endAdded && isTaskRejected(processInstanceId, task, handleRecordMap)) {
+                endAdded = true;
+            }
+            taskIndex++;
+        }
+
+        if (processInstance.getEndTime() != null) {
+            if (!endAdded) {
                 result.add(buildHistoryItem(
-                        task.getId() + "_wait",
+                        processInstance.getId() + "_end",
                         "系统",
-                        "等待 " + assignee + " 处理",
-                        task.getStartTime(),
-                        null,
-                        "wait",
+                        "结束流程",
+                        processInstance.getEndTime(),
+                        processInstance.getEndTime(),
+                        "end",
                         "",
                         ""
                 ));
             }
 
-            if (task.getEndTime() != null) {
-                WfTaskHandleRecord record = handleRecordMap.get(task.getId());
-                String approvalResult = record != null ? record.getResult() : resolveApprovalResult(processInstanceId, task.getEndTime());
-                String resultText = formatApprovalResult(approvalResult);
-                String comment = record != null ? record.getComment() : getLatestTaskComment(task.getId());
-                String action = "已处理 处理结果: " + resultText;
-                String commentText = comment == null || comment.isBlank() ? "" : "处理意见: " + comment;
-                String type = resolveResultType(approvalResult);
-                String durationText = "";
-                if (record != null && record.getDurationMs() != null) {
-                    durationText = record.getDurationMs() + "ms";
-                } else if (task.getDurationInMillis() != null) {
-                    durationText = task.getDurationInMillis() + "ms";
-                }
-
-                result.add(buildHistoryItem(
-                        task.getId() + "_complete",
-                        assignee,
-                        action,
-                        task.getEndTime(),
-                        task.getEndTime(),
-                        type,
-                        commentText,
-                        durationText
-                ));
-            }
-        }
-
-        if (processInstance != null && processInstance.getEndTime() != null) {
             result.add(buildHistoryItem(
-                    processInstance.getId() + "_end",
+                    processInstance.getId() + "_completed",
                     "系统",
-                    "结束流程",
+                    "流程已完成",
                     processInstance.getEndTime(),
                     processInstance.getEndTime(),
                     "end",
@@ -629,15 +745,6 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                     ""
             ));
         }
-
-        result.sort((a, b) -> {
-            LocalDateTime ta = (LocalDateTime) a.get("time");
-            LocalDateTime tb = (LocalDateTime) b.get("time");
-            if (ta == null && tb == null) return 0;
-            if (ta == null) return 1;
-            if (tb == null) return -1;
-            return ta.compareTo(tb);
-        });
 
         return result;
     }
@@ -770,7 +877,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                 return "complete";
         }
     }
-    
+
     /**
      * 将BPMN XML转换为SVG流程图
      */
@@ -779,7 +886,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             StringBuilder svg = new StringBuilder();
             svg.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
             svg.append("<svg width=\"900\" height=\"700\" xmlns=\"http://www.w3.org/2000/svg\">\n");
-            
+
             // 添加样式和定义
             svg.append("  <defs>\n");
             svg.append("    <marker id=\"arrowhead\" markerWidth=\"10\" markerHeight=\"7\" refX=\"9\" refY=\"3.5\" orient=\"auto\">\n");
@@ -797,10 +904,10 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             svg.append("      </feMerge>\n");
             svg.append("    </filter>\n");
             svg.append("  </defs>\n");
-            
+
             // 背景
             svg.append("  <rect width=\"900\" height=\"700\" fill=\"#f8f9fa\" stroke=\"#dee2e6\" stroke-width=\"1\"/>\n");
-            
+
             // 标题区域
             svg.append("  <rect x=\"20\" y=\"20\" width=\"860\" height=\"80\" rx=\"8\" fill=\"white\" stroke=\"#dee2e6\" stroke-width=\"1\" filter=\"url(#shadow)\"/>\n");
             svg.append("  <text x=\"450\" y=\"45\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"18\" font-weight=\"bold\" fill=\"#495057\">\n");
@@ -809,137 +916,239 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             svg.append("  <text x=\"450\" y=\"70\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" fill=\"#6c757d\">\n");
             svg.append("    BPMN 流程图 - 自动生成\n");
             svg.append("  </text>\n");
-            
+
             // 解析BPMN XML中的元素
             List<String> startEvents = extractBpmnElements(bpmnXml, "startEvent");
             List<String> userTasks = extractBpmnElements(bpmnXml, "userTask");
             List<String> serviceTasks = extractBpmnElements(bpmnXml, "serviceTask");
             List<String> gateways = extractBpmnElements(bpmnXml, "exclusiveGateway");
             List<String> endEvents = extractBpmnElements(bpmnXml, "endEvent");
-            
+
             // 生成流程图布局
             int yOffset = 150;
-            
+
             // 开始事件
             if (!startEvents.isEmpty()) {
                 svg.append(generateStartEventSvg(150, yOffset, startEvents.get(0)));
             }
-            
+
             // 用户任务
             for (int i = 0; i < userTasks.size() && i < 3; i++) {
                 int xPos = 300 + (i * 150);
                 svg.append(generateUserTaskSvg(xPos, yOffset, userTasks.get(i), i));
             }
-            
+
             // 结束事件
             if (!endEvents.isEmpty()) {
                 int xPos = 300 + (userTasks.size() * 150);
                 svg.append(generateEndEventSvg(xPos, yOffset, endEvents.get(0)));
             }
-            
+
             // 添加连接线
             svg.append(generateConnectionSvg(userTasks.size()));
-            
+
             svg.append("</svg>");
-            
+
             return svg.toString();
-            
+
         } catch (Exception e) {
             return null;
         }
     }
-    
+
     /**
      * 从BPMN XML中提取特定类型的元素
      */
     private List<String> extractBpmnElements(String bpmnXml, String elementType) {
         List<String> elements = new ArrayList<>();
-        
+
         // 支持带命名空间和不带命名空间的格式
         String pattern1 = "<bpmn:" + elementType + "\\s+[^>]*id=\"([^\"]+)\"[^>]*>";
         String pattern2 = "<" + elementType + "\\s+[^>]*id=\"([^\"]+)\"[^>]*>";
-        
+
         java.util.regex.Pattern p1 = java.util.regex.Pattern.compile(pattern1);
         java.util.regex.Pattern p2 = java.util.regex.Pattern.compile(pattern2);
-        
+
         java.util.regex.Matcher m1 = p1.matcher(bpmnXml);
         while (m1.find()) {
             elements.add(m1.group(1));
         }
-        
+
         java.util.regex.Matcher m2 = p2.matcher(bpmnXml);
         while (m2.find()) {
             elements.add(m2.group(1));
         }
-        
+
         return elements;
     }
-    
+
     private String generateStartEventSvg(int x, int y, String id) {
         return String.format(
-            "  <circle cx=\"%d\" cy=\"%d\" r=\"30\" fill=\"#28a745\" stroke=\"#1e7e34\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
-            "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
-            "    开始\n" +
-            "  </text>\n",
-            x, y, x, y + 5
+                "  <circle cx=\"%d\" cy=\"%d\" r=\"30\" fill=\"#28a745\" stroke=\"#1e7e34\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
+                        "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
+                        "    开始\n" +
+                        "  </text>\n",
+                x, y, x, y + 5
         );
     }
-    
+
     private String generateUserTaskSvg(int x, int y, String id, int index) {
         String taskName = getUserTaskName(id, index);
         return String.format(
-            "  <rect x=\"%d\" y=\"%d\" width=\"120\" height=\"60\" rx=\"8\" fill=\"#007bff\" stroke=\"#0056b3\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
-            "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
-            "    用户任务\n" +
-            "  </text>\n" +
-            "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"12\" fill=\"white\">\n" +
-            "    %s\n" +
-            "  </text>\n",
-            x, y - 30, x + 60, y - 5, x + 60, y + 15, taskName
+                "  <rect x=\"%d\" y=\"%d\" width=\"120\" height=\"60\" rx=\"8\" fill=\"#007bff\" stroke=\"#0056b3\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
+                        "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
+                        "    用户任务\n" +
+                        "  </text>\n" +
+                        "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"12\" fill=\"white\">\n" +
+                        "    %s\n" +
+                        "  </text>\n",
+                x, y - 30, x + 60, y - 5, x + 60, y + 15, taskName
         );
     }
-    
+
     private String generateEndEventSvg(int x, int y, String id) {
         return String.format(
-            "  <circle cx=\"%d\" cy=\"%d\" r=\"30\" fill=\"#dc3545\" stroke=\"#c82333\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
-            "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
-            "    结束\n" +
-            "  </text>\n",
-            x, y, x, y + 5
+                "  <circle cx=\"%d\" cy=\"%d\" r=\"30\" fill=\"#dc3545\" stroke=\"#c82333\" stroke-width=\"2\" filter=\"url(#shadow)\"/>\n" +
+                        "  <text x=\"%d\" y=\"%d\" text-anchor=\"middle\" font-family=\"Arial, sans-serif\" font-size=\"14\" font-weight=\"bold\" fill=\"white\">\n" +
+                        "    结束\n" +
+                        "  </text>\n",
+                x, y, x, y + 5
         );
     }
-    
+
     private String generateConnectionSvg(int taskCount) {
         StringBuilder connections = new StringBuilder();
         connections.append("  <!-- 连接线 -->\n");
-        
+
         // 从开始到第一个任务
         connections.append("  <path d=\"M 180 150 L 300 150\" stroke=\"#666\" stroke-width=\"2\" fill=\"none\" marker-end=\"url(#arrowhead)\"/>\n");
-        
+
         // 任务之间的连接
         for (int i = 0; i < taskCount - 1; i++) {
             int x1 = 300 + (i * 150);
             int x2 = 300 + ((i + 1) * 150);
             connections.append(String.format(
-                "  <path d=\"M %d 150 L %d 150\" stroke=\"#666\" stroke-width=\"2\" fill=\"none\" marker-end=\"url(#arrowhead)\"/>\n",
-                x1 + 120, x2
+                    "  <path d=\"M %d 150 L %d 150\" stroke=\"#666\" stroke-width=\"2\" fill=\"none\" marker-end=\"url(#arrowhead)\"/>\n",
+                    x1 + 120, x2
             ));
         }
-        
+
         // 从最后一个任务到结束
         if (taskCount > 0) {
             int lastTaskX = 300 + ((taskCount - 1) * 150);
             connections.append(String.format(
-                "  <path d=\"M %d 150 L %d 150\" stroke=\"#666\" stroke-width=\"2\" fill=\"none\" marker-end=\"url(#arrowhead)\"/>\n",
-                lastTaskX + 120, lastTaskX + 150
+                    "  <path d=\"M %d 150 L %d 150\" stroke=\"#666\" stroke-width=\"2\" fill=\"none\" marker-end=\"url(#arrowhead)\"/>\n",
+                    lastTaskX + 120, lastTaskX + 150
             ));
         }
-        
+
         return connections.toString();
     }
-    
+
     private String getUserTaskName(String id, int index) {
         String[] names = {"提交申请", "审核审批", "最终确认", "数据处理", "发送通知"};
         return index < names.length ? names[index] : "任务" + (index + 1);
+    }
+
+    private int historyOrder(String type) {
+        if (type == null) {
+            return 99;
+        }
+        switch (type) {
+            case "start": return 1;
+            case "restart": return 2;
+            case "wait": return 3;
+            case "complete": return 4;
+            case "reject": return 5;
+            case "end": return 6;
+            default: return 99;
+        }
+    }
+
+    private void appendTaskHistoryItems(List<Map<String, Object>> result,
+                                       HistoricTaskInstance task,
+                                       String processDefinitionKey,
+                                       Map<String, WfTaskHandleRecord> handleRecordMap) {
+        String assignee = task.getAssignee();
+        if (assignee == null || assignee.isBlank()) {
+            assignee = resolveAssigneeFromNodeConfig(processDefinitionKey, task.getTaskDefinitionKey());
+        }
+        if (assignee == null || assignee.isBlank()) {
+            assignee = "未知";
+        }
+
+        Date taskStartTime = task.getStartTime();
+        if (taskStartTime != null) {
+            result.add(buildHistoryItem(
+                    task.getId() + "_wait",
+                    "系统",
+                    "等待 " + assignee + " 处理",
+                    taskStartTime,
+                    null,
+                    "wait",
+                    "",
+                    ""
+            ));
+        }
+
+        WfTaskHandleRecord record = handleRecordMap.get(task.getId());
+        Date taskEndTime = task.getEndTime();
+        if (taskEndTime == null && record != null && record.getCreateTime() != null) {
+            taskEndTime = Date.from(record.getCreateTime().atZone(ZoneId.systemDefault()).toInstant());
+        }
+        if (taskEndTime == null) {
+            return;
+        }
+
+        String approvalResult = record != null ? record.getResult() : resolveApprovalResult(task.getProcessInstanceId(), taskEndTime);
+        String resultText = formatApprovalResult(approvalResult);
+        String comment = record != null ? record.getComment() : getLatestTaskComment(task.getId());
+        String action = "已处理 处理结果: " + resultText;
+        String commentText = comment == null || comment.isBlank() ? "" : "处理意见: " + comment;
+        String type = resolveResultType(approvalResult);
+        String durationText = "";
+        if (record != null && record.getDurationMs() != null) {
+            durationText = record.getDurationMs() + "ms";
+        } else if (task.getDurationInMillis() != null) {
+            durationText = task.getDurationInMillis() + "ms";
+        }
+
+        result.add(buildHistoryItem(
+                task.getId() + "_complete",
+                assignee,
+                action,
+                taskEndTime,
+                taskEndTime,
+                type,
+                commentText,
+                durationText
+        ));
+
+        if ("reject".equalsIgnoreCase(String.valueOf(approvalResult))) {
+            result.add(buildHistoryItem(
+                    task.getId() + "_reject_end",
+                    "系统",
+                    "结束流程",
+                    taskEndTime,
+                    taskEndTime,
+                    "end",
+                    "",
+                    ""
+            ));
+        }
+    }
+
+    private boolean isTaskRejected(String processInstanceId,
+                                  HistoricTaskInstance task,
+                                  Map<String, WfTaskHandleRecord> handleRecordMap) {
+        WfTaskHandleRecord record = handleRecordMap.get(task.getId());
+        String approvalResult = record != null ? record.getResult() : null;
+        if (approvalResult == null) {
+            Date taskEndTime = task.getEndTime();
+            if (taskEndTime != null) {
+                approvalResult = resolveApprovalResult(processInstanceId, taskEndTime);
+            }
+        }
+        return "reject".equalsIgnoreCase(String.valueOf(approvalResult)) || "rejected".equalsIgnoreCase(String.valueOf(approvalResult));
     }
 }

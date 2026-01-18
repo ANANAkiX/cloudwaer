@@ -6,6 +6,8 @@ import com.cloudwaer.flowable.serve.entity.WfModel;
 import com.cloudwaer.flowable.serve.entity.WfProcessExt;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
+import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
+import com.cloudwaer.flowable.serve.entity.WfTaskHandleRecord;
 import lombok.extern.slf4j.Slf4j;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.delegate.DelegateExecution;
@@ -25,6 +27,7 @@ public class FlowableExecutionListener implements ExecutionListener {
     private WfModelMapper wfModelMapper;
     private WfProcessExtMapper processExtMapper;
     private RepositoryService repositoryService;
+    private WfTaskHandleRecordMapper taskHandleRecordMapper;
 
     // Setter方法用于依赖注入
     public void setWfModelMapper(WfModelMapper wfModelMapper) {
@@ -37,6 +40,10 @@ public class FlowableExecutionListener implements ExecutionListener {
 
     public void setRepositoryService(RepositoryService repositoryService) {
         this.repositoryService = repositoryService;
+    }
+
+    public void setTaskHandleRecordMapper(WfTaskHandleRecordMapper taskHandleRecordMapper) {
+        this.taskHandleRecordMapper = taskHandleRecordMapper;
     }
 
     @Override
@@ -125,6 +132,15 @@ public class FlowableExecutionListener implements ExecutionListener {
                     .last("LIMIT 1"));
             
             log.info("查询到的流程模型: {}", wfModel);
+            if (taskHandleRecordMapper != null) {
+                WfTaskHandleRecord record = new WfTaskHandleRecord();
+                record.setProcessInstanceId(execution.getProcessInstanceId());
+                record.setTaskId("end:" + execution.getProcessInstanceId());
+                record.setAssignee("系统");
+                record.setRecordType("end");
+                record.setAction("结束流程");
+                taskHandleRecordMapper.insert(record);
+            }
 
             if (processExtMapper != null) {
                 WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
