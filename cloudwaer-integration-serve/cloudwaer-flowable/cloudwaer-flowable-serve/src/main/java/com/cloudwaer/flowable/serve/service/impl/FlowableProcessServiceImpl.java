@@ -10,10 +10,12 @@ import com.cloudwaer.flowable.api.dto.FlowableProcessStartDTO;
 import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
 import com.cloudwaer.flowable.serve.entity.WfModel;
 import com.cloudwaer.flowable.serve.entity.WfProcessExt;
+import com.cloudwaer.flowable.serve.entity.WfTaskHandleRecord;
 import com.cloudwaer.flowable.serve.entity.WfNodeAction;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.mapper.WfNodeActionMapper;
 import com.cloudwaer.flowable.serve.mapper.WfProcessExtMapper;
+import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
 import com.cloudwaer.flowable.serve.service.FlowableProcessService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,7 +25,6 @@ import org.flowable.engine.IdentityService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
-import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
 import org.flowable.engine.repository.ProcessDefinition;
@@ -61,6 +62,9 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
     @Autowired
     private WfProcessExtMapper processExtMapper;
+
+    @Autowired
+    private WfTaskHandleRecordMapper taskHandleRecordMapper;
 
     @Autowired
     private WfModelMapper wfModelMapper;
@@ -313,30 +317,6 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
             String processDefinitionKey = historicProcessInstance.getProcessDefinitionKey();
 
-            // 从WfModel表中获取BPMN XML
-            WfModel wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
-                    .eq(WfModel::getModelKey, processDefinitionKey)
-                    .orderByDesc(WfModel::getVersion)
-                    .last("LIMIT 1"));
-            
-            if (wfModel != null) {
-                String bpmnXml = wfModel.getBpmnXml();
-                
-                if (bpmnXml != null && !bpmnXml.trim().isEmpty()) {
-                    // 验证是否是有效的BPMN XML（支持带命名空间的格式）
-                    boolean isValidBpmn = (bpmnXml.contains("<definitions") && bpmnXml.contains("<process")) ||
-                                       (bpmnXml.contains("<bpmn:definitions") && bpmnXml.contains("<bpmn:process"));
-                    
-                    if (isValidBpmn) {
-                        // 将BPMN XML转换为SVG流程图
-                        String svgDiagram = convertBpmnXmlToSvg(bpmnXml, processDefinitionKey);
-                        if (svgDiagram != null && !svgDiagram.trim().isEmpty()) {
-                            return svgDiagram;
-                        }
-                    }
-                }
-            }
-
             // 如果无法获取或转换失败，尝试从Flowable部署资源中获取
             ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
                     .processDefinitionId(historicProcessInstance.getProcessDefinitionId())
@@ -568,6 +548,18 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             ));
         }
 
+        // 获取任务处理记录
+        List<WfTaskHandleRecord> handleRecords = taskHandleRecordMapper.selectList(
+                new LambdaQueryWrapper<WfTaskHandleRecord>()
+                        .eq(WfTaskHandleRecord::getProcessInstanceId, processInstanceId)
+        );
+        Map<String, WfTaskHandleRecord> handleRecordMap = new HashMap<>();
+        for (WfTaskHandleRecord record : handleRecords) {
+            if (record.getTaskId() != null) {
+                handleRecordMap.put(record.getTaskId(), record);
+            }
+        }
+
         // 获取历史任务
         List<HistoricTaskInstance> historicTasks = historyService.createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId)
@@ -581,14 +573,14 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                 assignee = resolveAssigneeFromNodeConfig(processDefinitionKey, task.getTaskDefinitionKey());
             }
             if (assignee == null || assignee.isBlank()) {
-                assignee = "未分配";
+                assignee = "未知";
             }
 
             if (task.getStartTime() != null) {
                 result.add(buildHistoryItem(
                         task.getId() + "_wait",
                         "系统",
-                        "等待" + assignee + "处理",
+                        "等待 " + assignee + " 处理",
                         task.getStartTime(),
                         null,
                         "wait",
@@ -598,12 +590,19 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             }
 
             if (task.getEndTime() != null) {
-                String approvalResult = resolveApprovalResult(processInstanceId, task.getEndTime());
+                WfTaskHandleRecord record = handleRecordMap.get(task.getId());
+                String approvalResult = record != null ? record.getResult() : resolveApprovalResult(processInstanceId, task.getEndTime());
                 String resultText = formatApprovalResult(approvalResult);
-                String comment = getLatestTaskComment(task.getId());
+                String comment = record != null ? record.getComment() : getLatestTaskComment(task.getId());
                 String action = "已处理 处理结果: " + resultText;
                 String commentText = comment == null || comment.isBlank() ? "" : "处理意见: " + comment;
                 String type = resolveResultType(approvalResult);
+                String durationText = "";
+                if (record != null && record.getDurationMs() != null) {
+                    durationText = record.getDurationMs() + "ms";
+                } else if (task.getDurationInMillis() != null) {
+                    durationText = task.getDurationInMillis() + "ms";
+                }
 
                 result.add(buildHistoryItem(
                         task.getId() + "_complete",
@@ -613,7 +612,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                         task.getEndTime(),
                         type,
                         commentText,
-                        task.getDurationInMillis() != null ? task.getDurationInMillis() + "ms" : ""
+                        durationText
                 ));
             }
         }

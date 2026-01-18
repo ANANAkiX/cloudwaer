@@ -6,7 +6,10 @@ import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.flowable.api.dto.FlowableProcessDefinitionDTO;
 import com.cloudwaer.flowable.api.dto.FormFieldDTO;
 import com.cloudwaer.flowable.api.dto.OptionDTO;
+import com.cloudwaer.flowable.serve.constant.FlowableConstants;
+import com.cloudwaer.flowable.serve.entity.WfDeployment;
 import com.cloudwaer.flowable.serve.entity.WfModel;
+import com.cloudwaer.flowable.serve.mapper.WfDeploymentMapper;
 import com.cloudwaer.flowable.serve.mapper.WfModelMapper;
 import com.cloudwaer.flowable.serve.service.FlowableProcessDefinitionService;
 import org.flowable.engine.RepositoryService;
@@ -28,6 +31,9 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
 
     @Autowired
     private WfModelMapper wfModelMapper;
+
+    @Autowired
+    private WfDeploymentMapper deploymentMapper;
 
     @Override
     public PageResult<FlowableProcessDefinitionDTO> getProcessDefinitions(PageDTO pageDTO, String category, String keyword) {
@@ -98,7 +104,13 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
                 dto.setAvgDuration("-");
 
                 // 获取表单字段
-                dto.setFormFields(getFormFields(pd.getKey()));
+                String formJson = getFormJson(pd.getId());
+                dto.setFormJson(formJson);
+                if (formJson == null || formJson.isBlank()) {
+                    dto.setFormFields(getFormFields(pd.getKey()));
+                } else {
+                    dto.setFormFields(new ArrayList<>());
+                }
 
                 result.add(dto);
             }
@@ -159,7 +171,13 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
             }
             
             // 获取表单字段
-            dto.setFormFields(getFormFields(processDefinition.getKey()));
+            String formJson = getFormJson(processDefinition.getId());
+            dto.setFormJson(formJson);
+            if (formJson == null || formJson.isBlank()) {
+                dto.setFormFields(getFormFields(processDefinition.getKey()));
+            } else {
+                dto.setFormFields(new ArrayList<>());
+            }
             
             return dto;
             
@@ -268,5 +286,16 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
         }
         
         return formFields;
+    }
+
+    private String getFormJson(String processDefinitionId) {
+        if (processDefinitionId == null || processDefinitionId.isBlank()) {
+            return null;
+        }
+        WfDeployment deployment = deploymentMapper.selectOne(new LambdaQueryWrapper<WfDeployment>()
+                .eq(WfDeployment::getProcessDefinitionId, processDefinitionId)
+                .eq(WfDeployment::getDeployStatus, FlowableConstants.DEPLOY_STATUS_ACTIVE)
+                .last("limit 1"));
+        return deployment != null ? deployment.getFormJson() : null;
     }
 }

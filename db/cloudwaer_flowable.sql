@@ -17,6 +17,7 @@ CREATE TABLE `wf_model`  (
   `version` int(11) NOT NULL DEFAULT 1 COMMENT 'model version',
   `model_status` int(11) NOT NULL DEFAULT 0 COMMENT 'model status: 0-draft,1-released,2-archived',
   `bpmn_xml` longtext NULL COMMENT 'bpmn xml',
+  `form_json` longtext NULL COMMENT '动态表单JSON',
   `node_actions_json` longtext NULL COMMENT 'node actions json',
   `remark` varchar(500) NULL DEFAULT NULL COMMENT 'remark',
   `create_time` datetime NOT NULL COMMENT 'create time',
@@ -70,6 +71,7 @@ CREATE TABLE `wf_deployment`  (
   `process_definition_key` varchar(128) NOT NULL COMMENT 'process definition key',
   `process_definition_name` varchar(128) NULL DEFAULT NULL COMMENT 'process definition name',
   `process_definition_version` int(11) NOT NULL COMMENT 'process definition version',
+  `form_json` longtext NULL COMMENT '动态表单JSON',
   `deploy_status` int(11) NOT NULL DEFAULT 1 COMMENT 'deploy status: 1-active,0-archived',
   `create_time` datetime NOT NULL COMMENT 'create time',
   `create_user` varchar(100) NULL DEFAULT NULL COMMENT 'create user',
@@ -123,6 +125,30 @@ CREATE TABLE `wf_task_ext`  (
   UNIQUE INDEX `uk_task_id`(`task_id` ASC) USING BTREE,
   INDEX `idx_process_instance_id`(`process_instance_id` ASC) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'flowable task extension table' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for wf_task_handle_record
+-- ----------------------------
+DROP TABLE IF EXISTS `wf_task_handle_record`;
+CREATE TABLE `wf_task_handle_record`  (
+  `id` bigint(20) NOT NULL COMMENT 'primary key',
+  `process_instance_id` varchar(64) NOT NULL COMMENT 'process instance id',
+  `task_id` varchar(64) NOT NULL COMMENT 'task id',
+  `task_definition_key` varchar(64) NULL DEFAULT NULL COMMENT 'task definition key',
+  `task_name` varchar(255) NULL DEFAULT NULL COMMENT 'task name',
+  `assignee` varchar(64) NULL DEFAULT NULL COMMENT 'assignee',
+  `result` varchar(64) NULL DEFAULT NULL COMMENT 'result',
+  `comment` varchar(500) NULL DEFAULT NULL COMMENT 'comment',
+  `duration_ms` bigint(20) NULL DEFAULT NULL COMMENT 'duration ms',
+  `create_time` datetime NOT NULL COMMENT 'create time',
+  `create_user` varchar(100) NULL DEFAULT NULL COMMENT 'create user',
+  `update_time` datetime NOT NULL COMMENT 'update time',
+  `update_user` varchar(100) NULL DEFAULT NULL COMMENT 'update user',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT 'record status',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_task_id`(`task_id` ASC) USING BTREE,
+  INDEX `idx_process_instance_id`(`process_instance_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'task handle record' ROW_FORMAT = DYNAMIC;
 SET FOREIGN_KEY_CHECKS = 1;
 
 

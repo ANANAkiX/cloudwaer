@@ -21,6 +21,9 @@ public class WfDeployment extends BaseEntity {
     private String processDefinitionName;
     private Integer processDefinitionVersion;
 
+    @TableField("form_json")
+    private String formJson;
+
     @TableField("deploy_status")
     private Integer deployStatus;
 }

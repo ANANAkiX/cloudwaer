@@ -8,7 +8,9 @@ import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.cloudwaer.flowable.api.dto.FlowableTaskCompleteDTO;
 import com.cloudwaer.flowable.api.dto.FlowableTaskDTO;
 import com.cloudwaer.flowable.serve.entity.WfTaskExt;
+import com.cloudwaer.flowable.serve.entity.WfTaskHandleRecord;
 import com.cloudwaer.flowable.serve.mapper.WfTaskExtMapper;
+import com.cloudwaer.flowable.serve.mapper.WfTaskHandleRecordMapper;
 import com.cloudwaer.flowable.serve.service.FlowableTaskService;
 import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
@@ -25,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -48,6 +51,9 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 
     @Autowired
     private WfTaskExtMapper taskExtMapper;
+
+    @Autowired
+    private WfTaskHandleRecordMapper taskHandleRecordMapper;
 
     @Override
     public PageResult<FlowableTaskDTO> listTodo(PageDTO pageDTO) {
@@ -134,11 +140,44 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         if (dto.getTaskId() == null || dto.getTaskId().isBlank()) {
             throw new BusinessException("taskId is required");
         }
+        Task task = taskService.createTaskQuery().taskId(dto.getTaskId()).singleResult();
+        if (task == null) {
+            throw new BusinessException("task not found");
+        }
+        String username = SecurityContextUtil.getCurrentUsername();
         if (dto.getComment() != null && !dto.getComment().isBlank()) {
             taskService.addComment(dto.getTaskId(), null, dto.getComment());
         }
+        saveTaskHandleRecord(task, dto, username);
         taskService.complete(dto.getTaskId(), dto.getVariables());
         return true;
+    }
+
+    private void saveTaskHandleRecord(Task task, FlowableTaskCompleteDTO dto, String username) {
+        Long exists = taskHandleRecordMapper.selectCount(new LambdaQueryWrapper<WfTaskHandleRecord>()
+                .eq(WfTaskHandleRecord::getTaskId, task.getId()));
+        if (exists != null && exists > 0) {
+            return;
+        }
+        WfTaskHandleRecord record = new WfTaskHandleRecord();
+        record.setProcessInstanceId(task.getProcessInstanceId());
+        record.setTaskId(task.getId());
+        record.setTaskDefinitionKey(task.getTaskDefinitionKey());
+        record.setTaskName(task.getName());
+        record.setAssignee(task.getAssignee());
+        record.setComment(dto.getComment());
+        if (dto.getVariables() != null) {
+            Object result = dto.getVariables().get("approvalResult");
+            if (result != null) {
+                record.setResult(String.valueOf(result));
+            }
+        }
+        if (task.getCreateTime() != null) {
+            long duration = Duration.between(task.getCreateTime().toInstant(), new Date().toInstant()).toMillis();
+            record.setDurationMs(duration);
+        }
+        record.setCreateUser(username);
+        taskHandleRecordMapper.insert(record);
     }
 
     @Override

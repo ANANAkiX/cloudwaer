@@ -70,6 +70,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
             model.setModelName(dto.getModelName());
             model.setCategory(dto.getCategory());
             model.setRemark(dto.getRemark());
+            model.setFormJson(dto.getFormJson());
             model.setVersion(1);
             model.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
             model.setBpmnXml(dto.getBpmnXml());
@@ -84,6 +85,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
                 model.setModelName(dto.getModelName());
                 model.setCategory(dto.getCategory());
                 model.setRemark(dto.getRemark());
+                model.setFormJson(dto.getFormJson());
                 model.setBpmnXml(dto.getBpmnXml());
                 model.setNodeActionsJson(toJson(dto.getNodeActions()));
                 this.updateById(model);
@@ -98,6 +100,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
             newModel.setModelName(dto.getModelName());
             newModel.setCategory(dto.getCategory());
             newModel.setRemark(dto.getRemark());
+            newModel.setFormJson(dto.getFormJson());
             newModel.setVersion(resolveNextVersion(model.getModelKey()));
             newModel.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
             newModel.setBpmnXml(dto.getBpmnXml());
@@ -233,6 +236,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         wfDeployment.setProcessDefinitionKey(definition.getKey());
         wfDeployment.setProcessDefinitionName(definition.getName());
         wfDeployment.setProcessDefinitionVersion(definition.getVersion());
+        wfDeployment.setFormJson(model.getFormJson());
         wfDeployment.setDeployStatus(FlowableConstants.DEPLOY_STATUS_ACTIVE);
         deploymentMapper.insert(wfDeployment);
 
@@ -262,6 +266,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
                 ? source.getModelName() + " Copy" : dto.getNewModelName());
         model.setCategory(source.getCategory());
         model.setRemark(source.getRemark());
+        model.setFormJson(source.getFormJson());
         model.setVersion(1);
         model.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
         model.setBpmnXml(source.getBpmnXml());
@@ -299,6 +304,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
         newModel.setModelName(model.getModelName());
         newModel.setCategory(model.getCategory());
         newModel.setRemark(model.getRemark());
+        newModel.setFormJson(model.getFormJson());
         newModel.setVersion(resolveNextVersion(model.getModelKey()));
         newModel.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
         newModel.setBpmnXml(model.getBpmnXml());

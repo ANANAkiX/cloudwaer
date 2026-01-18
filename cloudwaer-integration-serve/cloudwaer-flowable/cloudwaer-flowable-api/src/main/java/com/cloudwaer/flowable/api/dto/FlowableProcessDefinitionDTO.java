@@ -30,5 +30,7 @@ public class FlowableProcessDefinitionDTO implements Serializable {
     
     private LocalDateTime updateTime;
     
+    private String formJson;
+
     private List<FormFieldDTO> formFields;
 }

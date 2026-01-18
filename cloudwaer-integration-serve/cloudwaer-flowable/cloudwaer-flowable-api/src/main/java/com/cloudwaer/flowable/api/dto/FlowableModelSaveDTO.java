@@ -16,5 +16,6 @@ public class FlowableModelSaveDTO implements Serializable {
     private String category;
     private String remark;
     private String bpmnXml;
+    private String formJson;
     private List<FlowableNodeActionDTO> nodeActions;
 }

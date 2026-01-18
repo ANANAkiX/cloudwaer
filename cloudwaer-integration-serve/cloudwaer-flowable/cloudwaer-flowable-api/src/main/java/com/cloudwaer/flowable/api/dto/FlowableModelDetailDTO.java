@@ -18,6 +18,7 @@ public class FlowableModelDetailDTO implements Serializable {
     private Integer version;
     private Integer modelStatus;
     private String bpmnXml;
+    private String formJson;
     private List<FlowableNodeActionDTO> nodeActions;
     private String remark;
     private LocalDateTime updateTime;

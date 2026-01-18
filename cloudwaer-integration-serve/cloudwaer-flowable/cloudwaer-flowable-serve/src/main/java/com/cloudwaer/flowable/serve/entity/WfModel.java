@@ -20,6 +20,9 @@ public class WfModel extends BaseEntity {
     @TableField("bpmn_xml")
     private String bpmnXml;
 
+    @TableField("form_json")
+    private String formJson;
+
     @TableField("node_actions_json")
     private String nodeActionsJson;
 
