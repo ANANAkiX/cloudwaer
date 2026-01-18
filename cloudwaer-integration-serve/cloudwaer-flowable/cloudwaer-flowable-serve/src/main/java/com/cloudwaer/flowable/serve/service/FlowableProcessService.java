@@ -28,6 +28,11 @@ public interface FlowableProcessService {
 
     String getProcessDiagram(String processInstanceId);
 
+    /**
+     * 获取流程实例对应的 BPMN XML（用于前端只读渲染）
+     */
+    String getProcessBpmnXml(String processInstanceId);
+
     List<Map<String, Object>> getProcessVariables(String processInstanceId);
 
     List<Map<String, Object>> getProcessHistory(String processInstanceId);

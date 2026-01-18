@@ -370,56 +370,64 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
     @Override
     public String getProcessDiagram(String processInstanceId) {
         try {
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                    .processInstanceId(processInstanceId)
-                    .singleResult();
-            if (historicProcessInstance == null) {
+            String bpmnXml = getProcessBpmnXml(processInstanceId);
+            if (bpmnXml == null || bpmnXml.isBlank()) {
                 return generateSvgPlaceholder("未找到流程实例", processInstanceId);
             }
 
-            String processDefinitionKey = historicProcessInstance.getProcessDefinitionKey();
-
-            // 如果无法获取或转换失败，尝试从Flowable部署资源中获取
-            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                    .processDefinitionId(historicProcessInstance.getProcessDefinitionId())
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceId(processInstanceId)
                     .singleResult();
+            String processDefinitionKey = historicProcessInstance != null ? historicProcessInstance.getProcessDefinitionKey() : null;
 
-            if (processDefinition != null) {
-                String resourceName = processDefinition.getResourceName();
-                if (resourceName != null && !resourceName.endsWith(".png")) {
-                    try {
-                        InputStream inputStream = repositoryService.getResourceAsStream(
-                                processDefinition.getDeploymentId(), resourceName);
-                        if (inputStream != null) {
-                            try (inputStream) {
-                                String bpmnXml = new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
-
-                                boolean isValidBpmn = (bpmnXml.contains("<definitions") && bpmnXml.contains("<process")) ||
-                                        (bpmnXml.contains("<bpmn:definitions") && bpmnXml.contains("<bpmn:process"));
-
-                                if (isValidBpmn) {
-                                    String svgDiagram = convertBpmnXmlToSvg(bpmnXml, processDefinitionKey);
-                                    if (svgDiagram != null && !svgDiagram.trim().isEmpty()) {
-                                        return svgDiagram;
-                                    }
-                                }
-                            }
-                        }
-                    } catch (Exception e) {
-                        // 忽略错误，继续使用占位符
-                    }
-                }
+            String svgDiagram = convertBpmnXmlToSvg(bpmnXml, processDefinitionKey);
+            if (svgDiagram != null && !svgDiagram.trim().isEmpty()) {
+                return svgDiagram;
             }
 
-            // 生成详细的SVG占位符
             return generateDetailedSvgPlaceholder(
-                    processDefinition != null ? processDefinition.getName() : "流程图",
+                    processDefinitionKey != null ? processDefinitionKey : "流程图",
                     processDefinitionKey,
-                    historicProcessInstance.getId()
+                    processInstanceId
             );
 
         } catch (Exception e) {
             return generateSvgPlaceholder("获取流程图失败", processInstanceId);
+        }
+    }
+
+    @Override
+    public String getProcessBpmnXml(String processInstanceId) {
+        try {
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .singleResult();
+            if (historicProcessInstance == null) {
+                return null;
+            }
+
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
+                    .processDefinitionId(historicProcessInstance.getProcessDefinitionId())
+                    .singleResult();
+            if (processDefinition == null) {
+                return null;
+            }
+
+            String resourceName = processDefinition.getResourceName();
+            if (resourceName == null || resourceName.endsWith(".png")) {
+                return null;
+            }
+
+            InputStream inputStream = repositoryService.getResourceAsStream(processDefinition.getDeploymentId(), resourceName);
+            if (inputStream == null) {
+                return null;
+            }
+
+            try (inputStream) {
+                return new String(inputStream.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            return null;
         }
     }
 

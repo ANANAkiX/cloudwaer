@@ -77,6 +77,12 @@ public class FlowableProcessController {
         return Result.success(processService.getProcessDiagram(processInstanceId));
     }
 
+    @GetMapping("/bpmn")
+    @Operation(summary = "Get process BPMN XML")
+    public Result<String> getBpmn(@RequestParam String processInstanceId) {
+        return Result.success(processService.getProcessBpmnXml(processInstanceId));
+    }
+
     @GetMapping("/variables")
     @Operation(summary = "Get process variables")
     public Result<List<Map<String, Object>>> getVariables(@RequestParam String processInstanceId) {
