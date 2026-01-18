@@ -67,6 +67,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         }
         TaskQuery query = taskService.createTaskQuery()
                 .taskCandidateOrAssigned(username)
+                .active() // 过滤已挂起(流程/任务被suspend)的待办
                 .orderByTaskCreateTime()
                 .desc();
         long total = query.count();
