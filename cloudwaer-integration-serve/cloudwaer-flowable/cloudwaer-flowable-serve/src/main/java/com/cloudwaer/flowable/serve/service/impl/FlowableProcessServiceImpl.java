@@ -25,8 +25,10 @@ import org.flowable.engine.IdentityService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.history.HistoricProcessInstanceQuery;
+import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.bpmn.model.FlowElement;
@@ -89,6 +91,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             log.info("流程定义Key: {}", dto.getProcessDefinitionKey());
             log.info("业务Key: {}", dto.getBusinessKey());
             log.info("流程变量: {}", dto.getVariables());
+            // 约定：流程申请可传入 priority（任务优先级）与 dueTime（预期结束时间）等流程变量
 
             // 获取流程模型信息
             WfModel wfModel = wfModelMapper.selectOne(new LambdaQueryWrapper<WfModel>()
@@ -102,9 +105,42 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
                 throw new BusinessException("流程模型不存在: " + dto.getProcessDefinitionKey());
             }
 
+            Map<String, Object> variables = dto.getVariables() != null
+                    ? new HashMap<>(dto.getVariables())
+                    : new HashMap<>();
+
+            // 约定：流程申请可传入 priority（任务优先级）与 dueTime（预期结束时间）等流程变量
+            // 若未传入 dueTime，则默认使用模型 endTime。
+            java.time.LocalDateTime modelEndTime = wfModel.getEndTime();
+            if (modelEndTime == null) {
+                throw new BusinessException("模型结束时间未配置");
+            }
+            java.time.LocalDateTime dueTime = parseDueTime(variables.get("dueTime"));
+            if (dueTime == null) {
+                dueTime = modelEndTime;
+            }
+            if (dueTime.isBefore(java.time.LocalDateTime.now())) {
+                throw new BusinessException("结束时间不能是过去的时间");
+            }
+            if (dueTime.isAfter(modelEndTime)) {
+                throw new BusinessException("结束时间不能超过模型结束时间");
+            }
+            variables.put("dueTime", dueTime);
+
+            Object priority = variables.get("priority");
+            if (priority == null || String.valueOf(priority).isBlank()) {
+                variables.put("priority", "normal");
+            }
+
+            // 用于前端展示：流程定义名称显示为模型名称
+            variables.putIfAbsent("processDefinitionName", wfModel.getModelName());
+
             // 启动流程实例（不需要预分配所有节点处理人）
             ProcessInstance instance = runtimeService.startProcessInstanceByKey(
-                    dto.getProcessDefinitionKey(), dto.getBusinessKey(), dto.getVariables());
+                    dto.getProcessDefinitionKey(), dto.getBusinessKey(), variables);
+
+            // 预留扩展口：后续可在此发送 Kafka 延迟/定时消息，按 dueTime 触发超时流程处理
+            // 目前仅保留变量写入与校验，消息发送在后续接入 MQ 后实现
 
             log.info("流程实例启动成功: instanceId={}", instance.getId());
             log.info("流程定义ID: {}", instance.getProcessDefinitionId());
@@ -151,6 +187,8 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             dto.setBusinessKey(instance.getBusinessKey());
             dto.setStartTime(toLocalDateTime(instance.getStartTime()));
             dto.setEndTime(toLocalDateTime(instance.getEndTime()));
+            dto.setStarter(instance.getStartUserId());
+            dto.setDueTime(resolveProcessDueTime(instance.getId()));
 
             // 从扩展表获取状态，如果不存在则根据endTime判断
             WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
@@ -181,6 +219,8 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
         dto.setBusinessKey(instance.getBusinessKey());
         dto.setStartTime(toLocalDateTime(instance.getStartTime()));
         dto.setEndTime(toLocalDateTime(instance.getEndTime()));
+        dto.setStarter(instance.getStartUserId());
+        dto.setDueTime(resolveProcessDueTime(instance.getId()));
 
         // 从扩展表获取状态，如果不存在则根据endTime判断
         WfProcessExt ext = processExtMapper.selectOne(new LambdaQueryWrapper<WfProcessExt>()
@@ -365,6 +405,44 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             return String.valueOf(variable.getValue());
         }
         return defaultName;
+    }
+
+    private LocalDateTime resolveProcessDueTime(String processInstanceId) {
+        HistoricVariableInstance variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableName("dueTime")
+                .singleResult();
+        if (variable == null) {
+            return null;
+        }
+        return parseDueTime(variable.getValue());
+    }
+
+    private LocalDateTime parseDueTime(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof java.time.LocalDateTime) {
+            return (java.time.LocalDateTime) value;
+        }
+        if (value instanceof java.util.Date) {
+            return toLocalDateTime((java.util.Date) value);
+        }
+        if (value instanceof java.time.Instant) {
+            return java.time.LocalDateTime.ofInstant((java.time.Instant) value, java.time.ZoneId.systemDefault());
+        }
+        if (value instanceof Long) {
+            return java.time.LocalDateTime.ofInstant(java.time.Instant.ofEpochMilli((Long) value), java.time.ZoneId.systemDefault());
+        }
+        String text = String.valueOf(value).trim();
+        if (text.isBlank()) {
+            return null;
+        }
+        try {
+            return java.time.LocalDateTime.parse(text);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
@@ -754,6 +832,42 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
             ));
         }
 
+        return result;
+    }
+
+    @Override
+    public Map<String, Object> getProcessHighlight(String processInstanceId) {
+        Map<String, Object> result = new HashMap<>();
+
+        List<String> activeIds = new ArrayList<>();
+        try {
+            activeIds = runtimeService.getActiveActivityIds(processInstanceId);
+        } catch (Exception ignored) {
+        }
+
+        Set<String> completedActivityIds = new LinkedHashSet<>();
+        Set<String> completedFlowIds = new LinkedHashSet<>();
+        try {
+            List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery()
+                    .processInstanceId(processInstanceId)
+                    .orderByHistoricActivityInstanceStartTime()
+                    .asc()
+                    .list();
+
+            for (HistoricActivityInstance a : activities) {
+                if (a.getActivityId() != null) {
+                    completedActivityIds.add(a.getActivityId());
+                }
+                if ("sequenceFlow".equals(a.getActivityType()) && a.getActivityId() != null) {
+                    completedFlowIds.add(a.getActivityId());
+                }
+            }
+        } catch (Exception ignored) {
+        }
+
+        result.put("activeActivityIds", activeIds);
+        result.put("completedActivityIds", new ArrayList<>(completedActivityIds));
+        result.put("completedFlowIds", new ArrayList<>(completedFlowIds));
         return result;
     }
 

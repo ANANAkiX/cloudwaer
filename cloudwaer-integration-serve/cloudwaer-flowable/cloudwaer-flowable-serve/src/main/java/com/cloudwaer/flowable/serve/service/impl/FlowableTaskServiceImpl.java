@@ -19,6 +19,7 @@ import org.flowable.engine.HistoryService;
 import org.flowable.engine.RepositoryService;
 import org.flowable.engine.RuntimeService;
 import org.flowable.engine.TaskService;
+import org.flowable.variable.api.history.HistoricVariableInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.ProcessInstance;
@@ -82,7 +83,11 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setProcessDefinitionName(resolveProcessDisplayName(task.getProcessInstanceId(), resolveProcessDefinitionName(task.getProcessDefinitionId())));
             dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
+            dto.setPriority(resolveProcessPriority(task.getProcessInstanceId()));
+            dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
+
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setStatus("TODO");
@@ -90,6 +95,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         }
         return new PageResult<>(records, total, pageDTO.getCurrent(), pageDTO.getSize());
     }
+
 
     @Override
     public PageResult<FlowableTaskDTO> listDone(PageDTO pageDTO) {
@@ -114,7 +120,10 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setProcessDefinitionName(resolveProcessDisplayName(task.getProcessInstanceId(), resolveProcessDefinitionName(task.getProcessDefinitionId())));
             dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
+            dto.setPriority(resolveProcessPriority(task.getProcessInstanceId()));
+            dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setEndTime(toLocalDateTime(task.getEndTime()));
@@ -259,7 +268,11 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
             dto.setTaskDefinitionKey(task.getTaskDefinitionKey());
             dto.setProcessInstanceId(task.getProcessInstanceId());
             dto.setProcessDefinitionKey(resolveProcessDefinitionKey(task.getProcessDefinitionId()));
+            dto.setProcessDefinitionName(resolveProcessDisplayName(task.getProcessInstanceId(), resolveProcessDefinitionName(task.getProcessDefinitionId())));
+
             dto.setBusinessKey(resolveBusinessKey(task.getProcessInstanceId()));
+            dto.setPriority(resolveProcessPriority(task.getProcessInstanceId()));
+            dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
             dto.setAssignee(task.getAssignee());
             dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
             dto.setStatus("TODO");
@@ -278,7 +291,11 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
         dto.setTaskDefinitionKey(historic.getTaskDefinitionKey());
         dto.setProcessInstanceId(historic.getProcessInstanceId());
         dto.setProcessDefinitionKey(resolveProcessDefinitionKey(historic.getProcessDefinitionId()));
+        dto.setProcessDefinitionName(resolveProcessDisplayName(historic.getProcessInstanceId(), resolveProcessDefinitionName(historic.getProcessDefinitionId())));
         dto.setBusinessKey(resolveBusinessKey(historic.getProcessInstanceId()));
+
+        dto.setPriority(resolveProcessPriority(historic.getProcessInstanceId()));
+        dto.setDueTime(resolveProcessDueTime(historic.getProcessInstanceId()));
         dto.setAssignee(historic.getAssignee());
         dto.setCreateTime(toLocalDateTime(historic.getCreateTime()));
         dto.setEndTime(toLocalDateTime(historic.getEndTime()));
@@ -338,5 +355,62 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
                 .processInstanceId(processInstanceId)
                 .singleResult();
         return historicInstance != null ? historicInstance.getBusinessKey() : null;
+    }
+
+    private String resolveProcessDefinitionName(String processDefinitionId) {
+        if (processDefinitionId == null || processDefinitionId.isBlank()) {
+            return null;
+        }
+        ProcessDefinition definition = repositoryService.createProcessDefinitionQuery()
+                .processDefinitionId(processDefinitionId)
+                .singleResult();
+        return definition != null ? definition.getName() : null;
+    }
+
+    private String resolveProcessDisplayName(String processInstanceId, String defaultName) {
+        HistoricVariableInstance variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableName("processDefinitionName")
+                .singleResult();
+        if (variable != null && variable.getValue() != null) {
+            String name = String.valueOf(variable.getValue());
+            return name.isBlank() ? defaultName : name;
+        }
+        return defaultName;
+    }
+
+
+    private String resolveProcessPriority(String processInstanceId) {
+        HistoricVariableInstance variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableName("priority")
+                .singleResult();
+        if (variable == null || variable.getValue() == null) {
+            return null;
+        }
+        String text = String.valueOf(variable.getValue());
+        return text.isBlank() ? null : text;
+    }
+
+    private LocalDateTime resolveProcessDueTime(String processInstanceId) {
+        HistoricVariableInstance variable = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId)
+                .variableName("dueTime")
+                .singleResult();
+        if (variable == null || variable.getValue() == null) {
+            return null;
+        }
+        Object value = variable.getValue();
+        if (value instanceof java.util.Date) {
+            return toLocalDateTime((java.util.Date) value);
+        }
+        if (value instanceof java.time.LocalDateTime) {
+            return (java.time.LocalDateTime) value;
+        }
+        try {
+            return java.time.LocalDateTime.parse(String.valueOf(value));
+        } catch (Exception e) {
+            return null;
+        }
     }
 }

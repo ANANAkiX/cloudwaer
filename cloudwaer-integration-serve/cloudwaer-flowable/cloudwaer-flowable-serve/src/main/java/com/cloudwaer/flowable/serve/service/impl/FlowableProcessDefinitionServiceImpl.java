@@ -89,19 +89,23 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
                 String remark = wfModel.getRemark();
                 dto.setDescription(remark != null && !remark.isBlank() ? remark : pd.getDescription());
 
-                // 转换时间
+                // 转换时间（创建时间=发布时间）
                 if (pd.getDeploymentId() != null) {
                     Deployment deployment = repositoryService.createDeploymentQuery()
                             .deploymentId(pd.getDeploymentId())
                             .singleResult();
                     if (deployment != null && deployment.getDeploymentTime() != null) {
-                        dto.setCreateTime(LocalDateTime.ofInstant(deployment.getDeploymentTime().toInstant(), ZoneId.systemDefault()));
+                        LocalDateTime deployedAt = LocalDateTime.ofInstant(deployment.getDeploymentTime().toInstant(), ZoneId.systemDefault());
+                        dto.setCreateTime(deployedAt);
+                        dto.setUpdateTime(deployedAt);
                     }
                 }
 
                 // 获取实例数量（简化处理）
                 dto.setInstanceCount(0);
                 dto.setAvgDuration("-");
+                dto.setEndTime(wfModel.getEndTime());
+
 
                 // 获取表单字段
                 String formJson = getFormJson(pd.getId());
@@ -159,16 +163,23 @@ public class FlowableProcessDefinitionServiceImpl implements FlowableProcessDefi
             }
             String remark = wfModel != null ? wfModel.getRemark() : null;
             dto.setDescription(remark != null && !remark.isBlank() ? remark : processDefinition.getDescription());
-            
-            // 转换时间
-            if (processDefinition.getDeploymentId() != null) {
-                Deployment deployment = repositoryService.createDeploymentQuery()
-                        .deploymentId(processDefinition.getDeploymentId())
-                        .singleResult();
-                if (deployment != null && deployment.getDeploymentTime() != null) {
-                    dto.setCreateTime(LocalDateTime.ofInstant(deployment.getDeploymentTime().toInstant(), ZoneId.systemDefault()));
-                }
+            if (wfModel != null) {
+                dto.setEndTime(wfModel.getEndTime());
             }
+
+            
+                // 转换时间（创建时间=发布时间）
+                if (processDefinition.getDeploymentId() != null) {
+                    Deployment deployment = repositoryService.createDeploymentQuery()
+                            .deploymentId(processDefinition.getDeploymentId())
+                            .singleResult();
+                    if (deployment != null && deployment.getDeploymentTime() != null) {
+                        LocalDateTime deployedAt = LocalDateTime.ofInstant(deployment.getDeploymentTime().toInstant(), ZoneId.systemDefault());
+                        dto.setCreateTime(deployedAt);
+                        dto.setUpdateTime(deployedAt);
+                    }
+                }
+
             
             // 获取表单字段
             String formJson = getFormJson(processDefinition.getId());

@@ -18,4 +18,9 @@ public class FlowableModelListDTO implements Serializable {
     private Integer modelStatus;
     private LocalDateTime updateTime;
     private String remark;
+
+    /**
+     * 模型到期时间
+     */
+    private LocalDateTime endTime;
 }

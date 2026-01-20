@@ -15,7 +15,18 @@ public class FlowableTaskDTO implements Serializable {
     private String taskDefinitionKey;
     private String processInstanceId;
     private String processDefinitionKey;
+    private String processDefinitionName;
     private String businessKey;
+
+    /**
+     * 流程申请时填写的任务优先级
+     */
+    private String priority;
+
+    /**
+     * 流程申请时填写的预期结束时间
+     */
+    private LocalDateTime dueTime;
     private String assignee;
     private LocalDateTime createTime;
     private LocalDateTime endTime;

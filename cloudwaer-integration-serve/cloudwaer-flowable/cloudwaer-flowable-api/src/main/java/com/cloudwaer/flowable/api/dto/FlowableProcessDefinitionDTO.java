@@ -25,10 +25,16 @@ public class FlowableProcessDefinitionDTO implements Serializable {
     private Integer instanceCount;
     
     private String avgDuration;
-    
+
+    /**
+     * 模型到期时间（用于流程申请默认到期时间/超时约束）
+     */
+    private LocalDateTime endTime;
+
     private LocalDateTime createTime;
-    
+
     private LocalDateTime updateTime;
+
     
     private String formJson;
 

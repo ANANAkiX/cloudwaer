@@ -94,4 +94,10 @@ public class FlowableProcessController {
     public Result<List<Map<String, Object>>> getHistory(@RequestParam String processInstanceId) {
         return Result.success(processService.getProcessHistory(processInstanceId));
     }
+
+    @GetMapping("/highlight")
+    @Operation(summary = "Get process highlight")
+    public Result<Map<String, Object>> getHighlight(@RequestParam String processInstanceId) {
+        return Result.success(processService.getProcessHighlight(processInstanceId));
+    }
 }

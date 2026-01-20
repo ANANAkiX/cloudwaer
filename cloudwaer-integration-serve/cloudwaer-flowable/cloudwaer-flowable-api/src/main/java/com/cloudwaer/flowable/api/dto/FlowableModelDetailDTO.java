@@ -22,4 +22,9 @@ public class FlowableModelDetailDTO implements Serializable {
     private List<FlowableNodeActionDTO> nodeActions;
     private String remark;
     private LocalDateTime updateTime;
+
+    /**
+     * 模型到期时间
+     */
+    private LocalDateTime endTime;
 }

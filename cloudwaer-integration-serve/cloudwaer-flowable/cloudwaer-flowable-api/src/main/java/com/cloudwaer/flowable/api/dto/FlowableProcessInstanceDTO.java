@@ -17,4 +17,14 @@ public class FlowableProcessInstanceDTO implements Serializable {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String status;
+
+    /**
+     * 发起人
+     */
+    private String starter;
+
+    /**
+     * 预期结束时间（流程申请时填写）
+     */
+    private LocalDateTime dueTime;
 }
