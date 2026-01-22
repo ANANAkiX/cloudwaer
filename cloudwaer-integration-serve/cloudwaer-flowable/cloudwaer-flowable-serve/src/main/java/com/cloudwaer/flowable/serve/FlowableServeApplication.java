@@ -9,7 +9,9 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = "com.cloudwaer")
 public class FlowableServeApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(FlowableServeApplication.class, args);
-    }
+
+	public static void main(String[] args) {
+		SpringApplication.run(FlowableServeApplication.class, args);
+	}
+
 }

@@ -15,13 +15,13 @@ import java.io.Serializable;
 @Schema(description = "用户ID查询请求")
 public class UserIdQueryDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 用户ID
-     */
-    @NotNull(message = "用户ID不能为空")
-    @Schema(description = "用户ID", required = true, example = "1")
-    private Long userId;
+	/**
+	 * 用户ID
+	 */
+	@NotNull(message = "用户ID不能为空")
+	@Schema(description = "用户ID", required = true, example = "1")
+	private Long userId;
+
 }
-

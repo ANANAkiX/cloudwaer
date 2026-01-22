@@ -20,84 +20,85 @@ import java.util.Map;
 @Tag(name = "Flowable Process", description = "Flowable process endpoints")
 public class FlowableProcessController {
 
-    @Autowired
-    private FlowableProcessService processService;
+	@Autowired
+	private FlowableProcessService processService;
 
-    @PostMapping("/start")
-    @Operation(summary = "Start process")
-    public Result<String> start(@RequestBody FlowableProcessStartDTO dto) {
-        return Result.success(processService.startProcess(dto));
-    }
+	@PostMapping("/start")
+	@Operation(summary = "Start process")
+	public Result<String> start(@RequestBody FlowableProcessStartDTO dto) {
+		return Result.success(processService.startProcess(dto));
+	}
 
-    @GetMapping("/started")
-    @Operation(summary = "Started processes")
-    public Result<PageResult<FlowableProcessInstanceDTO>> started(PageDTO pageDTO) {
-        return Result.success(processService.listStarted(pageDTO));
-    }
+	@GetMapping("/started")
+	@Operation(summary = "Started processes")
+	public Result<PageResult<FlowableProcessInstanceDTO>> started(PageDTO pageDTO) {
+		return Result.success(processService.listStarted(pageDTO));
+	}
 
-    @GetMapping("/detail")
-    @Operation(summary = "Process detail")
-    public Result<FlowableProcessInstanceDTO> detail(@RequestParam String id) {
-        return Result.success(processService.getDetail(id));
-    }
+	@GetMapping("/detail")
+	@Operation(summary = "Process detail")
+	public Result<FlowableProcessInstanceDTO> detail(@RequestParam String id) {
+		return Result.success(processService.getDetail(id));
+	}
 
-    @DeleteMapping("/delete")
-    @Operation(summary = "Delete process instance")
-    public Result<Boolean> delete(@RequestBody FlowableProcessDeleteDTO dto) {
-        return Result.success(processService.deleteProcess(dto.getProcessInstanceId()));
-    }
+	@DeleteMapping("/delete")
+	@Operation(summary = "Delete process instance")
+	public Result<Boolean> delete(@RequestBody FlowableProcessDeleteDTO dto) {
+		return Result.success(processService.deleteProcess(dto.getProcessInstanceId()));
+	}
 
-    @PostMapping("/suspend")
-    @Operation(summary = "Suspend process instance")
-    public Result<Boolean> suspend(@RequestParam String processInstanceId) {
-        return Result.success(processService.suspendProcess(processInstanceId));
-    }
+	@PostMapping("/suspend")
+	@Operation(summary = "Suspend process instance")
+	public Result<Boolean> suspend(@RequestParam String processInstanceId) {
+		return Result.success(processService.suspendProcess(processInstanceId));
+	}
 
-    @PostMapping("/activate")
-    @Operation(summary = "Activate process instance")
-    public Result<Boolean> activate(@RequestParam String processInstanceId) {
-        return Result.success(processService.activateProcess(processInstanceId));
-    }
+	@PostMapping("/activate")
+	@Operation(summary = "Activate process instance")
+	public Result<Boolean> activate(@RequestParam String processInstanceId) {
+		return Result.success(processService.activateProcess(processInstanceId));
+	}
 
-        @PostMapping("/restart")
-    @Operation(summary = "Restart process instance")
-    public Result<Boolean> restart(@RequestParam String processInstanceId) {
-        return Result.success(processService.restartProcess(processInstanceId));
-    }
+	@PostMapping("/restart")
+	@Operation(summary = "Restart process instance")
+	public Result<Boolean> restart(@RequestParam String processInstanceId) {
+		return Result.success(processService.restartProcess(processInstanceId));
+	}
 
-@PostMapping("/terminate")
-    @Operation(summary = "Terminate process instance")
-    public Result<Boolean> terminate(@RequestParam String processInstanceId) {
-        return Result.success(processService.terminateProcess(processInstanceId));
-    }
+	@PostMapping("/terminate")
+	@Operation(summary = "Terminate process instance")
+	public Result<Boolean> terminate(@RequestParam String processInstanceId) {
+		return Result.success(processService.terminateProcess(processInstanceId));
+	}
 
-    @GetMapping("/diagram")
-    @Operation(summary = "Get process diagram")
-    public Result<String> getDiagram(@RequestParam String processInstanceId) {
-        return Result.success(processService.getProcessDiagram(processInstanceId));
-    }
+	@GetMapping("/diagram")
+	@Operation(summary = "Get process diagram")
+	public Result<String> getDiagram(@RequestParam String processInstanceId) {
+		return Result.success(processService.getProcessDiagram(processInstanceId));
+	}
 
-    @GetMapping("/bpmn")
-    @Operation(summary = "Get process BPMN XML")
-    public Result<String> getBpmn(@RequestParam String processInstanceId) {
-        return Result.success(processService.getProcessBpmnXml(processInstanceId));
-    }
+	@GetMapping("/bpmn")
+	@Operation(summary = "Get process BPMN XML")
+	public Result<String> getBpmn(@RequestParam String processInstanceId) {
+		return Result.success(processService.getProcessBpmnXml(processInstanceId));
+	}
 
-    @GetMapping("/variables")
-    @Operation(summary = "Get process variables")
-    public Result<List<Map<String, Object>>> getVariables(@RequestParam String processInstanceId) {
-        return Result.success(processService.getProcessVariables(processInstanceId));
-    }
+	@GetMapping("/variables")
+	@Operation(summary = "Get process variables")
+	public Result<List<Map<String, Object>>> getVariables(@RequestParam String processInstanceId) {
+		return Result.success(processService.getProcessVariables(processInstanceId));
+	}
 
-    @GetMapping("/history")
-    @Operation(summary = "Get process history")
-    public Result<List<Map<String, Object>>> getHistory(@RequestParam String processInstanceId) {
-        return Result.success(processService.getProcessHistory(processInstanceId));
-    }
+	@GetMapping("/history")
+	@Operation(summary = "Get process history")
+	public Result<List<Map<String, Object>>> getHistory(@RequestParam String processInstanceId) {
+		return Result.success(processService.getProcessHistory(processInstanceId));
+	}
 
-    @GetMapping("/highlight")
-    @Operation(summary = "Get process highlight")
-    public Result<Map<String, Object>> getHighlight(@RequestParam String processInstanceId) {
-        return Result.success(processService.getProcessHighlight(processInstanceId));
-    }
+	@GetMapping("/highlight")
+	@Operation(summary = "Get process highlight")
+	public Result<Map<String, Object>> getHighlight(@RequestParam String processInstanceId) {
+		return Result.success(processService.getProcessHighlight(processInstanceId));
+	}
+
 }

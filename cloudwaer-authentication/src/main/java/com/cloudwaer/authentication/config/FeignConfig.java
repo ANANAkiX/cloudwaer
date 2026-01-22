@@ -11,8 +11,5 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableFeignClients(basePackages = "com.cloudwaer.admin.api.feign")
 public class FeignConfig {
+
 }
-
-
-
-

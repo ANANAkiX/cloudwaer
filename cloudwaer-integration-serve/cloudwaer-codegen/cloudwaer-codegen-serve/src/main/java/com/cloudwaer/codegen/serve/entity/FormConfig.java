@@ -14,64 +14,65 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_form_config")
 public class FormConfig extends BaseEntity {
-    /**
-     * 表名
-     */
-    private String tableName;
 
-    /**
-     * 数据库连接ID
-     */
-    private Long connectionId;
+	/**
+	 * 表名
+	 */
+	private String tableName;
 
-    /**
-     * 模块名称
-     */
-    private String moduleName;
+	/**
+	 * 数据库连接ID
+	 */
+	private Long connectionId;
 
-    /**
-     * 包名
-     */
-    private String packageName;
+	/**
+	 * 模块名称
+	 */
+	private String moduleName;
 
-    /**
-     * 实体类名称
-     */
-    private String entityName;
+	/**
+	 * 包名
+	 */
+	private String packageName;
 
-    /**
-     * 实体类注释
-     */
-    private String entityComment;
+	/**
+	 * 实体类名称
+	 */
+	private String entityName;
 
-    /**
-     * 作者
-     */
-    private String author;
+	/**
+	 * 实体类注释
+	 */
+	private String entityComment;
 
-    /**
-     * 表单字段配置（JSON格式）
-     */
-    private String formFields;
+	/**
+	 * 作者
+	 */
+	private String author;
 
-    /**
-     * 查询字段列表（JSON格式）
-     */
-    private String queryFields;
+	/**
+	 * 表单字段配置（JSON格式）
+	 */
+	private String formFields;
 
-    /**
-     * 主键字段名
-     */
-    private String primaryKeyField;
+	/**
+	 * 查询字段列表（JSON格式）
+	 */
+	private String queryFields;
 
-    /**
-     * 是否启用分页查询
-     */
-    private Boolean enablePagination;
+	/**
+	 * 主键字段名
+	 */
+	private String primaryKeyField;
 
-    /**
-     * 是否启用逻辑删除
-     */
-    private Boolean enableLogicDelete;
+	/**
+	 * 是否启用分页查询
+	 */
+	private Boolean enablePagination;
+
+	/**
+	 * 是否启用逻辑删除
+	 */
+	private Boolean enableLogicDelete;
+
 }
-

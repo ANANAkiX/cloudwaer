@@ -15,5 +15,5 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnProperty(prefix = "cloudwaer.api-scanner", name = "enabled", havingValue = "true", matchIfMissing = true)
 @ComponentScan(basePackages = "com.cloudwaer.common.scanner")
 public class ApiScannerAutoConfiguration {
-}
 
+}

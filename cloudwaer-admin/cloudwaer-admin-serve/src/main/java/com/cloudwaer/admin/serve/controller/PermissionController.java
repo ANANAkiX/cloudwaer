@@ -26,68 +26,69 @@ import java.util.Map;
 @Tag(name = "权限管理", description = "权限管理接口")
 public class PermissionController {
 
-    @Autowired
-    private PermissionService permissionService;
+	@Autowired
+	private PermissionService permissionService;
 
-    /**
-     * 获取权限树
-     */
-    @GetMapping("/tree")
-    @Operation(summary = "获取权限树", description = "获取所有权限的树形结构，支持复合搜索（权限名称、权限代码、权限描述），搜索结果默认展开")
-    @PermitAll
-    public Result<List<PermissionDTO>> getPermissionTree(@RequestParam(value = "keyword", required = false) String keyword) {
-        List<PermissionDTO> tree = permissionService.getPermissionTree(keyword);
-        return Result.success(tree);
-    }
+	/**
+	 * 获取权限树
+	 */
+	@GetMapping("/tree")
+	@Operation(summary = "获取权限树", description = "获取所有权限的树形结构，支持复合搜索（权限名称、权限代码、权限描述），搜索结果默认展开")
+	@PermitAll
+	public Result<List<PermissionDTO>> getPermissionTree(
+			@RequestParam(value = "keyword", required = false) String keyword) {
+		List<PermissionDTO> tree = permissionService.getPermissionTree(keyword);
+		return Result.success(tree);
+	}
 
-    /**
-     * 根据ID获取权限
-     */
-    @GetMapping("/detail")
-    @Operation(summary = "根据ID获取权限", description = "通过权限ID查询权限详细信息")
-    public Result<PermissionDTO> getPermissionById(@RequestParam Long id) {
-        PermissionDTO permission = permissionService.getPermissionById(id);
-        return Result.success(permission);
-    }
+	/**
+	 * 根据ID获取权限
+	 */
+	@GetMapping("/detail")
+	@Operation(summary = "根据ID获取权限", description = "通过权限ID查询权限详细信息")
+	public Result<PermissionDTO> getPermissionById(@RequestParam Long id) {
+		PermissionDTO permission = permissionService.getPermissionById(id);
+		return Result.success(permission);
+	}
 
-    /**
-     * 新增权限
-     */
-    @PostMapping("/save")
-    @Operation(summary = "新增权限", description = "创建新的权限")
-    public Result<Boolean> savePermission(@RequestBody @Validated PermissionDTO permissionDTO) {
-        Boolean result = permissionService.savePermission(permissionDTO);
-        return Result.success(result);
-    }
+	/**
+	 * 新增权限
+	 */
+	@PostMapping("/save")
+	@Operation(summary = "新增权限", description = "创建新的权限")
+	public Result<Boolean> savePermission(@RequestBody @Validated PermissionDTO permissionDTO) {
+		Boolean result = permissionService.savePermission(permissionDTO);
+		return Result.success(result);
+	}
 
-    /**
-     * 更新权限
-     */
-    @PutMapping("/update")
-    @Operation(summary = "更新权限", description = "更新权限信息")
-    public Result<Boolean> updatePermission(@RequestBody @Validated PermissionDTO permissionDTO) {
-        Boolean result = permissionService.updatePermission(permissionDTO);
-        return Result.success(result);
-    }
+	/**
+	 * 更新权限
+	 */
+	@PutMapping("/update")
+	@Operation(summary = "更新权限", description = "更新权限信息")
+	public Result<Boolean> updatePermission(@RequestBody @Validated PermissionDTO permissionDTO) {
+		Boolean result = permissionService.updatePermission(permissionDTO);
+		return Result.success(result);
+	}
 
-    /**
-     * 删除权限
-     */
-    @DeleteMapping("/delete")
-    @Operation(summary = "删除权限", description = "删除指定权限")
-    public Result<Boolean> deletePermission(@RequestBody @Validated PermissionIdQueryDTO queryDTO) {
-        Boolean result = permissionService.deletePermission(queryDTO.getId());
-        return Result.success(result);
-    }
+	/**
+	 * 删除权限
+	 */
+	@DeleteMapping("/delete")
+	@Operation(summary = "删除权限", description = "删除指定权限")
+	public Result<Boolean> deletePermission(@RequestBody @Validated PermissionIdQueryDTO queryDTO) {
+		Boolean result = permissionService.deletePermission(queryDTO.getId());
+		return Result.success(result);
+	}
 
-    /**
-     * 获取所有权限的API映射（用于权限缓存）
-     */
-    @GetMapping("/api-mapping")
-    @Operation(summary = "获取权限API映射", description = "获取所有权限的API映射，格式：Map<\"GET /api/user/list\", \"admin:user:list\">")
-    public Result<Map<String, String>> getPermissionApiMapping() {
-        Map<String, String> mapping = permissionService.getPermissionApiMapping();
-        return Result.success(mapping);
-    }
+	/**
+	 * 获取所有权限的API映射（用于权限缓存）
+	 */
+	@GetMapping("/api-mapping")
+	@Operation(summary = "获取权限API映射", description = "获取所有权限的API映射，格式：Map<\"GET /api/user/list\", \"admin:user:list\">")
+	public Result<Map<String, String>> getPermissionApiMapping() {
+		Map<String, String> mapping = permissionService.getPermissionApiMapping();
+		return Result.success(mapping);
+	}
+
 }
-

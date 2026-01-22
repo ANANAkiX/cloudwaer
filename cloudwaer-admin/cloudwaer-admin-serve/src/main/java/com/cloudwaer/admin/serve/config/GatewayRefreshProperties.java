@@ -8,7 +8,11 @@ import org.springframework.stereotype.Component;
 @Component
 @ConfigurationProperties(prefix = "cloudwaer.gateway.refresh")
 public class GatewayRefreshProperties {
-    private String serviceId;
-    private String scheme;
-    private String path;
+
+	private String serviceId;
+
+	private String scheme;
+
+	private String path;
+
 }

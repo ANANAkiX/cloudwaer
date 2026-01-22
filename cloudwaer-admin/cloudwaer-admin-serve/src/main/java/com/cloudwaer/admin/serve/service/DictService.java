@@ -9,25 +9,34 @@ import java.util.List;
 import java.util.Map;
 
 public interface DictService {
-    /** Reload all valid dictionaries into cache. */
-    void rebuildCache();
 
-    /** List items by dictionary type (prefer cache). */
-    List<DictItemDTO> getItemsByType(String type);
+	/** Reload all valid dictionaries into cache. */
+	void rebuildCache();
 
-    /** Read all cached dict items (type -> list). */
-    Map<String, List<DictItemDTO>> getAllFromCache();
+	/** List items by dictionary type (prefer cache). */
+	List<DictItemDTO> getItemsByType(String type);
 
-    // ==== Dict header CRUD ====
-    PageResult<DictDTO> page(PageDTO pageDTO, String keyword, String type);
-    DictDTO detail(Long id);
-    Boolean save(DictDTO dto);
-    Boolean update(DictDTO dto);
-    Boolean delete(Long id);
+	/** Read all cached dict items (type -> list). */
+	Map<String, List<DictItemDTO>> getAllFromCache();
 
-    // ==== Dict item CRUD ====
-    List<DictItemDTO> listItems(Long dictId);
-    Boolean saveItem(DictItemDTO dto);
-    Boolean updateItem(DictItemDTO dto);
-    Boolean deleteItem(Long id);
+	// ==== Dict header CRUD ====
+	PageResult<DictDTO> page(PageDTO pageDTO, String keyword, String type);
+
+	DictDTO detail(Long id);
+
+	Boolean save(DictDTO dto);
+
+	Boolean update(DictDTO dto);
+
+	Boolean delete(Long id);
+
+	// ==== Dict item CRUD ====
+	List<DictItemDTO> listItems(Long dictId);
+
+	Boolean saveItem(DictItemDTO dto);
+
+	Boolean updateItem(DictItemDTO dto);
+
+	Boolean deleteItem(Long id);
+
 }

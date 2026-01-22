@@ -5,8 +5,9 @@ import java.io.Serializable;
 
 @Data
 public class OptionDTO implements Serializable {
-    
-    private String label;
-    
-    private Object value;
+
+	private String label;
+
+	private Object value;
+
 }

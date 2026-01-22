@@ -29,47 +29,46 @@ import java.util.Map;
 @RestController
 @RequestMapping("/auth")
 @Tag(name = "认证授权", description = "用户登录、登出接口")
-@PermitAll  // 认证接口不需要权限验证
+@PermitAll // 认证接口不需要权限验证
 public class AuthController {
 
-    @Autowired
-    private AuthService authService;
+	@Autowired
+	private AuthService authService;
 
-    /**
-     * 校验当前请求中的Token是否有效
-     */
-    @GetMapping("/token/valid")
-    @Operation(summary = "校验Token是否有效", description = "根据请求头中的Token UUID在Redis中校验是否存在")
-    public Result<Boolean> tokenValid() {
-        return Result.success(authService.tokenValid());
-    }
+	/**
+	 * 校验当前请求中的Token是否有效
+	 */
+	@GetMapping("/token/valid")
+	@Operation(summary = "校验Token是否有效", description = "根据请求头中的Token UUID在Redis中校验是否存在")
+	public Result<Boolean> tokenValid() {
+		return Result.success(authService.tokenValid());
+	}
 
-    /**
-     * 登录
-     */
-    @PostMapping("/login")
-    @Operation(summary = "用户登录", description = "通过用户名和密码进行登录，返回JWT Token")
-    public Result<Map<String, Object>> login(@Validated @RequestBody LoginRequestDTO loginRequest) {
-        LoginResponseDTO login = authService.login(loginRequest);
-        if (login == null) {
-            log.error("登录失败");
-            return Result.fail(ResultCode.LOGIN_ERROR_ACCOUNT.getCode(), ResultCode.LOGIN_ERROR_ACCOUNT.getMessage());
-        }
-        Map<String, Object> result = new HashMap<>();
-        result.put("token", login.getToken()); // 只返回UUID包装的Token
-        log.info("用户登录成功: username={}", login.getUsername());
-        return Result.success(result);
-    }
+	/**
+	 * 登录
+	 */
+	@PostMapping("/login")
+	@Operation(summary = "用户登录", description = "通过用户名和密码进行登录，返回JWT Token")
+	public Result<Map<String, Object>> login(@Validated @RequestBody LoginRequestDTO loginRequest) {
+		LoginResponseDTO login = authService.login(loginRequest);
+		if (login == null) {
+			log.error("登录失败");
+			return Result.fail(ResultCode.LOGIN_ERROR_ACCOUNT.getCode(), ResultCode.LOGIN_ERROR_ACCOUNT.getMessage());
+		}
+		Map<String, Object> result = new HashMap<>();
+		result.put("token", login.getToken()); // 只返回UUID包装的Token
+		log.info("用户登录成功: username={}", login.getUsername());
+		return Result.success(result);
+	}
 
-    /**
-     * 登出
-     */
-    @PostMapping("/logout")
-    @Operation(summary = "用户登出", description = "用户登出，清除Redis中的Token")
-    public Result<?> logout() {
-        return Result.success(authService.logout());
+	/**
+	 * 登出
+	 */
+	@PostMapping("/logout")
+	@Operation(summary = "用户登出", description = "用户登出，清除Redis中的Token")
+	public Result<?> logout() {
+		return Result.success(authService.logout());
 
-    }
+	}
+
 }
-
-

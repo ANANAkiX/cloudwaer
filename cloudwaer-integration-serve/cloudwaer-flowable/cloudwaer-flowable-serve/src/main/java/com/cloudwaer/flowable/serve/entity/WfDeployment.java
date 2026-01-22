@@ -11,19 +11,26 @@ import lombok.EqualsAndHashCode;
 @TableName("wf_deployment")
 public class WfDeployment extends BaseEntity {
 
-    private Long modelId;
-    private String modelKey;
-    private Integer modelVersion;
+	private Long modelId;
 
-    private String deploymentId;
-    private String processDefinitionId;
-    private String processDefinitionKey;
-    private String processDefinitionName;
-    private Integer processDefinitionVersion;
+	private String modelKey;
 
-    @TableField("form_json")
-    private String formJson;
+	private Integer modelVersion;
 
-    @TableField("deploy_status")
-    private Integer deployStatus;
+	private String deploymentId;
+
+	private String processDefinitionId;
+
+	private String processDefinitionKey;
+
+	private String processDefinitionName;
+
+	private Integer processDefinitionVersion;
+
+	@TableField("form_json")
+	private String formJson;
+
+	@TableField("deploy_status")
+	private Integer deployStatus;
+
 }

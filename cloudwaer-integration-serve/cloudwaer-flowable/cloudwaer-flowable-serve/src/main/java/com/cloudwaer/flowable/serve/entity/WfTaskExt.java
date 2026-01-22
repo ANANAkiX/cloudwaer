@@ -11,13 +11,17 @@ import lombok.EqualsAndHashCode;
 @TableName("wf_task_ext")
 public class WfTaskExt extends BaseEntity {
 
-    private String taskId;
-    private String processInstanceId;
-    private String assignee;
-    private String formKey;
+	private String taskId;
 
-    @TableField("biz_status")
-    private String bizStatus;
+	private String processInstanceId;
 
-    private String comment;
+	private String assignee;
+
+	private String formKey;
+
+	@TableField("biz_status")
+	private String bizStatus;
+
+	private String comment;
+
 }

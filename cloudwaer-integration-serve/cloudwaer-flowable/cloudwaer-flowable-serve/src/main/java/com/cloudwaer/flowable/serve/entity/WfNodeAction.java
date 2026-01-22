@@ -11,16 +11,23 @@ import lombok.EqualsAndHashCode;
 @TableName("wf_node_action")
 public class WfNodeAction extends BaseEntity {
 
-    private Long modelId;
-    private String modelKey;
-    private Integer modelVersion;
-    private String nodeId;
-    private String nodeName;
-    private String eventType;
-    private String actionType;
+	private Long modelId;
 
-    @TableField("action_config")
-    private String actionConfig;
+	private String modelKey;
 
-    private Integer enabled;
+	private Integer modelVersion;
+
+	private String nodeId;
+
+	private String nodeName;
+
+	private String eventType;
+
+	private String actionType;
+
+	@TableField("action_config")
+	private String actionConfig;
+
+	private Integer enabled;
+
 }

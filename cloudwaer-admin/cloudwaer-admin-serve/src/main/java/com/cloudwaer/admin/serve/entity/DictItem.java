@@ -11,21 +11,22 @@ import lombok.Data;
 @TableName("sys_dict_item")
 public class DictItem extends BaseEntity {
 
-    /** Dictionary header ID. */
-    private Long dictId;
+	/** Dictionary header ID. */
+	private Long dictId;
 
-    /** Item code. */
-    private String code;
+	/** Item code. */
+	private String code;
 
-    /** Item value. */
-    private String value;
+	/** Item value. */
+	private String value;
 
-    /** Item label. */
-    private String label;
+	/** Item label. */
+	private String label;
 
-    /** Sort order. */
-    private Integer sort;
+	/** Sort order. */
+	private Integer sort;
 
-    /** Description. */
-    private String description;
+	/** Description. */
+	private String description;
+
 }

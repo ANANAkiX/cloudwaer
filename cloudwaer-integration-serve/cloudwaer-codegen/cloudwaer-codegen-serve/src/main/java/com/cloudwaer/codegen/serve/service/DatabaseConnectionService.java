@@ -13,35 +13,31 @@ import java.sql.Connection;
  */
 public interface DatabaseConnectionService extends IService<DatabaseConnection> {
 
-    /**
-     * 测试数据库连接
-     *
-     * @param connectionDTO 连接配置
-     * @return 是否连接成功
-     */
-    Boolean testConnection(DatabaseConnectionDTO connectionDTO);
+	/**
+	 * 测试数据库连接
+	 * @param connectionDTO 连接配置
+	 * @return 是否连接成功
+	 */
+	Boolean testConnection(DatabaseConnectionDTO connectionDTO);
 
-    /**
-     * 获取数据库连接
-     *
-     * @param connectionId 连接ID
-     * @return 数据库连接
-     */
-    Connection getConnection(Long connectionId);
+	/**
+	 * 获取数据库连接
+	 * @param connectionId 连接ID
+	 * @return 数据库连接
+	 */
+	Connection getConnection(Long connectionId);
 
-    /**
-     * 获取数据库连接（通过配置）
-     *
-     * @param connectionDTO 连接配置
-     * @return 数据库连接
-     */
-    Connection getConnection(DatabaseConnectionDTO connectionDTO);
+	/**
+	 * 获取数据库连接（通过配置）
+	 * @param connectionDTO 连接配置
+	 * @return 数据库连接
+	 */
+	Connection getConnection(DatabaseConnectionDTO connectionDTO);
 
-    /**
-     * 关闭数据库连接
-     *
-     * @param connection 数据库连接
-     */
-    void closeConnection(Connection connection);
+	/**
+	 * 关闭数据库连接
+	 * @param connection 数据库连接
+	 */
+	void closeConnection(Connection connection);
+
 }
-

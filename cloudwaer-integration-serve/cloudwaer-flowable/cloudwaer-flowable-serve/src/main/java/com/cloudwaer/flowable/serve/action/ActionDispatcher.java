@@ -6,5 +6,6 @@ import java.util.List;
 
 public interface ActionDispatcher {
 
-    void dispatch(ActionContext context, List<WfNodeAction> actions);
+	void dispatch(ActionContext context, List<WfNodeAction> actions);
+
 }

@@ -10,14 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class LogActionExecutor implements ActionExecutor {
 
-    @Override
-    public String getType() {
-        return FlowableConstants.ACTION_LOG;
-    }
+	@Override
+	public String getType() {
+		return FlowableConstants.ACTION_LOG;
+	}
 
-    @Override
-    public void execute(ActionContext context, String config) {
-        log.info("Flowable action log: event={}, taskId={}, config={}",
-                context.getEventType(), context.getTaskId(), config);
-    }
+	@Override
+	public void execute(ActionContext context, String config) {
+		log.info("Flowable action log: event={}, taskId={}, config={}", context.getEventType(), context.getTaskId(),
+				config);
+	}
+
 }

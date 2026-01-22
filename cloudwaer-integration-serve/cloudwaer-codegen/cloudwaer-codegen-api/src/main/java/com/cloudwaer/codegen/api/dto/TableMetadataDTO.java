@@ -11,36 +11,37 @@ import java.util.List;
  */
 @Data
 public class TableMetadataDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    /**
-     * 表名
-     */
-    private String tableName;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 表注释
-     */
-    private String tableComment;
+	/**
+	 * 表名
+	 */
+	private String tableName;
 
-    /**
-     * 表类型（TABLE, VIEW等）
-     */
-    private String tableType;
+	/**
+	 * 表注释
+	 */
+	private String tableComment;
 
-    /**
-     * 数据库名称
-     */
-    private String databaseName;
+	/**
+	 * 表类型（TABLE, VIEW等）
+	 */
+	private String tableType;
 
-    /**
-     * 表的主键列名列表
-     */
-    private List<String> primaryKeys;
+	/**
+	 * 数据库名称
+	 */
+	private String databaseName;
 
-    /**
-     * 表的列信息列表
-     */
-    private List<ColumnMetadataDTO> columns;
+	/**
+	 * 表的主键列名列表
+	 */
+	private List<String> primaryKeys;
+
+	/**
+	 * 表的列信息列表
+	 */
+	private List<ColumnMetadataDTO> columns;
+
 }
-

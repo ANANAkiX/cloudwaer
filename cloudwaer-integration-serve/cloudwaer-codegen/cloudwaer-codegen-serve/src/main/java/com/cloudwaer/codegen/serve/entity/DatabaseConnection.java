@@ -15,59 +15,60 @@ import lombok.EqualsAndHashCode;
 @EqualsAndHashCode(callSuper = true)
 @TableName("sys_database_connection")
 public class DatabaseConnection extends BaseEntity {
-    /**
-     * 连接名称
-     */
-    @TableField("`name`")
-    private String name;
 
-    /**
-     * 数据库类型（mysql, postgresql, oracle等）
-     */
-    private String dbType;
+	/**
+	 * 连接名称
+	 */
+	@TableField("`name`")
+	private String name;
 
-    /**
-     * 主机地址
-     */
-    @TableField("`host`")
-    private String host;
+	/**
+	 * 数据库类型（mysql, postgresql, oracle等）
+	 */
+	private String dbType;
 
-    /**
-     * 端口号
-     */
-    @TableField("`port`")
-    private Integer port;
+	/**
+	 * 主机地址
+	 */
+	@TableField("`host`")
+	private String host;
 
-    /**
-     * 数据库名称
-     */
-    @TableField("`database`")
-    private String database;
+	/**
+	 * 端口号
+	 */
+	@TableField("`port`")
+	private Integer port;
 
-    /**
-     * 用户名
-     */
-    private String username;
+	/**
+	 * 数据库名称
+	 */
+	@TableField("`database`")
+	private String database;
 
-    /**
-     * 密码（加密存储）
-     */
-    @TableField("`password`")
-    private String password;
+	/**
+	 * 用户名
+	 */
+	private String username;
 
-    /**
-     * 连接URL（可选）
-     */
-    private String url;
+	/**
+	 * 密码（加密存储）
+	 */
+	@TableField("`password`")
+	private String password;
 
-    /**
-     * 是否启用
-     */
-    private Boolean enabled;
+	/**
+	 * 连接URL（可选）
+	 */
+	private String url;
 
-    /**
-     * 备注
-     */
-    private String remark;
+	/**
+	 * 是否启用
+	 */
+	private Boolean enabled;
+
+	/**
+	 * 备注
+	 */
+	private String remark;
+
 }
-

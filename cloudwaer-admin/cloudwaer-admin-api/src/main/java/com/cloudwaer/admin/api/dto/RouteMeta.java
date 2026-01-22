@@ -12,29 +12,26 @@ import java.io.Serializable;
 @Data
 public class RouteMeta implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 标题
-     */
-    private String title;
+	/**
+	 * 标题
+	 */
+	private String title;
 
-    /**
-     * 图标
-     */
-    private String icon;
+	/**
+	 * 图标
+	 */
+	private String icon;
 
-    /**
-     * 是否隐藏
-     */
-    private Boolean hidden;
+	/**
+	 * 是否隐藏
+	 */
+	private Boolean hidden;
 
-    /**
-     * 是否需要权限
-     */
-    private Boolean requiresAuth;
+	/**
+	 * 是否需要权限
+	 */
+	private Boolean requiresAuth;
+
 }
-
-
-
-

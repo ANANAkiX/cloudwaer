@@ -7,15 +7,16 @@ import com.cloudwaer.flowable.api.dto.FlowableTaskDTO;
 
 public interface FlowableTaskService {
 
-    PageResult<FlowableTaskDTO> listTodo(PageDTO pageDTO);
+	PageResult<FlowableTaskDTO> listTodo(PageDTO pageDTO);
 
-    PageResult<FlowableTaskDTO> listDone(PageDTO pageDTO);
+	PageResult<FlowableTaskDTO> listDone(PageDTO pageDTO);
 
-    boolean claim(String taskId);
+	boolean claim(String taskId);
 
-    boolean complete(FlowableTaskCompleteDTO dto);
+	boolean complete(FlowableTaskCompleteDTO dto);
 
-    FlowableTaskDTO getDetail(String taskId);
+	FlowableTaskDTO getDetail(String taskId);
 
-    boolean deleteTask(String taskId);
+	boolean deleteTask(String taskId);
+
 }

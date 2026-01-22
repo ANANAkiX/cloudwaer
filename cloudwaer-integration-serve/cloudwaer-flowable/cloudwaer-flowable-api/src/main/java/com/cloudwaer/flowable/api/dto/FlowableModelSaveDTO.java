@@ -9,19 +9,27 @@ import java.util.List;
 @Data
 public class FlowableModelSaveDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private Long id;
-    private String modelKey;
-    private String modelName;
-    private String category;
-    private String remark;
-    private String bpmnXml;
-    private String formJson;
-    private List<FlowableNodeActionDTO> nodeActions;
+	private Long id;
 
-    /**
-     * 模型到期时间（yyyy-MM-dd HH:mm）
-     */
-    private LocalDateTime endTime;
+	private String modelKey;
+
+	private String modelName;
+
+	private String category;
+
+	private String remark;
+
+	private String bpmnXml;
+
+	private String formJson;
+
+	private List<FlowableNodeActionDTO> nodeActions;
+
+	/**
+	 * 模型到期时间（yyyy-MM-dd HH:mm）
+	 */
+	private LocalDateTime endTime;
+
 }

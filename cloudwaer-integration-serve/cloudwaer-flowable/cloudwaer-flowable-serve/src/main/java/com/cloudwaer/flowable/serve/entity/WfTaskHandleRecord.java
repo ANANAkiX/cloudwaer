@@ -10,14 +10,24 @@ import lombok.EqualsAndHashCode;
 @TableName("wf_task_handle_record")
 public class WfTaskHandleRecord extends BaseEntity {
 
-    private String processInstanceId;
-    private String taskId;
-    private String taskDefinitionKey;
-    private String taskName;
-    private String assignee;
-    private String recordType;
-    private String action;
-    private String result;
-    private String comment;
-    private Long durationMs;
+	private String processInstanceId;
+
+	private String taskId;
+
+	private String taskDefinitionKey;
+
+	private String taskName;
+
+	private String assignee;
+
+	private String recordType;
+
+	private String action;
+
+	private String result;
+
+	private String comment;
+
+	private Long durationMs;
+
 }

@@ -14,26 +14,26 @@ import java.util.stream.Collectors;
 @Component
 public class LocalActionDispatcher implements ActionDispatcher {
 
-    private final Map<String, ActionExecutor> executorMap;
+	private final Map<String, ActionExecutor> executorMap;
 
-    @Autowired
-    public LocalActionDispatcher(List<ActionExecutor> executors) {
-        this.executorMap = executors.stream()
-                .collect(Collectors.toMap(ActionExecutor::getType, Function.identity()));
-    }
+	@Autowired
+	public LocalActionDispatcher(List<ActionExecutor> executors) {
+		this.executorMap = executors.stream().collect(Collectors.toMap(ActionExecutor::getType, Function.identity()));
+	}
 
-    @Override
-    public void dispatch(ActionContext context, List<WfNodeAction> actions) {
-        if (actions == null || actions.isEmpty()) {
-            return;
-        }
-        for (WfNodeAction action : actions) {
-            ActionExecutor executor = executorMap.get(action.getActionType());
-            if (executor == null) {
-                log.warn("No executor for actionType: {}", action.getActionType());
-                continue;
-            }
-            executor.execute(context, action.getActionConfig());
-        }
-    }
+	@Override
+	public void dispatch(ActionContext context, List<WfNodeAction> actions) {
+		if (actions == null || actions.isEmpty()) {
+			return;
+		}
+		for (WfNodeAction action : actions) {
+			ActionExecutor executor = executorMap.get(action.getActionType());
+			if (executor == null) {
+				log.warn("No executor for actionType: {}", action.getActionType());
+				continue;
+			}
+			executor.execute(context, action.getActionConfig());
+		}
+	}
+
 }

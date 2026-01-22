@@ -18,18 +18,19 @@ import java.util.concurrent.ThreadPoolExecutor;
 @EnableAsync
 public class FlowableConfig {
 
-    /**
-     * 异步任务执行器
-     */
-    @Bean("flowableTaskExecutor")
-    public TaskExecutor flowableTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(5);
-        executor.setMaxPoolSize(20);
-        executor.setQueueCapacity(100);
-        executor.setThreadNamePrefix("flowable-async-");
-        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
-        executor.initialize();
-        return executor;
-    }
+	/**
+	 * 异步任务执行器
+	 */
+	@Bean("flowableTaskExecutor")
+	public TaskExecutor flowableTaskExecutor() {
+		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+		executor.setCorePoolSize(5);
+		executor.setMaxPoolSize(20);
+		executor.setQueueCapacity(100);
+		executor.setThreadNamePrefix("flowable-async-");
+		executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+		executor.initialize();
+		return executor;
+	}
+
 }

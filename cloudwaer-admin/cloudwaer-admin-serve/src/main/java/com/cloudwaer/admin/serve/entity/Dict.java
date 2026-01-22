@@ -11,15 +11,16 @@ import lombok.Data;
 @TableName("sys_dict")
 public class Dict extends BaseEntity {
 
-    /** Dictionary type, e.g. status, delete_flag. */
-    private String type;
+	/** Dictionary type, e.g. status, delete_flag. */
+	private String type;
 
-    /** Dictionary name. */
-    private String name;
+	/** Dictionary name. */
+	private String name;
 
-    /** Sort order. */
-    private Integer sort;
+	/** Sort order. */
+	private Integer sort;
 
-    /** Description. */
-    private String description;
+	/** Description. */
+	private String description;
+
 }

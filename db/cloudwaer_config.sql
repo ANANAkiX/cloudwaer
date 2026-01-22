@@ -11,7 +11,7 @@
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
- Date: 19/01/2026 04:02:11
+ Date: 23/01/2026 02:14:16
 */
 
 SET NAMES utf8mb4;
@@ -131,7 +131,7 @@ CREATE TABLE `group_capacity`  (
 -- ----------------------------
 -- Records of group_capacity
 -- ----------------------------
-INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-18 19:53:08');
+INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-22 18:08:52');
 
 -- ----------------------------
 -- Table structure for his_config_info
@@ -277,7 +277,7 @@ CREATE TABLE `tenant_capacity`  (
 -- ----------------------------
 -- Records of tenant_capacity
 -- ----------------------------
-INSERT INTO `tenant_capacity` VALUES (1, 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 0, 0, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-18 19:53:08');
+INSERT INTO `tenant_capacity` VALUES (1, 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 0, 0, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-22 18:08:52');
 
 -- ----------------------------
 -- Table structure for tenant_info

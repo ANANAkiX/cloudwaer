@@ -25,38 +25,36 @@ import java.util.List;
 @Tag(name = "API扫描", description = "API接口扫描接口（Admin服务）")
 public class ApiScannerController {
 
-    @Autowired(required = false)
-    private ApiScannerService apiScannerService;
+	@Autowired(required = false)
+	private ApiScannerService apiScannerService;
 
-    /**
-     * 获取当前服务的所有API接口列表
-     *
-     * @return API信息列表
-     */
-    @GetMapping("/apis")
-    @Operation(summary = "获取当前服务的所有API接口", description = "扫描并返回当前服务（Admin）的所有可用API接口列表")
-    public Result<List<ApiInfo>> getAllApis() {
-        if (apiScannerService == null) {
-            return Result.fail(500, "API扫描服务未启用");
-        }
-        List<ApiInfo> apis = apiScannerService.getAllApis();
-        return Result.success(apis);
-    }
+	/**
+	 * 获取当前服务的所有API接口列表
+	 * @return API信息列表
+	 */
+	@GetMapping("/apis")
+	@Operation(summary = "获取当前服务的所有API接口", description = "扫描并返回当前服务（Admin）的所有可用API接口列表")
+	public Result<List<ApiInfo>> getAllApis() {
+		if (apiScannerService == null) {
+			return Result.fail(500, "API扫描服务未启用");
+		}
+		List<ApiInfo> apis = apiScannerService.getAllApis();
+		return Result.success(apis);
+	}
 
-    /**
-     * 根据请求方法获取API接口列表
-     *
-     * @param method 请求方法（GET, POST, PUT, DELETE）
-     * @return API信息列表
-     */
-    @GetMapping("/apis/method")
-    @Operation(summary = "根据请求方法获取API接口", description = "根据请求方法过滤当前服务的API接口列表")
-    public Result<List<ApiInfo>> getApisByMethod(@RequestParam String method) {
-        if (apiScannerService == null) {
-            return Result.fail(500, "API扫描服务未启用");
-        }
-        List<ApiInfo> apis = apiScannerService.getApisByMethod(method);
-        return Result.success(apis);
-    }
+	/**
+	 * 根据请求方法获取API接口列表
+	 * @param method 请求方法（GET, POST, PUT, DELETE）
+	 * @return API信息列表
+	 */
+	@GetMapping("/apis/method")
+	@Operation(summary = "根据请求方法获取API接口", description = "根据请求方法过滤当前服务的API接口列表")
+	public Result<List<ApiInfo>> getApisByMethod(@RequestParam String method) {
+		if (apiScannerService == null) {
+			return Result.fail(500, "API扫描服务未启用");
+		}
+		List<ApiInfo> apis = apiScannerService.getApisByMethod(method);
+		return Result.success(apis);
+	}
+
 }
-

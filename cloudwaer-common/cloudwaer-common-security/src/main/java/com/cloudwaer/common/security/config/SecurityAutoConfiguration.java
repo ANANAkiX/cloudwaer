@@ -15,40 +15,37 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * Spring Security自动配置
- * 提供权限验证过滤器配置
+ * Spring Security自动配置 提供权限验证过滤器配置
  *
  * @author cloudwaer
  */
 @AutoConfiguration
-@ConditionalOnClass({HttpSecurity.class, SecurityFilterChain.class})
+@ConditionalOnClass({ HttpSecurity.class, SecurityFilterChain.class })
 @EnableWebSecurity
 public class SecurityAutoConfiguration {
 
-    @Autowired(required = false)
-    private PermissionAuthorizationFilter permissionAuthorizationFilter;
+	@Autowired(required = false)
+	private PermissionAuthorizationFilter permissionAuthorizationFilter;
 
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth -> auth
-                .anyRequest().permitAll()  // 允许所有请求通过，权限验证由自定义过滤器处理
-            );
-        
-        // 添加权限授权过滤器到Spring Security过滤器链中
-        // 在UsernamePasswordAuthenticationFilter之后执行
-        if (permissionAuthorizationFilter != null) {
-            http.addFilterAfter(permissionAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
-        }
-        
-        return http.build();
-    }
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+		http.csrf(csrf -> csrf.disable())
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth.anyRequest().permitAll() // 允许所有请求通过，权限验证由自定义过滤器处理
+			);
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+		// 添加权限授权过滤器到Spring Security过滤器链中
+		// 在UsernamePasswordAuthenticationFilter之后执行
+		if (permissionAuthorizationFilter != null) {
+			http.addFilterAfter(permissionAuthorizationFilter, UsernamePasswordAuthenticationFilter.class);
+		}
+
+		return http.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
 }
-

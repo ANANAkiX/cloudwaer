@@ -13,26 +13,31 @@ import java.time.LocalDateTime;
 @TableName("wf_model")
 public class WfModel extends BaseEntity {
 
-    private String modelKey;
-    private String modelName;
-    private String category;
-    private Integer version;
-    private Integer modelStatus;
+	private String modelKey;
 
-    @TableField("bpmn_xml")
-    private String bpmnXml;
+	private String modelName;
 
-    @TableField("form_json")
-    private String formJson;
+	private String category;
 
-    @TableField("node_actions_json")
-    private String nodeActionsJson;
+	private Integer version;
 
-    private String remark;
+	private Integer modelStatus;
 
-    /**
-     * 模型到期时间（用于流程申请默认到期时间/后续超时处理）
-     */
-    @TableField("end_time")
-    private LocalDateTime endTime;
+	@TableField("bpmn_xml")
+	private String bpmnXml;
+
+	@TableField("form_json")
+	private String formJson;
+
+	@TableField("node_actions_json")
+	private String nodeActionsJson;
+
+	private String remark;
+
+	/**
+	 * 模型到期时间（用于流程申请默认到期时间/后续超时处理）
+	 */
+	@TableField("end_time")
+	private LocalDateTime endTime;
+
 }

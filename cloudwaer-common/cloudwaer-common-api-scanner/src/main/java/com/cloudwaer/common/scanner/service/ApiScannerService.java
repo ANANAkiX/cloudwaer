@@ -24,173 +24,168 @@ import java.util.stream.Collectors;
 @Service
 public class ApiScannerService {
 
-    @Autowired
-    private ApplicationContext applicationContext;
+	@Autowired
+	private ApplicationContext applicationContext;
 
-    @Autowired(required = false)
-    private ApiScannerProperties properties;
+	@Autowired(required = false)
+	private ApiScannerProperties properties;
 
-    @Autowired(required = false)
-    private ApiRegistryService apiRegistryService;
+	@Autowired(required = false)
+	private ApiRegistryService apiRegistryService;
 
-    private List<ApiInfo> cachedApiList = new ArrayList<>();
-    private ApiScanner apiScanner;
+	private List<ApiInfo> cachedApiList = new ArrayList<>();
 
-    @PostConstruct
-    public void init() {
-        if (properties == null) {
-            log.warn("ApiScannerProperties未配置，API扫描功能可能无法正常工作");
-            return;
-        }
+	private ApiScanner apiScanner;
 
-        if (!StringUtils.hasText(properties.getServiceId())) {
-            log.error("服务ID未配置，请在配置文件中设置 cloudwaer.api-scanner.service-id");
-            return;
-        }
+	@PostConstruct
+	public void init() {
+		if (properties == null) {
+			log.warn("ApiScannerProperties未配置，API扫描功能可能无法正常工作");
+			return;
+		}
 
-        apiScanner = new ApiScanner(properties);
-        scanApis();
-        
-        // 注册服务API到Redis
-        if (apiRegistryService != null) {
-            apiRegistryService.registerServiceApis(properties.getServiceId(), cachedApiList);
-            log.info("服务API注册完成: serviceId={}, apiCount={}", properties.getServiceId(), cachedApiList.size());
-        } else {
-            log.warn("ApiRegistryService未配置，服务API未注册到Redis");
-        }
-    }
+		if (!StringUtils.hasText(properties.getServiceId())) {
+			log.error("服务ID未配置，请在配置文件中设置 cloudwaer.api-scanner.service-id");
+			return;
+		}
 
-    @PreDestroy
-    public void destroy() {
-        // 服务关闭时，注销服务API
-        if (apiRegistryService != null && properties != null && StringUtils.hasText(properties.getServiceId())) {
-            apiRegistryService.unregisterServiceApis(properties.getServiceId());
-        }
-    }
+		apiScanner = new ApiScanner(properties);
+		scanApis();
 
-    /**
-     * 扫描所有API接口
-     */
-    public void scanApis() {
-        Set<Class<?>> controllerClasses = findControllerClasses();
-        cachedApiList = apiScanner.scanControllers(controllerClasses);
-        applyServiceMeta(cachedApiList);
-    }
+		// 注册服务API到Redis
+		if (apiRegistryService != null) {
+			apiRegistryService.registerServiceApis(properties.getServiceId(), cachedApiList);
+			log.info("服务API注册完成: serviceId={}, apiCount={}", properties.getServiceId(), cachedApiList.size());
+		}
+		else {
+			log.warn("ApiRegistryService未配置，服务API未注册到Redis");
+		}
+	}
 
-    private void applyServiceMeta(List<ApiInfo> apis) {
-        if (apis == null || apis.isEmpty() || properties == null) {
-            return;
-        }
-        String serviceId = properties.getServiceId();
-        if (!StringUtils.hasText(serviceId)) {
-            return;
-        }
-        for (ApiInfo api : apis) {
-            api.setServiceId(serviceId);
-            api.setApiId(buildApiId(serviceId, api));
-        }
-    }
+	@PreDestroy
+	public void destroy() {
+		// 服务关闭时，注销服务API
+		if (apiRegistryService != null && properties != null && StringUtils.hasText(properties.getServiceId())) {
+			apiRegistryService.unregisterServiceApis(properties.getServiceId());
+		}
+	}
 
-    private String buildApiId(String serviceId, ApiInfo api) {
-        StringBuilder builder = new StringBuilder();
-        builder.append(serviceId)
-            .append(":")
-            .append(api.getMethod())
-            .append(":")
-            .append(api.getFullPath());
-        if (StringUtils.hasText(api.getClassName()) || StringUtils.hasText(api.getMethodName())) {
-            builder.append(":")
-                .append(api.getClassName())
-                .append("#")
-                .append(api.getMethodName());
-        }
-        return builder.toString();
-    }
+	/**
+	 * 扫描所有API接口
+	 */
+	public void scanApis() {
+		Set<Class<?>> controllerClasses = findControllerClasses();
+		cachedApiList = apiScanner.scanControllers(controllerClasses);
+		applyServiceMeta(cachedApiList);
+	}
 
-    /**
-     * 获取所有API接口列表
-     *
-     * @return API信息列表
-     */
-    public List<ApiInfo> getAllApis() {
-        if (cachedApiList.isEmpty()) {
-            scanApis();
-        }
-        return new ArrayList<>(cachedApiList);
-    }
+	private void applyServiceMeta(List<ApiInfo> apis) {
+		if (apis == null || apis.isEmpty() || properties == null) {
+			return;
+		}
+		String serviceId = properties.getServiceId();
+		if (!StringUtils.hasText(serviceId)) {
+			return;
+		}
+		for (ApiInfo api : apis) {
+			api.setServiceId(serviceId);
+			api.setApiId(buildApiId(serviceId, api));
+		}
+	}
 
-    /**
-     * 根据请求方法过滤API
-     *
-     * @param method 请求方法（GET, POST, PUT, DELETE）
-     * @return API信息列表
-     */
-    public List<ApiInfo> getApisByMethod(String method) {
-        return getAllApis().stream()
-                .filter(api -> api.getMethod().equalsIgnoreCase(method))
-                .collect(Collectors.toList());
-    }
+	private String buildApiId(String serviceId, ApiInfo api) {
+		StringBuilder builder = new StringBuilder();
+		builder.append(serviceId).append(":").append(api.getMethod()).append(":").append(api.getFullPath());
+		if (StringUtils.hasText(api.getClassName()) || StringUtils.hasText(api.getMethodName())) {
+			builder.append(":").append(api.getClassName()).append("#").append(api.getMethodName());
+		}
+		return builder.toString();
+	}
 
-    /**
-     * 查找所有Controller类
-     */
-    private Set<Class<?>> findControllerClasses() {
-        Set<Class<?>> controllerClasses = new HashSet<>();
-        
-        // 获取所有Bean的名称
-        String[] beanNames = applicationContext.getBeanNamesForType(Object.class);
-        
-        for (String beanName : beanNames) {
-            try {
-                Object bean = applicationContext.getBean(beanName);
-                Class<?> beanClass = bean.getClass();
-                
-                // 获取实际的类（可能是代理类，需要获取原始类）
-                Class<?> targetClass = getTargetClass(beanClass);
-                
-                // 检查是否是Controller（有@RestController或@Controller注解）
-                if (targetClass.isAnnotationPresent(RestController.class) ||
-                    targetClass.isAnnotationPresent(org.springframework.stereotype.Controller.class)) {
-                    
-                    // 检查是否在扫描范围内
-                    if (shouldScanClass(targetClass)) {
-                        controllerClasses.add(targetClass);
-                    }
-                }
-            } catch (Exception e) {
-                // 忽略无法获取的Bean
-            }
-        }
-        
-        return controllerClasses;
-    }
+	/**
+	 * 获取所有API接口列表
+	 * @return API信息列表
+	 */
+	public List<ApiInfo> getAllApis() {
+		if (cachedApiList.isEmpty()) {
+			scanApis();
+		}
+		return new ArrayList<>(cachedApiList);
+	}
 
-    /**
-     * 获取目标类（处理代理类）
-     */
-    private Class<?> getTargetClass(Class<?> clazz) {
-        // 如果是CGLIB代理类，获取父类
-        if (clazz.getName().contains("$$")) {
-            return clazz.getSuperclass();
-        }
-        return clazz;
-    }
+	/**
+	 * 根据请求方法过滤API
+	 * @param method 请求方法（GET, POST, PUT, DELETE）
+	 * @return API信息列表
+	 */
+	public List<ApiInfo> getApisByMethod(String method) {
+		return getAllApis().stream()
+			.filter(api -> api.getMethod().equalsIgnoreCase(method))
+			.collect(Collectors.toList());
+	}
 
-    /**
-     * 判断是否应该扫描该类
-     */
-    private boolean shouldScanClass(Class<?> clazz) {
-        if (properties == null || properties.getBasePackages() == null || properties.getBasePackages().isEmpty()) {
-            return true;
-        }
-        
-        String packageName = clazz.getPackage().getName();
-        for (String basePackage : properties.getBasePackages()) {
-            if (packageName.startsWith(basePackage)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
+	/**
+	 * 查找所有Controller类
+	 */
+	private Set<Class<?>> findControllerClasses() {
+		Set<Class<?>> controllerClasses = new HashSet<>();
+
+		// 获取所有Bean的名称
+		String[] beanNames = applicationContext.getBeanNamesForType(Object.class);
+
+		for (String beanName : beanNames) {
+			try {
+				Object bean = applicationContext.getBean(beanName);
+				Class<?> beanClass = bean.getClass();
+
+				// 获取实际的类（可能是代理类，需要获取原始类）
+				Class<?> targetClass = getTargetClass(beanClass);
+
+				// 检查是否是Controller（有@RestController或@Controller注解）
+				if (targetClass.isAnnotationPresent(RestController.class)
+						|| targetClass.isAnnotationPresent(org.springframework.stereotype.Controller.class)) {
+
+					// 检查是否在扫描范围内
+					if (shouldScanClass(targetClass)) {
+						controllerClasses.add(targetClass);
+					}
+				}
+			}
+			catch (Exception e) {
+				// 忽略无法获取的Bean
+			}
+		}
+
+		return controllerClasses;
+	}
+
+	/**
+	 * 获取目标类（处理代理类）
+	 */
+	private Class<?> getTargetClass(Class<?> clazz) {
+		// 如果是CGLIB代理类，获取父类
+		if (clazz.getName().contains("$$")) {
+			return clazz.getSuperclass();
+		}
+		return clazz;
+	}
+
+	/**
+	 * 判断是否应该扫描该类
+	 */
+	private boolean shouldScanClass(Class<?> clazz) {
+		if (properties == null || properties.getBasePackages() == null || properties.getBasePackages().isEmpty()) {
+			return true;
+		}
+
+		String packageName = clazz.getPackage().getName();
+		for (String basePackage : properties.getBasePackages()) {
+			if (packageName.startsWith(basePackage)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 }

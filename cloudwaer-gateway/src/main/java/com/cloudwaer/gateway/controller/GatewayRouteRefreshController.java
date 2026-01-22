@@ -25,28 +25,28 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/actuator/gateway")
 public class GatewayRouteRefreshController implements ApplicationEventPublisherAware {
 
-    @Autowired
-    private RouteDefinitionWriter routeDefinitionWriter;
+	@Autowired
+	private RouteDefinitionWriter routeDefinitionWriter;
 
-    @Autowired
-    private DynamicRouteDefinitionLocator routeDefinitionLocator;
+	@Autowired
+	private DynamicRouteDefinitionLocator routeDefinitionLocator;
 
-    private ApplicationEventPublisher publisher;
+	private ApplicationEventPublisher publisher;
 
-    @Override
-    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
-        this.publisher = applicationEventPublisher;
-    }
+	@Override
+	public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+		this.publisher = applicationEventPublisher;
+	}
 
-    /**
-     * 刷新路由
-     */
-    @PostMapping("/refresh")
-    public Mono<ResponseEntity<String>> refresh() {
-        // 直接发布刷新事件，让Spring Cloud Gateway重新加载所有RouteDefinitionLocator的路由
-        this.publisher.publishEvent(new RefreshRoutesEvent(this));
-        log.info("路由刷新事件已发布");
-        return Mono.just(ResponseEntity.ok("路由刷新成功"));
-    }
+	/**
+	 * 刷新路由
+	 */
+	@PostMapping("/refresh")
+	public Mono<ResponseEntity<String>> refresh() {
+		// 直接发布刷新事件，让Spring Cloud Gateway重新加载所有RouteDefinitionLocator的路由
+		this.publisher.publishEvent(new RefreshRoutesEvent(this));
+		log.info("路由刷新事件已发布");
+		return Mono.just(ResponseEntity.ok("路由刷新成功"));
+	}
+
 }
-

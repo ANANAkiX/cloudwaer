@@ -14,60 +14,52 @@ import org.springframework.context.annotation.Configuration;
 
 /**
  * Flowable 监听器配置
- * 
+ *
  * @author cloudwaer
  * @since 2026-01-16
  */
 @Configuration
 public class FlowableTaskListenerConfig {
 
-    /**
-     * 注册任务监听器Bean
-     * 确保Spring能够正确识别和注入任务监听器
-     */
-    @Bean("flowableTaskListener")
-    public FlowableTaskListener flowableTaskListener(
-            WfNodeActionService nodeActionService,
-            ObjectMapper objectMapper,
-            WfNodeActionMapper wfNodeActionMapper,
-            WfModelMapper wfModelMapper,
-            RepositoryService repositoryService,
-            WfTaskHandleRecordMapper taskHandleRecordMapper,
-            WfProcessExtMapper processExtMapper) {
-        
-        FlowableTaskListener listener = new FlowableTaskListener();
-        
-        // 手动注入依赖
-        listener.setNodeActionService(nodeActionService);
-        listener.setObjectMapper(objectMapper);
-        listener.setWfNodeActionMapper(wfNodeActionMapper);
-        listener.setWfModelMapper(wfModelMapper);
-        listener.setRepositoryService(repositoryService);
-        listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
-        listener.setProcessExtMapper(processExtMapper);
-        
-        return listener;
-    }
-    
-    /**
-     * 注册执行监听器Bean
-     * 用于处理流程开始、结束等事件
-     */
-    @Bean("flowableExecutionListener")
-    public FlowableExecutionListener flowableExecutionListener(
-            WfModelMapper wfModelMapper,
-            WfProcessExtMapper processExtMapper,
-            RepositoryService repositoryService,
-            WfTaskHandleRecordMapper taskHandleRecordMapper) {
-        
-        FlowableExecutionListener listener = new FlowableExecutionListener();
-        
-        // 手动注入依赖
-        listener.setWfModelMapper(wfModelMapper);
-        listener.setProcessExtMapper(processExtMapper);
-        listener.setRepositoryService(repositoryService);
-        listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
-        
-        return listener;
-    }
+	/**
+	 * 注册任务监听器Bean 确保Spring能够正确识别和注入任务监听器
+	 */
+	@Bean("flowableTaskListener")
+	public FlowableTaskListener flowableTaskListener(WfNodeActionService nodeActionService, ObjectMapper objectMapper,
+			WfNodeActionMapper wfNodeActionMapper, WfModelMapper wfModelMapper, RepositoryService repositoryService,
+			WfTaskHandleRecordMapper taskHandleRecordMapper, WfProcessExtMapper processExtMapper) {
+
+		FlowableTaskListener listener = new FlowableTaskListener();
+
+		// 手动注入依赖
+		listener.setNodeActionService(nodeActionService);
+		listener.setObjectMapper(objectMapper);
+		listener.setWfNodeActionMapper(wfNodeActionMapper);
+		listener.setWfModelMapper(wfModelMapper);
+		listener.setRepositoryService(repositoryService);
+		listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
+		listener.setProcessExtMapper(processExtMapper);
+
+		return listener;
+	}
+
+	/**
+	 * 注册执行监听器Bean 用于处理流程开始、结束等事件
+	 */
+	@Bean("flowableExecutionListener")
+	public FlowableExecutionListener flowableExecutionListener(WfModelMapper wfModelMapper,
+			WfProcessExtMapper processExtMapper, RepositoryService repositoryService,
+			WfTaskHandleRecordMapper taskHandleRecordMapper) {
+
+		FlowableExecutionListener listener = new FlowableExecutionListener();
+
+		// 手动注入依赖
+		listener.setWfModelMapper(wfModelMapper);
+		listener.setProcessExtMapper(processExtMapper);
+		listener.setRepositoryService(repositoryService);
+		listener.setTaskHandleRecordMapper(taskHandleRecordMapper);
+
+		return listener;
+	}
+
 }

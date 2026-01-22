@@ -20,73 +20,60 @@ import java.util.Map;
 @Component
 public class JwtUtil {
 
-    @Autowired
-    private JwtProperties jwtProperties;
+	@Autowired
+	private JwtProperties jwtProperties;
 
-    /**
-     * 获取密钥
-     */
-    private SecretKey getSecretKey() {
-        return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
-    }
+	/**
+	 * 获取密钥
+	 */
+	private SecretKey getSecretKey() {
+		return Keys.hmacShaKeyFor(jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8));
+	}
 
-    /**
-     * 生成Token
-     *
-     * @param claims 载荷
-     * @return Token
-     */
-    public String generateToken(Map<String, Object> claims) {
-        Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
+	/**
+	 * 生成Token
+	 * @param claims 载荷
+	 * @return Token
+	 */
+	public String generateToken(Map<String, Object> claims) {
+		Date now = new Date();
+		Date expiryDate = new Date(now.getTime() + jwtProperties.getExpiration());
 
-        return Jwts.builder()
-                .claims(claims)
-                .issuedAt(now)
-                .expiration(expiryDate)
-                .signWith(getSecretKey())
-                .compact();
-    }
+		return Jwts.builder().claims(claims).issuedAt(now).expiration(expiryDate).signWith(getSecretKey()).compact();
+	}
 
-    /**
-     * 从Token中获取Claims
-     *
-     * @param token Token
-     * @return Claims
-     */
-    public Claims getClaimsFromToken(String token) {
-        return Jwts.parser()
-                .verifyWith(getSecretKey())
-                .build()
-                .parseSignedClaims(token)
-                .getPayload();
-    }
+	/**
+	 * 从Token中获取Claims
+	 * @param token Token
+	 * @return Claims
+	 */
+	public Claims getClaimsFromToken(String token) {
+		return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
+	}
 
-    /**
-     * 从Token中获取用户名
-     *
-     * @param token Token
-     * @return 用户名
-     */
-    public String getUsernameFromToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims.getSubject();
-    }
+	/**
+	 * 从Token中获取用户名
+	 * @param token Token
+	 * @return 用户名
+	 */
+	public String getUsernameFromToken(String token) {
+		Claims claims = getClaimsFromToken(token);
+		return claims.getSubject();
+	}
 
-    /**
-     * 验证Token是否有效
-     *
-     * @param token Token
-     * @return 是否有效
-     */
-    public boolean validateToken(String token) {
-        try {
-            Claims claims = getClaimsFromToken(token);
-            return !claims.getExpiration().before(new Date());
-        } catch (Exception e) {
-            return false;
-        }
-    }
+	/**
+	 * 验证Token是否有效
+	 * @param token Token
+	 * @return 是否有效
+	 */
+	public boolean validateToken(String token) {
+		try {
+			Claims claims = getClaimsFromToken(token);
+			return !claims.getExpiration().before(new Date());
+		}
+		catch (Exception e) {
+			return false;
+		}
+	}
+
 }
-
-

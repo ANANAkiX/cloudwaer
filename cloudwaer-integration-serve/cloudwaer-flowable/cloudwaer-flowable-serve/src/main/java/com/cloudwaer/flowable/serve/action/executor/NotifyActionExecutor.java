@@ -10,14 +10,15 @@ import org.springframework.stereotype.Component;
 @Component
 public class NotifyActionExecutor implements ActionExecutor {
 
-    @Override
-    public String getType() {
-        return FlowableConstants.ACTION_NOTIFY;
-    }
+	@Override
+	public String getType() {
+		return FlowableConstants.ACTION_NOTIFY;
+	}
 
-    @Override
-    public void execute(ActionContext context, String config) {
-        log.info("Notify action placeholder: event={}, taskId={}, config={}",
-                context.getEventType(), context.getTaskId(), config);
-    }
+	@Override
+	public void execute(ActionContext context, String config) {
+		log.info("Notify action placeholder: event={}, taskId={}, config={}", context.getEventType(),
+				context.getTaskId(), config);
+	}
+
 }

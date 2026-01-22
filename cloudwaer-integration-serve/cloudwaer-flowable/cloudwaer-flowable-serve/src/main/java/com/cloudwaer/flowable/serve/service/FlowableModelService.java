@@ -11,21 +11,22 @@ import java.util.List;
 
 public interface FlowableModelService {
 
-    Long saveModel(FlowableModelSaveDTO dto);
+	Long saveModel(FlowableModelSaveDTO dto);
 
-    FlowableModelDetailDTO getDetail(Long id);
+	FlowableModelDetailDTO getDetail(Long id);
 
-    PageResult<FlowableModelListDTO> list(PageDTO pageDTO);
+	PageResult<FlowableModelListDTO> list(PageDTO pageDTO);
 
-    List<FlowableModelListDTO> listVersions(String modelKey);
+	List<FlowableModelListDTO> listVersions(String modelKey);
 
-    boolean publish(Long id);
+	boolean publish(Long id);
 
-    boolean copy(FlowableModelCopyDTO dto);
+	boolean copy(FlowableModelCopyDTO dto);
 
-    boolean rollback(FlowableModelRollbackDTO dto);
+	boolean rollback(FlowableModelRollbackDTO dto);
 
-    String getBpmnXml(Long id);
+	String getBpmnXml(Long id);
 
-    boolean deleteModel(Long id);
+	boolean deleteModel(Long id);
+
 }

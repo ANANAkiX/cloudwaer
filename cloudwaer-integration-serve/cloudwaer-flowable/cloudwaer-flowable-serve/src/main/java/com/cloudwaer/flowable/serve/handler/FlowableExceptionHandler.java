@@ -1,6 +1,5 @@
 package com.cloudwaer.flowable.serve.handler;
 
-
 import com.cloudwaer.common.core.exception.GlobalExceptionHandler;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
@@ -19,18 +18,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Order(-1)
 @Slf4j
 public class FlowableExceptionHandler extends GlobalExceptionHandler {
-    /**
-     * 处理流程错误异常
-     *
-     * @param e
-     * @return
-     */
-    @ExceptionHandler(FlowableException.class)
-    public Result<?> handleNoResourceFoundException(FlowableException e) {
-        log.error("流程出错 - {}", e.getMessage());
-        return Result.fail(ResultCode.FLOWABLE_ERROR.getCode(), ResultCode.FLOWABLE_ERROR.getMessage());
-    }
+
+	/**
+	 * 处理流程错误异常
+	 * @param e
+	 * @return
+	 */
+	@ExceptionHandler(FlowableException.class)
+	public Result<?> handleNoResourceFoundException(FlowableException e) {
+		log.error("流程出错 - {}", e.getMessage());
+		return Result.fail(ResultCode.FLOWABLE_ERROR.getCode(), ResultCode.FLOWABLE_ERROR.getMessage());
+	}
 
 }
-
-

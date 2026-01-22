@@ -10,61 +10,62 @@ import java.io.Serializable;
  */
 @Data
 public class DatabaseConnectionDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    /**
-     * 连接ID
-     */
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 连接名称
-     */
-    private String name;
+	/**
+	 * 连接ID
+	 */
+	private Long id;
 
-    /**
-     * 数据库类型（mysql, postgresql, oracle等）
-     */
-    private String dbType;
+	/**
+	 * 连接名称
+	 */
+	private String name;
 
-    /**
-     * 主机地址
-     */
-    private String host;
+	/**
+	 * 数据库类型（mysql, postgresql, oracle等）
+	 */
+	private String dbType;
 
-    /**
-     * 端口号
-     */
-    private Integer port;
+	/**
+	 * 主机地址
+	 */
+	private String host;
 
-    /**
-     * 数据库名称
-     */
-    private String database;
+	/**
+	 * 端口号
+	 */
+	private Integer port;
 
-    /**
-     * 用户名
-     */
-    private String username;
+	/**
+	 * 数据库名称
+	 */
+	private String database;
 
-    /**
-     * 密码
-     */
-    private String password;
+	/**
+	 * 用户名
+	 */
+	private String username;
 
-    /**
-     * 连接URL（可选，如果不提供则根据其他参数自动生成）
-     */
-    private String url;
+	/**
+	 * 密码
+	 */
+	private String password;
 
-    /**
-     * 是否启用
-     */
-    private Boolean enabled;
+	/**
+	 * 连接URL（可选，如果不提供则根据其他参数自动生成）
+	 */
+	private String url;
 
-    /**
-     * 备注
-     */
-    private String remark;
+	/**
+	 * 是否启用
+	 */
+	private Boolean enabled;
+
+	/**
+	 * 备注
+	 */
+	private String remark;
+
 }
-

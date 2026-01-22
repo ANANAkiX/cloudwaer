@@ -22,60 +22,61 @@ import java.util.List;
 @Tag(name = "Flowable Model", description = "Flowable model endpoints")
 public class FlowableModelController {
 
-    @Autowired
-    private FlowableModelService modelService;
+	@Autowired
+	private FlowableModelService modelService;
 
-    @PostMapping("/save")
-    @Operation(summary = "Save model")
-    public Result<Long> save(@RequestBody FlowableModelSaveDTO dto) {
-        return Result.success(modelService.saveModel(dto));
-    }
+	@PostMapping("/save")
+	@Operation(summary = "Save model")
+	public Result<Long> save(@RequestBody FlowableModelSaveDTO dto) {
+		return Result.success(modelService.saveModel(dto));
+	}
 
-    @GetMapping("/detail")
-    @Operation(summary = "Model detail")
-    public Result<FlowableModelDetailDTO> detail(@RequestParam Long id) {
-        return Result.success(modelService.getDetail(id));
-    }
+	@GetMapping("/detail")
+	@Operation(summary = "Model detail")
+	public Result<FlowableModelDetailDTO> detail(@RequestParam Long id) {
+		return Result.success(modelService.getDetail(id));
+	}
 
-    @GetMapping("/list")
-    @Operation(summary = "Model list")
-    public Result<PageResult<FlowableModelListDTO>> list(PageDTO pageDTO) {
-        return Result.success(modelService.list(pageDTO));
-    }
+	@GetMapping("/list")
+	@Operation(summary = "Model list")
+	public Result<PageResult<FlowableModelListDTO>> list(PageDTO pageDTO) {
+		return Result.success(modelService.list(pageDTO));
+	}
 
-    @GetMapping("/versions")
-    @Operation(summary = "Model versions")
-    public Result<List<FlowableModelListDTO>> versions(@RequestParam String modelKey) {
-        return Result.success(modelService.listVersions(modelKey));
-    }
+	@GetMapping("/versions")
+	@Operation(summary = "Model versions")
+	public Result<List<FlowableModelListDTO>> versions(@RequestParam String modelKey) {
+		return Result.success(modelService.listVersions(modelKey));
+	}
 
-    @PostMapping("/publish")
-    @Operation(summary = "Publish model")
-    public Result<Boolean> publish(@RequestBody FlowableModelPublishDTO dto) {
-        return Result.success(modelService.publish(dto.getId()));
-    }
+	@PostMapping("/publish")
+	@Operation(summary = "Publish model")
+	public Result<Boolean> publish(@RequestBody FlowableModelPublishDTO dto) {
+		return Result.success(modelService.publish(dto.getId()));
+	}
 
-    @PostMapping("/copy")
-    @Operation(summary = "Copy model")
-    public Result<Boolean> copy(@RequestBody FlowableModelCopyDTO dto) {
-        return Result.success(modelService.copy(dto));
-    }
+	@PostMapping("/copy")
+	@Operation(summary = "Copy model")
+	public Result<Boolean> copy(@RequestBody FlowableModelCopyDTO dto) {
+		return Result.success(modelService.copy(dto));
+	}
 
-    @PostMapping("/rollback")
-    @Operation(summary = "Rollback model")
-    public Result<Boolean> rollback(@RequestBody FlowableModelRollbackDTO dto) {
-        return Result.success(modelService.rollback(dto));
-    }
+	@PostMapping("/rollback")
+	@Operation(summary = "Rollback model")
+	public Result<Boolean> rollback(@RequestBody FlowableModelRollbackDTO dto) {
+		return Result.success(modelService.rollback(dto));
+	}
 
-    @GetMapping("/bpmn")
-    @Operation(summary = "Get BPMN XML")
-    public Result<String> bpmn(@RequestParam Long id) {
-        return Result.success(modelService.getBpmnXml(id));
-    }
+	@GetMapping("/bpmn")
+	@Operation(summary = "Get BPMN XML")
+	public Result<String> bpmn(@RequestParam Long id) {
+		return Result.success(modelService.getBpmnXml(id));
+	}
 
-    @DeleteMapping("/delete")
-    @Operation(summary = "Delete model")
-    public Result<Boolean> delete(@RequestBody FlowableIdDTO dto) {
-        return Result.success(modelService.deleteModel(dto.getId()));
-    }
+	@DeleteMapping("/delete")
+	@Operation(summary = "Delete model")
+	public Result<Boolean> delete(@RequestBody FlowableIdDTO dto) {
+		return Result.success(modelService.deleteModel(dto.getId()));
+	}
+
 }

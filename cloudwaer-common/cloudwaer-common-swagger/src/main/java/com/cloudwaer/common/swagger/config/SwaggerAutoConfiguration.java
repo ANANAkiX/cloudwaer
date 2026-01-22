@@ -21,25 +21,19 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(SwaggerProperties.class)
 public class SwaggerAutoConfiguration {
 
-    private final SwaggerProperties swaggerProperties;
+	private final SwaggerProperties swaggerProperties;
 
-    public SwaggerAutoConfiguration(SwaggerProperties swaggerProperties) {
-        this.swaggerProperties = swaggerProperties;
-    }
+	public SwaggerAutoConfiguration(SwaggerProperties swaggerProperties) {
+		this.swaggerProperties = swaggerProperties;
+	}
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title(swaggerProperties.getTitle())
-                        .version(swaggerProperties.getVersion())
-                        .description(swaggerProperties.getDescription())
-                        .contact(new Contact()
-                                .name(swaggerProperties.getContactName())
-                                .email(swaggerProperties.getContactEmail()))
-                        .license(new License()
-                                .name(swaggerProperties.getLicenseName())
-                                .url(swaggerProperties.getLicenseUrl())));
-    }
+	@Bean
+	public OpenAPI customOpenAPI() {
+		return new OpenAPI().info(new Info().title(swaggerProperties.getTitle())
+			.version(swaggerProperties.getVersion())
+			.description(swaggerProperties.getDescription())
+			.contact(new Contact().name(swaggerProperties.getContactName()).email(swaggerProperties.getContactEmail()))
+			.license(new License().name(swaggerProperties.getLicenseName()).url(swaggerProperties.getLicenseUrl())));
+	}
+
 }
-

@@ -15,8 +15,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = "com.cloudwaer")
 public class CodegenServeApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CodegenServeApplication.class, args);
-    }
-}
+	public static void main(String[] args) {
+		SpringApplication.run(CodegenServeApplication.class, args);
+	}
 
+}

@@ -16,35 +16,35 @@ import lombok.EqualsAndHashCode;
 @TableName("sys_gateway_route")
 public class GatewayRoute extends BaseEntity {
 
-    /**
-     * 路由ID（唯一标识）
-     */
-    private String routeId;
+	/**
+	 * 路由ID（唯一标识）
+	 */
+	private String routeId;
 
-    /**
-     * 路由URI（如：lb://service-name）
-     */
-    private String uri;
+	/**
+	 * 路由URI（如：lb://service-name）
+	 */
+	private String uri;
 
-    /**
-     * 路由断言（JSON格式）
-     */
-    private String predicates;
+	/**
+	 * 路由断言（JSON格式）
+	 */
+	private String predicates;
 
-    /**
-     * 路由过滤器（JSON格式）
-     */
-    private String filters;
+	/**
+	 * 路由过滤器（JSON格式）
+	 */
+	private String filters;
 
-    /**
-     * 路由顺序（数字越小优先级越高）
-     */
-    @TableField("`order`")
-    private Integer order;
+	/**
+	 * 路由顺序（数字越小优先级越高）
+	 */
+	@TableField("`order`")
+	private Integer order;
 
-    /**
-     * 路由描述
-     */
-    private String description;
+	/**
+	 * 路由描述
+	 */
+	private String description;
+
 }
-

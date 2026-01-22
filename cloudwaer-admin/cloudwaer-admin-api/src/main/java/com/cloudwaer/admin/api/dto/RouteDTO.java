@@ -14,44 +14,42 @@ import java.util.List;
 @Data
 public class RouteDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 路由路径
-     */
-    private String path;
+	/**
+	 * 路由路径
+	 */
+	private String path;
 
-    /**
-     * 组件路径
-     */
-    private String component;
+	/**
+	 * 组件路径
+	 */
+	private String component;
 
-    /**
-     * 路由名称
-     */
-    private String name;
+	/**
+	 * 路由名称
+	 */
+	private String name;
 
-    /**
-     * 路由元信息
-     */
-    private RouteMeta meta;
+	/**
+	 * 路由元信息
+	 */
+	private RouteMeta meta;
 
-    /**
-     * 父权限ID（序列化为字符串，避免前端精度丢失）
-     */
-    @JsonFormat(shape = JsonFormat.Shape.STRING)
-    private Long parentId;
+	/**
+	 * 父权限ID（序列化为字符串，避免前端精度丢失）
+	 */
+	@JsonFormat(shape = JsonFormat.Shape.STRING)
+	private Long parentId;
 
-    /**
-     * API请求地址
-     */
-    private String apiUrl;
+	/**
+	 * API请求地址
+	 */
+	private String apiUrl;
 
-    /**
-     * 子路由
-     */
-    private List<RouteDTO> children;
+	/**
+	 * 子路由
+	 */
+	private List<RouteDTO> children;
+
 }
-
-
-

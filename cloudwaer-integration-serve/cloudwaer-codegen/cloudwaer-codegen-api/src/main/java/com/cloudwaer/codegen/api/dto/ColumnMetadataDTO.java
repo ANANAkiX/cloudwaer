@@ -10,61 +10,62 @@ import java.io.Serializable;
  */
 @Data
 public class ColumnMetadataDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    /**
-     * 列名
-     */
-    private String columnName;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 数据类型（如：VARCHAR, INT, BIGINT等）
-     */
-    private String dataType;
+	/**
+	 * 列名
+	 */
+	private String columnName;
 
-    /**
-     * Java类型（如：String, Integer, Long等）
-     */
-    private String javaType;
+	/**
+	 * 数据类型（如：VARCHAR, INT, BIGINT等）
+	 */
+	private String dataType;
 
-    /**
-     * 列注释
-     */
-    private String columnComment;
+	/**
+	 * Java类型（如：String, Integer, Long等）
+	 */
+	private String javaType;
 
-    /**
-     * 是否为主键
-     */
-    private Boolean primaryKey;
+	/**
+	 * 列注释
+	 */
+	private String columnComment;
 
-    /**
-     * 是否可为空
-     */
-    private Boolean nullable;
+	/**
+	 * 是否为主键
+	 */
+	private Boolean primaryKey;
 
-    /**
-     * 是否自增
-     */
-    private Boolean autoIncrement;
+	/**
+	 * 是否可为空
+	 */
+	private Boolean nullable;
 
-    /**
-     * 默认值
-     */
-    private String defaultValue;
+	/**
+	 * 是否自增
+	 */
+	private Boolean autoIncrement;
 
-    /**
-     * 字段长度
-     */
-    private Long columnSize;
+	/**
+	 * 默认值
+	 */
+	private String defaultValue;
 
-    /**
-     * 小数位数（用于DECIMAL类型）
-     */
-    private Integer decimalDigits;
+	/**
+	 * 字段长度
+	 */
+	private Long columnSize;
 
-    /**
-     * 字段在表中的顺序
-     */
-    private Integer ordinalPosition;
+	/**
+	 * 小数位数（用于DECIMAL类型）
+	 */
+	private Integer decimalDigits;
+
+	/**
+	 * 字段在表中的顺序
+	 */
+	private Integer ordinalPosition;
+
 }
-

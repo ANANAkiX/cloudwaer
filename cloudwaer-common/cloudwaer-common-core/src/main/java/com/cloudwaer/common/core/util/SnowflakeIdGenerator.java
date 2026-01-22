@@ -10,16 +10,14 @@ import cn.hutool.core.util.IdUtil;
  */
 public class SnowflakeIdGenerator {
 
-    private static final Snowflake SNOWFLAKE = IdUtil.getSnowflake(1, 1);
+	private static final Snowflake SNOWFLAKE = IdUtil.getSnowflake(1, 1);
 
-    /**
-     * 生成ID
-     *
-     * @return 生成的ID
-     */
-    public static Long nextId() {
-        return SNOWFLAKE.nextId();
-    }
+	/**
+	 * 生成ID
+	 * @return 生成的ID
+	 */
+	public static Long nextId() {
+		return SNOWFLAKE.nextId();
+	}
+
 }
-
-

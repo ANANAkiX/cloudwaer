@@ -15,60 +15,53 @@ import java.util.List;
  */
 public interface RoleService extends IService<Role> {
 
-    /**
-     * 获取所有角色列表
-     *
-     * @return 角色列表
-     */
-    List<RoleDTO> getAllRoles();
+	/**
+	 * 获取所有角色列表
+	 * @return 角色列表
+	 */
+	List<RoleDTO> getAllRoles();
 
-    /**
-     * 分页查询角色列表
-     *
-     * @param pageDTO 分页参数
-     * @return 分页结果
-     */
-    PageResult<RoleDTO> getRolePage(PageDTO pageDTO);
+	/**
+	 * 分页查询角色列表
+	 * @param pageDTO 分页参数
+	 * @return 分页结果
+	 */
+	PageResult<RoleDTO> getRolePage(PageDTO pageDTO);
 
-    /**
-     * 根据ID获取角色
-     *
-     * @param id 角色ID
-     * @return 角色DTO
-     */
-    RoleDTO getRoleById(Long id);
+	/**
+	 * 根据ID获取角色
+	 * @param id 角色ID
+	 * @return 角色DTO
+	 */
+	RoleDTO getRoleById(Long id);
 
-    /**
-     * 保存角色
-     *
-     * @param roleDTO 角色DTO
-     * @return 是否成功
-     */
-    Boolean saveRole(RoleDTO roleDTO);
+	/**
+	 * 保存角色
+	 * @param roleDTO 角色DTO
+	 * @return 是否成功
+	 */
+	Boolean saveRole(RoleDTO roleDTO);
 
-    /**
-     * 更新角色
-     *
-     * @param roleDTO 角色DTO
-     * @return 是否成功
-     */
-    Boolean updateRole(RoleDTO roleDTO);
+	/**
+	 * 更新角色
+	 * @param roleDTO 角色DTO
+	 * @return 是否成功
+	 */
+	Boolean updateRole(RoleDTO roleDTO);
 
-    /**
-     * 删除角色
-     *
-     * @param id 角色ID
-     * @return 是否成功
-     */
-    Boolean deleteRole(Long id);
+	/**
+	 * 删除角色
+	 * @param id 角色ID
+	 * @return 是否成功
+	 */
+	Boolean deleteRole(Long id);
 
-    /**
-     * 分配权限给角色
-     *
-     * @param roleId        角色ID
-     * @param permissionIds 权限ID列表
-     * @return 是否成功
-     */
-    Boolean assignPermissions(Long roleId, List<Long> permissionIds);
+	/**
+	 * 分配权限给角色
+	 * @param roleId 角色ID
+	 * @param permissionIds 权限ID列表
+	 * @return 是否成功
+	 */
+	Boolean assignPermissions(Long roleId, List<Long> permissionIds);
+
 }
-

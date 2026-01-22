@@ -4,12 +4,21 @@ import lombok.Data;
 
 @Data
 public class DictItemDTO {
-    private Long id;
-    private Long dictId;
-    private String code;
-    private String value;
-    private String label;
-    private Integer sort;
-    private Integer status;
-    private String description;
+
+	private Long id;
+
+	private Long dictId;
+
+	private String code;
+
+	private String value;
+
+	private String label;
+
+	private Integer sort;
+
+	private Integer status;
+
+	private String description;
+
 }

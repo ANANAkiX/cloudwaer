@@ -13,41 +13,41 @@ import java.io.Serializable;
 @Data
 public class ApiInfo implements Serializable {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+	@Serial
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 请求方法（GET, POST, PUT, DELETE等）
-     */
-    private String method;
+	/**
+	 * 请求方法（GET, POST, PUT, DELETE等）
+	 */
+	private String method;
 
-    /**
-     * API路径
-     */
-    private String path;
+	/**
+	 * API路径
+	 */
+	private String path;
 
-    /**
-     * 完整路径（包含类上的@RequestMapping）
-     */
-    private String fullPath;
+	/**
+	 * 完整路径（包含类上的@RequestMapping）
+	 */
+	private String fullPath;
 
-    /**
-     * 方法名称
-     */
-    private String methodName;
+	/**
+	 * 方法名称
+	 */
+	private String methodName;
 
-    /**
-     * 类名称
-     */
-    private String className;
+	/**
+	 * 类名称
+	 */
+	private String className;
 
-    private String serviceId;
+	private String serviceId;
 
-    private String apiId;
+	private String apiId;
 
-    /**
-     * 描述（从@Operation或注释中获取）
-     */
-    private String description;
+	/**
+	 * 描述（从@Operation或注释中获取）
+	 */
+	private String description;
+
 }
-

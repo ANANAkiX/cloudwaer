@@ -11,5 +11,5 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface DatabaseConnectionMapper extends BaseMapper<DatabaseConnection> {
-}
 
+}

@@ -11,96 +11,97 @@ import java.util.List;
  */
 @Data
 public class CodeGenConfigDTO implements Serializable {
-    private static final long serialVersionUID = 1L;
 
-    /**
-     * 配置ID（更新时使用）
-     */
-    private Long id;
+	private static final long serialVersionUID = 1L;
 
-    /**
-     * 表名
-     */
-    private String tableName;
+	/**
+	 * 配置ID（更新时使用）
+	 */
+	private Long id;
 
-    /**
-     * 数据库连接ID
-     */
-    private Long connectionId;
+	/**
+	 * 表名
+	 */
+	private String tableName;
 
-    /**
-     * 模块名称（如：admin, system等）
-     */
-    private String moduleName;
+	/**
+	 * 数据库连接ID
+	 */
+	private Long connectionId;
 
-    /**
-     * 包名（如：com.cloudwaer.admin）
-     */
-    private String packageName;
+	/**
+	 * 模块名称（如：admin, system等）
+	 */
+	private String moduleName;
 
-    /**
-     * 作者
-     */
-    private String author;
+	/**
+	 * 包名（如：com.cloudwaer.admin）
+	 */
+	private String packageName;
 
-    /**
-     * 实体类名称（如：User）
-     */
-    private String entityName;
+	/**
+	 * 作者
+	 */
+	private String author;
 
-    /**
-     * 实体类注释
-     */
-    private String entityComment;
+	/**
+	 * 实体类名称（如：User）
+	 */
+	private String entityName;
 
-    /**
-     * 是否生成后端代码
-     */
-    private Boolean generateBackend;
+	/**
+	 * 实体类注释
+	 */
+	private String entityComment;
 
-    /**
-     * 是否生成前端代码
-     */
-    private Boolean generateFrontend;
+	/**
+	 * 是否生成后端代码
+	 */
+	private Boolean generateBackend;
 
-    /**
-     * 是否生成权限SQL
-     */
-    private Boolean generatePermission;
+	/**
+	 * 是否生成前端代码
+	 */
+	private Boolean generateFrontend;
 
-    /**
-     * 后端代码生成路径
-     */
-    private String backendPath;
+	/**
+	 * 是否生成权限SQL
+	 */
+	private Boolean generatePermission;
 
-    /**
-     * 前端代码生成路径
-     */
-    private String frontendPath;
+	/**
+	 * 后端代码生成路径
+	 */
+	private String backendPath;
 
-    /**
-     * 是否启用分页查询
-     */
-    private Boolean enablePagination;
+	/**
+	 * 前端代码生成路径
+	 */
+	private String frontendPath;
 
-    /**
-     * 是否启用逻辑删除
-     */
-    private Boolean enableLogicDelete;
+	/**
+	 * 是否启用分页查询
+	 */
+	private Boolean enablePagination;
 
-    /**
-     * 表单字段配置列表
-     */
-    private List<FormFieldConfigDTO> formFields;
+	/**
+	 * 是否启用逻辑删除
+	 */
+	private Boolean enableLogicDelete;
 
-    /**
-     * 查询字段列表（用于搜索）
-     */
-    private List<String> queryFields;
+	/**
+	 * 表单字段配置列表
+	 */
+	private List<FormFieldConfigDTO> formFields;
 
-    /**
-     * 主键字段名
-     */
-    private String primaryKeyField;
+	/**
+	 * 查询字段列表（用于搜索）
+	 */
+	private List<String> queryFields;
+
+	/**
+	 * 主键字段名
+	 */
+	private String primaryKeyField;
+
 }
-

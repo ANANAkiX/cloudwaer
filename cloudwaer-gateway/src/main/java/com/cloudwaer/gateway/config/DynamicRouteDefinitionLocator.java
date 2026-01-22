@@ -35,8 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * 动态路由定义定位器
- * 从admin服务获取路由配置并转换为RouteDefinition
+ * 动态路由定义定位器 从admin服务获取路由配置并转换为RouteDefinition
  *
  * @author cloudwaer
  */
@@ -44,271 +43,277 @@ import java.util.concurrent.atomic.AtomicReference;
 @Component
 @Order(Ordered.HIGHEST_PRECEDENCE)
 @Lazy
-public class DynamicRouteDefinitionLocator implements RouteDefinitionLocator, ApplicationListener<ApplicationReadyEvent> {
+public class DynamicRouteDefinitionLocator
+		implements RouteDefinitionLocator, ApplicationListener<ApplicationReadyEvent> {
 
-    @Autowired(required = false)
-    private WebClient.Builder webClientBuilder;
+	@Autowired(required = false)
+	private WebClient.Builder webClientBuilder;
 
-    @Autowired(required = false)
-    private ObjectMapper objectMapper;
+	@Autowired(required = false)
+	private ObjectMapper objectMapper;
 
-    // 缓存路由定义，避免重复调用
-    private final AtomicReference<List<RouteDefinition>> cachedRoutes = new AtomicReference<>(Collections.emptyList());
-    private volatile long lastLoadTime = 0;
-    
-    // 应用是否已启动
-    private final AtomicBoolean applicationReady = new AtomicBoolean(false);
+	// 缓存路由定义，避免重复调用
+	private final AtomicReference<List<RouteDefinition>> cachedRoutes = new AtomicReference<>(Collections.emptyList());
 
-    @Autowired(required = false)
-    private StringRedisTemplate stringRedisTemplate;
+	private volatile long lastLoadTime = 0;
 
-    @Autowired
-    private DynamicRouteProperties dynamicRouteProperties;
+	// 应用是否已启动
+	private final AtomicBoolean applicationReady = new AtomicBoolean(false);
 
-    @Override
-    public Flux<RouteDefinition> getRouteDefinitions() {
-        // 如果应用未启动或WebClient未初始化，直接返回缓存的路由（避免启动时错误）
-        if (!applicationReady.get() || webClientBuilder == null) {
-            return Flux.fromIterable(cachedRoutes.get());
-        }
+	@Autowired(required = false)
+	private StringRedisTemplate stringRedisTemplate;
 
-        // 检查缓存是否有效
-        long currentTime = System.currentTimeMillis();
-        if (currentTime - lastLoadTime < dynamicRouteProperties.getCacheDurationMs() && !cachedRoutes.get().isEmpty()) {
-            return Flux.fromIterable(cachedRoutes.get());
-        }
+	@Autowired
+	private DynamicRouteProperties dynamicRouteProperties;
 
-        // 刷新时优先从 admin 数据库获取，失败时才回退 Redis
-        return loadRoutesAsync()
-                .switchIfEmpty(Flux.defer(() -> {
-                    // admin 成功返回空列表时，表示无路由，直接返回空或使用缓存
-                    List<RouteDefinition> cache = cachedRoutes.get();
-                    return cache.isEmpty() ? Flux.empty() : Flux.fromIterable(cache);
-                }))
-                .onErrorResume(error -> {
-                    log.debug("从 admin 加载路由失败，回退 Redis 或缓存: {}", error.getMessage());
-                    List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
-                    if (!redisRoutes.isEmpty()) {
-                        cachedRoutes.set(redisRoutes);
-                        lastLoadTime = System.currentTimeMillis();
-                        return Flux.fromIterable(redisRoutes);
-                    }
-                    return Flux.fromIterable(cachedRoutes.get());
-                });
-    }
+	@Override
+	public Flux<RouteDefinition> getRouteDefinitions() {
+		// 如果应用未启动或WebClient未初始化，直接返回缓存的路由（避免启动时错误）
+		if (!applicationReady.get() || webClientBuilder == null) {
+			return Flux.fromIterable(cachedRoutes.get());
+		}
 
-    /**
-     * 异步加载路由
-     */
-    private Flux<RouteDefinition> loadRoutesAsync() {
-        if (webClientBuilder == null) {
-            return Flux.fromIterable(cachedRoutes.get());
-        }
+		// 检查缓存是否有效
+		long currentTime = System.currentTimeMillis();
+		if (currentTime - lastLoadTime < dynamicRouteProperties.getCacheDurationMs() && !cachedRoutes.get().isEmpty()) {
+			return Flux.fromIterable(cachedRoutes.get());
+		}
 
-        try {
-            WebClient webClient = webClientBuilder.build();
-            
-            // 异步调用，使用subscribeOn避免阻塞
-            return webClient.get()
-                    .uri(buildAdminRouteListUri())
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<Result<List<GatewayRouteDTO>>>() {})
-                    .subscribeOn(Schedulers.boundedElastic())  // 使用有界弹性调度器
-                    .flatMapMany(result -> {
-                        if (result == null || result.getCode() == null || !result.getCode().equals(ResultCode.SUCCESS.getCode()) || result.getData() == null) {
-                            return Flux.error(new IllegalStateException("admin路由接口返回无效结果"));
-                        }
+		// 刷新时优先从 admin 数据库获取，失败时才回退 Redis
+		return loadRoutesAsync().switchIfEmpty(Flux.defer(() -> {
+			// admin 成功返回空列表时，表示无路由，直接返回空或使用缓存
+			List<RouteDefinition> cache = cachedRoutes.get();
+			return cache.isEmpty() ? Flux.empty() : Flux.fromIterable(cache);
+		})).onErrorResume(error -> {
+			log.debug("从 admin 加载路由失败，回退 Redis 或缓存: {}", error.getMessage());
+			List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
+			if (!redisRoutes.isEmpty()) {
+				cachedRoutes.set(redisRoutes);
+				lastLoadTime = System.currentTimeMillis();
+				return Flux.fromIterable(redisRoutes);
+			}
+			return Flux.fromIterable(cachedRoutes.get());
+		});
+	}
 
-                        List<GatewayRouteDTO> routeDTOs = result.getData();
-                        if (routeDTOs.isEmpty()) {
-                            log.debug("admin 返回空路由列表");
-                            cachedRoutes.set(Collections.emptyList());
-                            lastLoadTime = System.currentTimeMillis();
-                            // 空列表也视为成功，不触发回退
-                            saveRoutesToRedis(routeDTOs);
-                            return Flux.empty();
-                        }
+	/**
+	 * 异步加载路由
+	 */
+	private Flux<RouteDefinition> loadRoutesAsync() {
+		if (webClientBuilder == null) {
+			return Flux.fromIterable(cachedRoutes.get());
+		}
 
-                        // 转换为RouteDefinition
-                        List<RouteDefinition> routeDefinitions = convertFromDTOList(routeDTOs);
-                        log.info("成功加载 {} 个动态路由配置", routeDefinitions.size());
-                        // 更新缓存
-                        cachedRoutes.set(routeDefinitions);
-                        lastLoadTime = System.currentTimeMillis();
-                        // 落地到Redis缓存
-                        saveRoutesToRedis(routeDTOs);
-                        return Flux.fromIterable(routeDefinitions);
-                    })
-                    .doOnError(error -> log.debug("加载动态路由配置失败: {}", error.getMessage()));
-        } catch (Exception e) {
-            return Flux.error(e);
-        }
-    }
+		try {
+			WebClient webClient = webClientBuilder.build();
 
-    /**
-     * 应用启动完成后，异步加载路由
-     */
-    @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
-        applicationReady.set(true);
-        log.info("应用启动完成，开始加载动态路由配置");
-        // 优先尝试从Redis加载
-        List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
-        if (!redisRoutes.isEmpty()) {
-            cachedRoutes.set(redisRoutes);
-            lastLoadTime = System.currentTimeMillis();
-            log.info("从Redis加载到 {} 条网关路由", redisRoutes.size());
-            // 后台刷新一次
-            loadRoutesAsync().subscribe();
-        } else {
-            // 异步加载路由，不阻塞
-            loadRoutesAsync().subscribe(
-                    rd -> {},
-                    error -> log.warn("启动时加载动态路由配置失败，将在后续请求中重试: {}", error.getMessage())
-            );
-        }
-    }
+			// 异步调用，使用subscribeOn避免阻塞
+			return webClient.get()
+				.uri(buildAdminRouteListUri())
+				.retrieve()
+				.bodyToMono(new ParameterizedTypeReference<Result<List<GatewayRouteDTO>>>() {
+				})
+				.subscribeOn(Schedulers.boundedElastic()) // 使用有界弹性调度器
+				.flatMapMany(result -> {
+					if (result == null || result.getCode() == null
+							|| !result.getCode().equals(ResultCode.SUCCESS.getCode()) || result.getData() == null) {
+						return Flux.error(new IllegalStateException("admin路由接口返回无效结果"));
+					}
 
-    /**
-     * 将GatewayRouteDTO转换为RouteDefinition
-     */
-    private RouteDefinition convertToRouteDefinition(GatewayRouteDTO routeDTO) {
-        RouteDefinition definition = new RouteDefinition();
-        definition.setId(routeDTO.getRouteId());
-        
-        // 安全地创建URI
-        try {
-            URI uri = URI.create(routeDTO.getUri());
-            definition.setUri(uri);
-        } catch (Exception e) {
-            log.error("创建URI失败: uri={}, routeId={}", routeDTO.getUri(), routeDTO.getRouteId(), e);
-            throw new IllegalArgumentException("无效的URI: " + routeDTO.getUri(), e);
-        }
-        
-        definition.setOrder(routeDTO.getOrder() != null ? routeDTO.getOrder() : 0);
+					List<GatewayRouteDTO> routeDTOs = result.getData();
+					if (routeDTOs.isEmpty()) {
+						log.debug("admin 返回空路由列表");
+						cachedRoutes.set(Collections.emptyList());
+						lastLoadTime = System.currentTimeMillis();
+						// 空列表也视为成功，不触发回退
+						saveRoutesToRedis(routeDTOs);
+						return Flux.empty();
+					}
 
-        // 转换断言
-        if (routeDTO.getPredicates() != null && !routeDTO.getPredicates().isEmpty()) {
-            List<PredicateDefinition> predicates = new ArrayList<>();
-            for (GatewayRouteDTO.PredicateConfig predicateConfig : routeDTO.getPredicates()) {
-                PredicateDefinition predicate = new PredicateDefinition();
-                predicate.setName(predicateConfig.getName());
-                
-                // 设置参数（Spring Cloud Gateway的参数格式：key=value，对于Path断言，key通常是_genkey_0）
-                if (predicateConfig.getArgs() != null && !predicateConfig.getArgs().isEmpty()) {
-                    Map<String, String> args = new HashMap<>();
-                    String predicateName = predicateConfig.getName();
-                    for (Map.Entry<String, String> entry : predicateConfig.getArgs().entrySet()) {
-                        String key = entry.getKey();
-                        String value = entry.getValue();
-                        
-                        // 对于Path断言，如果参数名是pattern，转换为_genkey_0
-                        if ("Path".equals(predicateName) && "pattern".equals(key)) {
-                            args.put("_genkey_0", value);
-                        } else {
-                            // 其他断言和参数直接使用
-                            args.put(key, value);
-                        }
-                    }
-                    predicate.setArgs(args);
-                }
-                
-                predicates.add(predicate);
-            }
-            definition.setPredicates(predicates);
-        }
+					// 转换为RouteDefinition
+					List<RouteDefinition> routeDefinitions = convertFromDTOList(routeDTOs);
+					log.info("成功加载 {} 个动态路由配置", routeDefinitions.size());
+					// 更新缓存
+					cachedRoutes.set(routeDefinitions);
+					lastLoadTime = System.currentTimeMillis();
+					// 落地到Redis缓存
+					saveRoutesToRedis(routeDTOs);
+					return Flux.fromIterable(routeDefinitions);
+				})
+				.doOnError(error -> log.debug("加载动态路由配置失败: {}", error.getMessage()));
+		}
+		catch (Exception e) {
+			return Flux.error(e);
+		}
+	}
 
-        // 转换过滤器
-        if (routeDTO.getFilters() != null && !routeDTO.getFilters().isEmpty()) {
-            List<FilterDefinition> filters = new ArrayList<>();
-            for (GatewayRouteDTO.FilterConfig filterConfig : routeDTO.getFilters()) {
-                FilterDefinition filter = new FilterDefinition();
-                filter.setName(filterConfig.getName());
-                
-                // 设置参数
-                if (filterConfig.getArgs() != null && !filterConfig.getArgs().isEmpty()) {
-                    Map<String, String> args = new HashMap<>(filterConfig.getArgs());
-                    filter.setArgs(args);
-                }
-                
-                filters.add(filter);
-            }
-            definition.setFilters(filters);
-        }
+	/**
+	 * 应用启动完成后，异步加载路由
+	 */
+	@Override
+	public void onApplicationEvent(ApplicationReadyEvent event) {
+		applicationReady.set(true);
+		log.info("应用启动完成，开始加载动态路由配置");
+		// 优先尝试从Redis加载
+		List<RouteDefinition> redisRoutes = loadRoutesFromRedisAsDefinitions();
+		if (!redisRoutes.isEmpty()) {
+			cachedRoutes.set(redisRoutes);
+			lastLoadTime = System.currentTimeMillis();
+			log.info("从Redis加载到 {} 条网关路由", redisRoutes.size());
+			// 后台刷新一次
+			loadRoutesAsync().subscribe();
+		}
+		else {
+			// 异步加载路由，不阻塞
+			loadRoutesAsync().subscribe(rd -> {
+			}, error -> log.warn("启动时加载动态路由配置失败，将在后续请求中重试: {}", error.getMessage()));
+		}
+	}
 
-        return definition;
-    }
+	/**
+	 * 将GatewayRouteDTO转换为RouteDefinition
+	 */
+	private RouteDefinition convertToRouteDefinition(GatewayRouteDTO routeDTO) {
+		RouteDefinition definition = new RouteDefinition();
+		definition.setId(routeDTO.getRouteId());
 
-    /**
-     * 批量将 DTO 列表转换为 RouteDefinition 列表
-     */
-    private List<RouteDefinition> convertFromDTOList(List<GatewayRouteDTO> routeDTOs) {
-        if (routeDTOs == null || routeDTOs.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<RouteDefinition> list = new ArrayList<>();
-        for (GatewayRouteDTO dto : routeDTOs) {
-            try {
-                list.add(convertToRouteDefinition(dto));
-            } catch (Exception e) {
-                log.error("转换路由定义失败: routeId={}", dto.getRouteId(), e);
-            }
-        }
-        return list;
-    }
+		// 安全地创建URI
+		try {
+			URI uri = URI.create(routeDTO.getUri());
+			definition.setUri(uri);
+		}
+		catch (Exception e) {
+			log.error("创建URI失败: uri={}, routeId={}", routeDTO.getUri(), routeDTO.getRouteId(), e);
+			throw new IllegalArgumentException("无效的URI: " + routeDTO.getUri(), e);
+		}
 
-    /**
-     * 从 Redis 读取并转换为 RouteDefinition 列表
-     */
-    private List<RouteDefinition> loadRoutesFromRedisAsDefinitions() {
-        List<GatewayRouteDTO> dtos = loadRoutesFromRedisDTOs();
-        if (dtos == null || dtos.isEmpty()) {
-            return Collections.emptyList();
-        }
-        return convertFromDTOList(dtos);
-    }
+		definition.setOrder(routeDTO.getOrder() != null ? routeDTO.getOrder() : 0);
 
-    /**
-     * 从 Redis 读取 DTO 列表
-     */
-    private List<GatewayRouteDTO> loadRoutesFromRedisDTOs() {
-        if (stringRedisTemplate == null || objectMapper == null) return Collections.emptyList();
-        try {
-            String json = stringRedisTemplate.opsForValue().get(dynamicRouteProperties.getRedisRoutesKey());
-            if (json == null || json.isEmpty()) return Collections.emptyList();
-            return objectMapper.readValue(
-                    json,
-                    objectMapper.getTypeFactory().constructCollectionType(List.class, GatewayRouteDTO.class)
-            );
-        } catch (Exception e) {
-            log.debug("读取Redis路由缓存失败: {}", e.getMessage());
-            return Collections.emptyList();
-        }
-    }
+		// 转换断言
+		if (routeDTO.getPredicates() != null && !routeDTO.getPredicates().isEmpty()) {
+			List<PredicateDefinition> predicates = new ArrayList<>();
+			for (GatewayRouteDTO.PredicateConfig predicateConfig : routeDTO.getPredicates()) {
+				PredicateDefinition predicate = new PredicateDefinition();
+				predicate.setName(predicateConfig.getName());
 
-    /**
-     * 将最新路由写入 Redis 做缓存
-     */
-    private void saveRoutesToRedis(List<GatewayRouteDTO> routeDTOs) {
-        if (stringRedisTemplate == null || objectMapper == null || routeDTOs == null) return;
-        try {
-            String json = objectMapper.writeValueAsString(routeDTOs);
-            stringRedisTemplate.opsForValue().set(
-                    dynamicRouteProperties.getRedisRoutesKey(),
-                    json,
-                    dynamicRouteProperties.getRedisCacheSeconds(),
-                    TimeUnit.SECONDS
-            );
-        } catch (Exception e) {
-            log.debug("写入Redis路由缓存失败: {}", e.getMessage());
-        }
-    }
+				// 设置参数（Spring Cloud Gateway的参数格式：key=value，对于Path断言，key通常是_genkey_0）
+				if (predicateConfig.getArgs() != null && !predicateConfig.getArgs().isEmpty()) {
+					Map<String, String> args = new HashMap<>();
+					String predicateName = predicateConfig.getName();
+					for (Map.Entry<String, String> entry : predicateConfig.getArgs().entrySet()) {
+						String key = entry.getKey();
+						String value = entry.getValue();
 
-    private String buildAdminRouteListUri() {
-        String scheme = dynamicRouteProperties.getAdminScheme();
-        String serviceName = dynamicRouteProperties.getAdminServiceName();
-        String path = dynamicRouteProperties.getRouteListPath();
-        String normalizedPath = path.startsWith("/") ? path : "/" + path;
-        return String.format("%s://%s%s", scheme, serviceName, normalizedPath);
-    }
+						// 对于Path断言，如果参数名是pattern，转换为_genkey_0
+						if ("Path".equals(predicateName) && "pattern".equals(key)) {
+							args.put("_genkey_0", value);
+						}
+						else {
+							// 其他断言和参数直接使用
+							args.put(key, value);
+						}
+					}
+					predicate.setArgs(args);
+				}
+
+				predicates.add(predicate);
+			}
+			definition.setPredicates(predicates);
+		}
+
+		// 转换过滤器
+		if (routeDTO.getFilters() != null && !routeDTO.getFilters().isEmpty()) {
+			List<FilterDefinition> filters = new ArrayList<>();
+			for (GatewayRouteDTO.FilterConfig filterConfig : routeDTO.getFilters()) {
+				FilterDefinition filter = new FilterDefinition();
+				filter.setName(filterConfig.getName());
+
+				// 设置参数
+				if (filterConfig.getArgs() != null && !filterConfig.getArgs().isEmpty()) {
+					Map<String, String> args = new HashMap<>(filterConfig.getArgs());
+					filter.setArgs(args);
+				}
+
+				filters.add(filter);
+			}
+			definition.setFilters(filters);
+		}
+
+		return definition;
+	}
+
+	/**
+	 * 批量将 DTO 列表转换为 RouteDefinition 列表
+	 */
+	private List<RouteDefinition> convertFromDTOList(List<GatewayRouteDTO> routeDTOs) {
+		if (routeDTOs == null || routeDTOs.isEmpty()) {
+			return Collections.emptyList();
+		}
+		List<RouteDefinition> list = new ArrayList<>();
+		for (GatewayRouteDTO dto : routeDTOs) {
+			try {
+				list.add(convertToRouteDefinition(dto));
+			}
+			catch (Exception e) {
+				log.error("转换路由定义失败: routeId={}", dto.getRouteId(), e);
+			}
+		}
+		return list;
+	}
+
+	/**
+	 * 从 Redis 读取并转换为 RouteDefinition 列表
+	 */
+	private List<RouteDefinition> loadRoutesFromRedisAsDefinitions() {
+		List<GatewayRouteDTO> dtos = loadRoutesFromRedisDTOs();
+		if (dtos == null || dtos.isEmpty()) {
+			return Collections.emptyList();
+		}
+		return convertFromDTOList(dtos);
+	}
+
+	/**
+	 * 从 Redis 读取 DTO 列表
+	 */
+	private List<GatewayRouteDTO> loadRoutesFromRedisDTOs() {
+		if (stringRedisTemplate == null || objectMapper == null)
+			return Collections.emptyList();
+		try {
+			String json = stringRedisTemplate.opsForValue().get(dynamicRouteProperties.getRedisRoutesKey());
+			if (json == null || json.isEmpty())
+				return Collections.emptyList();
+			return objectMapper.readValue(json,
+					objectMapper.getTypeFactory().constructCollectionType(List.class, GatewayRouteDTO.class));
+		}
+		catch (Exception e) {
+			log.debug("读取Redis路由缓存失败: {}", e.getMessage());
+			return Collections.emptyList();
+		}
+	}
+
+	/**
+	 * 将最新路由写入 Redis 做缓存
+	 */
+	private void saveRoutesToRedis(List<GatewayRouteDTO> routeDTOs) {
+		if (stringRedisTemplate == null || objectMapper == null || routeDTOs == null)
+			return;
+		try {
+			String json = objectMapper.writeValueAsString(routeDTOs);
+			stringRedisTemplate.opsForValue()
+				.set(dynamicRouteProperties.getRedisRoutesKey(), json, dynamicRouteProperties.getRedisCacheSeconds(),
+						TimeUnit.SECONDS);
+		}
+		catch (Exception e) {
+			log.debug("写入Redis路由缓存失败: {}", e.getMessage());
+		}
+	}
+
+	private String buildAdminRouteListUri() {
+		String scheme = dynamicRouteProperties.getAdminScheme();
+		String serviceName = dynamicRouteProperties.getAdminServiceName();
+		String path = dynamicRouteProperties.getRouteListPath();
+		String normalizedPath = path.startsWith("/") ? path : "/" + path;
+		return String.format("%s://%s%s", scheme, serviceName, normalizedPath);
+	}
+
 }

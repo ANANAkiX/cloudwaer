@@ -7,7 +7,8 @@ import java.io.Serializable;
 @Data
 public class FlowableModelPublishDTO implements Serializable {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    private Long id;
+	private Long id;
+
 }

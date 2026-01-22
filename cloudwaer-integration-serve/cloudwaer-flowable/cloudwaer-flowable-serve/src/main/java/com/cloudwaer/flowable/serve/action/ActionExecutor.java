@@ -2,7 +2,8 @@ package com.cloudwaer.flowable.serve.action;
 
 public interface ActionExecutor {
 
-    String getType();
+	String getType();
 
-    void execute(ActionContext context, String config);
+	void execute(ActionContext context, String config);
+
 }

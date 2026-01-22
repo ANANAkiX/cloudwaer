@@ -15,9 +15,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients(basePackages = "com.cloudwaer.admin.api.feign")
 public class AdminServeApplication {
 
-    public static void main(String[] args) {
-        SpringApplication.run(AdminServeApplication.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(AdminServeApplication.class, args);
+	}
+
 }
-
-
