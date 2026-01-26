@@ -3,7 +3,6 @@ package com.cloudwaer.admin.serve.controller;
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
 import com.cloudwaer.admin.api.dto.PermissionIdQueryDTO;
 import com.cloudwaer.admin.serve.service.GatewayRouteService;
-import com.cloudwaer.common.core.annotation.PermitAll;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -35,7 +34,6 @@ public class GatewayRouteController {
 	 */
 	@GetMapping("/list")
 	@Operation(summary = "获取所有网关路由", description = "获取所有有效的网关路由列表（用于网关服务，优先从Redis加载）")
-	@PermitAll
 	public Result<List<GatewayRouteDTO>> getAllRoutes() {
 		List<GatewayRouteDTO> routes = gatewayRouteService.getAllRoutes();
 		return Result.success(routes);

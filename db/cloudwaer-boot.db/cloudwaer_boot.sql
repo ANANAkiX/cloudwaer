@@ -5,13 +5,13 @@
  Source Server Type    : MySQL
  Source Server Version : 80018 (8.0.18)
  Source Host           : localhost:3306
- Source Schema         : cloudwaer_flowable
+ Source Schema         : cloudwaer_boot
 
  Target Server Type    : MySQL
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
- Date: 24/01/2026 01:44:11
+ Date: 27/01/2026 02:14:45
 */
 
 SET NAMES utf8mb4;
@@ -35,7 +35,7 @@ CREATE TABLE `act_evt_log`  (
   `LOCK_TIME_` timestamp(3) NULL DEFAULT NULL,
   `IS_PROCESSED_` tinyint(4) NULL DEFAULT 0,
   PRIMARY KEY (`LOG_NR_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_evt_log
@@ -55,7 +55,7 @@ CREATE TABLE `act_ge_bytearray`  (
   PRIMARY KEY (`ID_`) USING BTREE,
   INDEX `ACT_FK_BYTEARR_DEPL`(`DEPLOYMENT_ID_` ASC) USING BTREE,
   CONSTRAINT `ACT_FK_BYTEARR_DEPL` FOREIGN KEY (`DEPLOYMENT_ID_`) REFERENCES `act_re_deployment` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ge_bytearray
@@ -81,7 +81,7 @@ CREATE TABLE `act_ge_property`  (
   `VALUE_` varchar(300) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `REV_` int(11) NULL DEFAULT NULL,
   PRIMARY KEY (`NAME_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ge_property
@@ -116,7 +116,7 @@ CREATE TABLE `act_hi_actinst`  (
   INDEX `ACT_IDX_HI_ACT_INST_END`(`END_TIME_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_ACT_INST_PROCINST`(`PROC_INST_ID_` ASC, `ACT_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_ACT_INST_EXEC`(`EXECUTION_ID_` ASC, `ACT_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_actinst
@@ -161,7 +161,7 @@ CREATE TABLE `act_hi_attachment`  (
   `CONTENT_ID_` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `TIME_` datetime(3) NULL DEFAULT NULL,
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_attachment
@@ -182,7 +182,7 @@ CREATE TABLE `act_hi_comment`  (
   `MESSAGE_` varchar(4000) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `FULL_MSG_` longblob NULL,
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_comment
@@ -218,7 +218,7 @@ CREATE TABLE `act_hi_detail`  (
   INDEX `ACT_IDX_HI_DETAIL_TIME`(`TIME_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_DETAIL_NAME`(`NAME_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_DETAIL_TASK_ID`(`TASK_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_detail
@@ -248,7 +248,7 @@ CREATE TABLE `act_hi_entitylink`  (
   INDEX `ACT_IDX_HI_ENT_LNK_REF_SCOPE`(`REF_SCOPE_ID_` ASC, `REF_SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_ENT_LNK_ROOT_SCOPE`(`ROOT_SCOPE_ID_` ASC, `ROOT_SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_ENT_LNK_SCOPE_DEF`(`SCOPE_DEFINITION_ID_` ASC, `SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_entitylink
@@ -277,7 +277,7 @@ CREATE TABLE `act_hi_identitylink`  (
   INDEX `ACT_IDX_HI_IDENT_LNK_SCOPE_DEF`(`SCOPE_DEFINITION_ID_` ASC, `SCOPE_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_IDENT_LNK_TASK`(`TASK_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_IDENT_LNK_PROCINST`(`PROC_INST_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_identitylink
@@ -330,7 +330,7 @@ CREATE TABLE `act_hi_procinst`  (
   INDEX `ACT_IDX_HI_PRO_INST_END`(`END_TIME_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_PRO_I_BUSKEY`(`BUSINESS_KEY_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_PRO_SUPER_PROCINST`(`SUPER_PROCESS_INSTANCE_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_procinst
@@ -386,7 +386,7 @@ CREATE TABLE `act_hi_taskinst`  (
   INDEX `ACT_IDX_HI_TASK_SUB_SCOPE`(`SUB_SCOPE_ID_` ASC, `SCOPE_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_TASK_SCOPE_DEF`(`SCOPE_DEFINITION_ID_` ASC, `SCOPE_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_TASK_INST_PROCINST`(`PROC_INST_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_taskinst
@@ -407,7 +407,7 @@ CREATE TABLE `act_hi_tsk_log`  (
   `ID_` bigint(20) NOT NULL AUTO_INCREMENT,
   `TYPE_` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `TASK_ID_` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL,
-  `TIME_STAMP_` timestamp(3) NOT NULL,
+  `TIME_STAMP_` timestamp(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
   `USER_ID_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `DATA_` varchar(4000) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `EXECUTION_ID_` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
@@ -419,7 +419,7 @@ CREATE TABLE `act_hi_tsk_log`  (
   `SCOPE_TYPE_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `TENANT_ID_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '',
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_tsk_log
@@ -455,7 +455,7 @@ CREATE TABLE `act_hi_varinst`  (
   INDEX `ACT_IDX_HI_PROCVAR_PROC_INST`(`PROC_INST_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_PROCVAR_TASK_ID`(`TASK_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_HI_PROCVAR_EXE`(`EXECUTION_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_hi_varinst
@@ -499,7 +499,7 @@ CREATE TABLE `act_procdef_info`  (
   INDEX `ACT_FK_INFO_JSON_BA`(`INFO_JSON_ID_` ASC) USING BTREE,
   CONSTRAINT `ACT_FK_INFO_JSON_BA` FOREIGN KEY (`INFO_JSON_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_INFO_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_procdef_info
@@ -521,7 +521,7 @@ CREATE TABLE `act_re_deployment`  (
   `PARENT_DEPLOYMENT_ID_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `ENGINE_VERSION_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_re_deployment
@@ -556,7 +556,7 @@ CREATE TABLE `act_re_model`  (
   CONSTRAINT `ACT_FK_MODEL_DEPLOYMENT` FOREIGN KEY (`DEPLOYMENT_ID_`) REFERENCES `act_re_deployment` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_MODEL_SOURCE` FOREIGN KEY (`EDITOR_SOURCE_VALUE_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_MODEL_SOURCE_EXTRA` FOREIGN KEY (`EDITOR_SOURCE_EXTRA_VALUE_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_re_model
@@ -587,7 +587,7 @@ CREATE TABLE `act_re_procdef`  (
   `DERIVED_VERSION_` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`ID_`) USING BTREE,
   UNIQUE INDEX `ACT_UNIQ_PROCDEF`(`KEY_` ASC, `VERSION_` ASC, `DERIVED_VERSION_` ASC, `TENANT_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_re_procdef
@@ -627,7 +627,7 @@ CREATE TABLE `act_ru_actinst`  (
   INDEX `ACT_IDX_RU_ACTI_EXEC`(`EXECUTION_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_RU_ACTI_EXEC_ACT`(`EXECUTION_ID_` ASC, `ACT_ID_` ASC) USING BTREE,
   INDEX `ACT_IDX_RU_ACTI_TASK`(`TASK_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_actinst
@@ -677,7 +677,7 @@ CREATE TABLE `act_ru_deadletter_job`  (
   CONSTRAINT `ACT_FK_DEADLETTER_JOB_EXECUTION` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_DEADLETTER_JOB_PROCESS_INSTANCE` FOREIGN KEY (`PROCESS_INSTANCE_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_DEADLETTER_JOB_PROC_DEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_deadletter_job
@@ -708,7 +708,7 @@ CREATE TABLE `act_ru_entitylink`  (
   INDEX `ACT_IDX_ENT_LNK_REF_SCOPE`(`REF_SCOPE_ID_` ASC, `REF_SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_ENT_LNK_ROOT_SCOPE`(`ROOT_SCOPE_ID_` ASC, `ROOT_SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE,
   INDEX `ACT_IDX_ENT_LNK_SCOPE_DEF`(`SCOPE_DEFINITION_ID_` ASC, `SCOPE_TYPE_` ASC, `LINK_TYPE_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_entitylink
@@ -742,7 +742,7 @@ CREATE TABLE `act_ru_event_subscr`  (
   INDEX `ACT_IDX_EVENT_SUBSCR_SCOPEREF_`(`SCOPE_ID_` ASC, `SCOPE_TYPE_` ASC) USING BTREE,
   INDEX `ACT_FK_EVENT_EXEC`(`EXECUTION_ID_` ASC) USING BTREE,
   CONSTRAINT `ACT_FK_EVENT_EXEC` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_event_subscr
@@ -804,7 +804,7 @@ CREATE TABLE `act_ru_execution`  (
   CONSTRAINT `ACT_FK_EXE_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_EXE_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `ACT_FK_EXE_SUPER` FOREIGN KEY (`SUPER_EXEC_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE CASCADE ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_execution
@@ -851,7 +851,7 @@ CREATE TABLE `act_ru_external_job`  (
   INDEX `ACT_IDX_EJOB_SCOPE_DEF`(`SCOPE_DEFINITION_ID_` ASC, `SCOPE_TYPE_` ASC) USING BTREE,
   CONSTRAINT `ACT_FK_EXTERNAL_JOB_CUSTOM_VALUES` FOREIGN KEY (`CUSTOM_VALUES_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_EXTERNAL_JOB_EXCEPTION` FOREIGN KEY (`EXCEPTION_STACK_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_external_job
@@ -877,7 +877,7 @@ CREATE TABLE `act_ru_history_job`  (
   `SCOPE_TYPE_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `TENANT_ID_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '',
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_history_job
@@ -912,7 +912,7 @@ CREATE TABLE `act_ru_identitylink`  (
   CONSTRAINT `ACT_FK_ATHRZ_PROCEDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_IDL_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_TSKASS_TASK` FOREIGN KEY (`TASK_ID_`) REFERENCES `act_ru_task` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_identitylink
@@ -965,7 +965,7 @@ CREATE TABLE `act_ru_job`  (
   CONSTRAINT `ACT_FK_JOB_EXECUTION` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_JOB_PROCESS_INSTANCE` FOREIGN KEY (`PROCESS_INSTANCE_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_JOB_PROC_DEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_job
@@ -1016,7 +1016,7 @@ CREATE TABLE `act_ru_suspended_job`  (
   CONSTRAINT `ACT_FK_SUSPENDED_JOB_EXECUTION` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_SUSPENDED_JOB_PROCESS_INSTANCE` FOREIGN KEY (`PROCESS_INSTANCE_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_SUSPENDED_JOB_PROC_DEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_suspended_job
@@ -1075,7 +1075,7 @@ CREATE TABLE `act_ru_task`  (
   CONSTRAINT `ACT_FK_TASK_EXE` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_TASK_PROCDEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_TASK_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_task
@@ -1129,7 +1129,7 @@ CREATE TABLE `act_ru_timer_job`  (
   CONSTRAINT `ACT_FK_TIMER_JOB_EXECUTION` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_TIMER_JOB_PROCESS_INSTANCE` FOREIGN KEY (`PROCESS_INSTANCE_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_TIMER_JOB_PROC_DEF` FOREIGN KEY (`PROC_DEF_ID_`) REFERENCES `act_re_procdef` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_timer_job
@@ -1166,10 +1166,102 @@ CREATE TABLE `act_ru_variable`  (
   CONSTRAINT `ACT_FK_VAR_BYTEARRAY` FOREIGN KEY (`BYTEARRAY_ID_`) REFERENCES `act_ge_bytearray` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_VAR_EXE` FOREIGN KEY (`EXECUTION_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `ACT_FK_VAR_PROCINST` FOREIGN KEY (`PROC_INST_ID_`) REFERENCES `act_ru_execution` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of act_ru_variable
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for config_info
+-- ----------------------------
+DROP TABLE IF EXISTS `config_info`;
+CREATE TABLE `config_info`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `data_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'data_id',
+  `group_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'group_id',
+  `content` longtext CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'content',
+  `md5` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'md5',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `src_user` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'source user',
+  `src_ip` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'source ip',
+  `app_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'app_name',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' COMMENT '租户字段',
+  `c_desc` varchar(256) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'configuration description',
+  `c_use` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'configuration usage',
+  `effect` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '配置生效的描述',
+  `type` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT '配置的类型',
+  `c_schema` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT '配置的模式',
+  `encrypted_data_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '密钥',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_configinfo_datagrouptenant`(`data_id` ASC, `group_id` ASC, `tenant_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'config_info' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of config_info
+-- ----------------------------
+INSERT INTO `config_info` VALUES (1, 'application-common.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', '15ede9d96351caea5ca46bbce9396bfe', '2025-11-20 21:38:12', '2026-01-14 19:37:56', 'nacos', '127.0.0.1', '', 'public', '所有服务都会默认加载这个配置文件', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (2, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\n#数据库 Redis配置\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\ncloudwaer:\n  #日志配置模块\n  log:\n    enabled: true\n    exclude-paths:\n      - /actuator/**\n      - /auth/captcha\n      - /swagger-ui.html\n      - /v3/api-docs/**\n    exclude-http-methods:\n      - OPTIONS\n    exclude-class-names:\n      - com.cloudwaer.gateway.filter.HealthController\n    exclude-method-names:\n      - ping\n\n# Swagger配置\n  #API文档模块\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n\n\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin\n  #网关配置\n  gateway:\n    refresh:\n      # 网关服务的服务ID（用于发现实例）\n      service-id: cloudwaer-gateway\n      # 刷新网关路由请求协议\n      scheme: http\n      # 刷新网关路由接口路径\n      path: /actuator/gateway/refresh', '3a21686d8cc0b46c5c32a0290d636135', '2025-11-20 21:38:12', '2026-01-14 19:38:25', 'nacos', '127.0.0.1', '', 'public', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (3, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\n\n\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', 'a01399dbfa3f7f4145d69bd6e66c93a8', '2025-11-20 21:38:12', '2026-01-14 19:38:33', 'nacos', '127.0.0.1', '', 'public', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (4, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 2592000\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n  # 验证码开关\n    enabled: false \n    # 位数     \n    length: 4          \n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '2a4947af837991a055387e19bfb07621', '2025-11-20 21:38:12', '2026-01-15 18:19:51', 'nacos', '0:0:0:0:0:0:0:1', '', 'public', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (5, 'application-cloudwaer-codegen-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_codegen_config?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 代码生成管理服务API\n    version: 1.0\n    description: 代码生成服务的API文档\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-codegen-serve\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.codegen\n#代码生成服务运行端口\nserver:\n  port: 4333', '00da71ca8a1079b3f001a577030f22a6', '2025-11-21 00:17:50', '2026-01-14 19:37:01', 'nacos', '127.0.0.1', '', 'public', '所有服务都会默认加载这个配置文件', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (6, 'application-cloudwaer-codegen-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_codegen_config?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 代码生成管理服务API\n    version: 1.0\n    description: 代码生成服务的API文档\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-codegen-serve\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.codegen\n#代码生成服务运行端口\nserver:\n  port: 4333', '00da71ca8a1079b3f001a577030f22a6', '2025-11-21 00:18:14', '2026-01-14 19:37:01', 'nacos_namespace_migrate', '127.0.0.1', '', '', '所有服务都会默认加载这个配置文件', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (7, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 2592000\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n  # 验证码开关\n    enabled: false \n    # 位数     \n    length: 4          \n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '2a4947af837991a055387e19bfb07621', '2025-11-21 21:36:31', '2026-01-15 18:19:51', 'nacos_namespace_migrate', '0:0:0:0:0:0:0:1', '', '', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (8, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\n#数据库 Redis配置\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\ncloudwaer:\n  #日志配置模块\n  log:\n    enabled: true\n    exclude-paths:\n      - /actuator/**\n      - /auth/captcha\n      - /swagger-ui.html\n      - /v3/api-docs/**\n    exclude-http-methods:\n      - OPTIONS\n    exclude-class-names:\n      - com.cloudwaer.gateway.filter.HealthController\n    exclude-method-names:\n      - ping\n\n# Swagger配置\n  #API文档模块\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n\n\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin\n  #网关配置\n  gateway:\n    refresh:\n      # 网关服务的服务ID（用于发现实例）\n      service-id: cloudwaer-gateway\n      # 刷新网关路由请求协议\n      scheme: http\n      # 刷新网关路由接口路径\n      path: /actuator/gateway/refresh', '3a21686d8cc0b46c5c32a0290d636135', '2025-11-22 04:17:06', '2026-01-14 19:38:25', 'nacos_namespace_migrate', '127.0.0.1', '', '', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (9, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\n\n\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', 'a01399dbfa3f7f4145d69bd6e66c93a8', '2026-01-07 07:37:37', '2026-01-14 19:38:33', 'nacos_namespace_migrate', '127.0.0.1', '', '', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (10, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: update\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'f404bcd8ffa3e617b41596380ae3896b', '2026-01-13 00:00:00', '2026-01-16 18:07:48', 'nacos', '127.0.0.1', '', 'public', 'Flowable服务配置', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (16, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: update\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'f404bcd8ffa3e617b41596380ae3896b', '2026-01-14 19:09:20', '2026-01-16 18:07:48', 'nacos_namespace_migrate', '127.0.0.1', '', '', 'Flowable服务配置', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (17, 'application-common.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', '15ede9d96351caea5ca46bbce9396bfe', '2026-01-14 19:30:48', '2026-01-14 19:37:56', 'nacos_namespace_migrate', '127.0.0.1', '', '', '所有服务都会默认加载这个配置文件', NULL, NULL, 'yaml', NULL, '');
+
+-- ----------------------------
+-- Table structure for config_info_gray
+-- ----------------------------
+DROP TABLE IF EXISTS `config_info_gray`;
+CREATE TABLE `config_info_gray`  (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `data_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'data_id',
+  `group_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'group_id',
+  `content` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'content',
+  `md5` varchar(32) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'md5',
+  `src_user` text CHARACTER SET utf8 COLLATE utf8_general_ci NULL COMMENT 'src_user',
+  `src_ip` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'src_ip',
+  `gmt_create` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT 'gmt_create',
+  `gmt_modified` datetime(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT 'gmt_modified',
+  `app_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT 'app_name',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '' COMMENT 'tenant_id',
+  `gray_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'gray_name',
+  `gray_rule` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT 'gray_rule',
+  `encrypted_data_key` varchar(256) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'encrypted_data_key',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_configinfogray_datagrouptenantgray`(`data_id` ASC, `group_id` ASC, `tenant_id` ASC, `gray_name` ASC) USING BTREE,
+  INDEX `idx_dataid_gmt_modified`(`data_id` ASC, `gmt_modified` ASC) USING BTREE,
+  INDEX `idx_gmt_modified`(`gmt_modified` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'config_info_gray' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of config_info_gray
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for config_tags_relation
+-- ----------------------------
+DROP TABLE IF EXISTS `config_tags_relation`;
+CREATE TABLE `config_tags_relation`  (
+  `id` bigint(20) NOT NULL COMMENT 'id',
+  `tag_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'tag_name',
+  `tag_type` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'tag_type',
+  `data_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'data_id',
+  `group_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'group_id',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' COMMENT 'tenant_id',
+  `nid` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'nid, 自增长标识',
+  PRIMARY KEY (`nid`) USING BTREE,
+  UNIQUE INDEX `uk_configtagrelation_configidtag`(`id` ASC, `tag_name` ASC, `tag_type` ASC) USING BTREE,
+  INDEX `idx_tenant_id`(`tenant_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'config_tag_relation' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of config_tags_relation
 -- ----------------------------
 
 -- ----------------------------
@@ -1191,7 +1283,7 @@ CREATE TABLE `flw_channel_definition`  (
   `IMPLEMENTATION_` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   PRIMARY KEY (`ID_`) USING BTREE,
   UNIQUE INDEX `ACT_IDX_CHANNEL_DEF_UNIQ`(`KEY_` ASC, `VERSION_` ASC, `TENANT_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_channel_definition
@@ -1216,7 +1308,7 @@ CREATE TABLE `flw_ev_databasechangelog`  (
   `CONTEXTS` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `LABELS` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `DEPLOYMENT_ID` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_ev_databasechangelog
@@ -1232,11 +1324,12 @@ CREATE TABLE `flw_ev_databasechangeloglock`  (
   `LOCKGRANTED` datetime NULL DEFAULT NULL,
   `LOCKEDBY` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   PRIMARY KEY (`ID`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_ev_databasechangeloglock
 -- ----------------------------
+INSERT INTO `flw_ev_databasechangeloglock` VALUES (1, 0, NULL, NULL);
 
 -- ----------------------------
 -- Table structure for flw_event_definition
@@ -1254,7 +1347,7 @@ CREATE TABLE `flw_event_definition`  (
   `DESCRIPTION_` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   PRIMARY KEY (`ID_`) USING BTREE,
   UNIQUE INDEX `ACT_IDX_EVENT_DEF_UNIQ`(`KEY_` ASC, `VERSION_` ASC, `TENANT_ID_` ASC) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_event_definition
@@ -1272,7 +1365,7 @@ CREATE TABLE `flw_event_deployment`  (
   `TENANT_ID_` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `PARENT_DEPLOYMENT_ID_` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_event_deployment
@@ -1288,7 +1381,7 @@ CREATE TABLE `flw_event_resource`  (
   `DEPLOYMENT_ID_` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NULL DEFAULT NULL,
   `RESOURCE_BYTES_` longblob NULL,
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_event_resource
@@ -1310,7 +1403,7 @@ CREATE TABLE `flw_ru_batch`  (
   `BATCH_DOC_ID_` varchar(64) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL,
   `TENANT_ID_` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '',
   PRIMARY KEY (`ID_`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_ru_batch
@@ -1338,11 +1431,901 @@ CREATE TABLE `flw_ru_batch_part`  (
   PRIMARY KEY (`ID_`) USING BTREE,
   INDEX `FLW_IDX_BATCH_PART`(`BATCH_ID_` ASC) USING BTREE,
   CONSTRAINT `FLW_FK_BATCH_PART_PARENT` FOREIGN KEY (`BATCH_ID_`) REFERENCES `flw_ru_batch` (`ID_`) ON DELETE RESTRICT ON UPDATE RESTRICT
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_bin ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of flw_ru_batch_part
 -- ----------------------------
+
+-- ----------------------------
+-- Table structure for group_capacity
+-- ----------------------------
+DROP TABLE IF EXISTS `group_capacity`;
+CREATE TABLE `group_capacity`  (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `group_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT 'Group ID，空字符表示整个集群',
+  `quota` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '配额，0表示使用默认值',
+  `usage` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '使用量',
+  `max_size` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '单个配置大小上限，单位为字节，0表示使用默认值',
+  `max_aggr_count` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '聚合子配置最大个数，，0表示使用默认值',
+  `max_aggr_size` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '单个聚合数据的子配置大小上限，单位为字节，0表示使用默认值',
+  `max_history_count` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '最大变更历史数量',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_group_id`(`group_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '集群、各Group容量信息表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of group_capacity
+-- ----------------------------
+INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-23 17:41:01');
+
+-- ----------------------------
+-- Table structure for his_config_info
+-- ----------------------------
+DROP TABLE IF EXISTS `his_config_info`;
+CREATE TABLE `his_config_info`  (
+  `id` bigint(20) UNSIGNED NOT NULL COMMENT 'id',
+  `nid` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'nid, 自增标识',
+  `data_id` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'data_id',
+  `group_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'group_id',
+  `app_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'app_name',
+  `content` longtext CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'content',
+  `md5` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'md5',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  `src_user` text CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'source user',
+  `src_ip` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'source ip',
+  `op_type` char(10) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'operation type',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' COMMENT '租户字段',
+  `encrypted_data_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '密钥',
+  `publish_type` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT 'formal' COMMENT 'publish type gray or formal',
+  `gray_name` varchar(50) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'gray name',
+  `ext_info` longtext CHARACTER SET utf8 COLLATE utf8_bin NULL COMMENT 'ext info',
+  PRIMARY KEY (`nid`) USING BTREE,
+  INDEX `idx_gmt_create`(`gmt_create` ASC) USING BTREE,
+  INDEX `idx_gmt_modified`(`gmt_modified` ASC) USING BTREE,
+  INDEX `idx_did`(`data_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 82 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '多租户改造' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of his_config_info
+-- ----------------------------
+INSERT INTO `his_config_info` VALUES (4, 22, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4100\n\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', 'd229da629d19c5b613471a2f470e0767', '2026-01-06 07:07:08', '2026-01-05 23:07:09', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 23, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\n\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '2b2dcbc54de6f61088627c848b3c59b6', '2026-01-06 07:07:59', '2026-01-05 23:08:00', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 24, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', 'c276e5f236b70e2bf00592f714852519', '2026-01-06 07:12:34', '2026-01-05 23:12:35', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 25, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: false      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '7fe65983ff2a36204b4358b625f02626', '2026-01-06 07:12:52', '2026-01-05 23:12:52', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 26, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', 'c276e5f236b70e2bf00592f714852519', '2026-01-06 07:13:05', '2026-01-05 23:13:06', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 27, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: false      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '7fe65983ff2a36204b4358b625f02626', '2026-01-06 07:13:38', '2026-01-05 23:13:39', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 28, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', 'c276e5f236b70e2bf00592f714852519', '2026-01-06 07:13:56', '2026-01-05 23:13:56', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (3, 29, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: false\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', 'd359e6461d37037e1385f5de1b6c7c6e', '2026-01-07 07:37:36', '2026-01-06 23:37:37', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (0, 30, 'application-common.yml', 'DEFAULT_GROUP', '', 'text:\r\n    default', 'eaaf081ad33e15cbf0c8338cfd43db04', '2026-01-10 03:36:08', '2026-01-09 19:36:09', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\"}');
+INSERT INTO `his_config_info` VALUES (10, 31, 'application-common.yml', 'DEFAULT_GROUP', '', 'text:\r\n    default', 'eaaf081ad33e15cbf0c8338cfd43db04', '2026-01-10 03:36:25', '2026-01-09 19:36:26', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 32, 'application-common.yml', 'DEFAULT_GROUP', '', 'text:\n    default', 'e2dab1fd45f4085fab39cfc4d1bf47ac', '2026-01-10 03:40:16', '2026-01-09 19:40:17', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"默认所有服务全部加载\"}');
+INSERT INTO `his_config_info` VALUES (0, 33, 'cloudwaer-admin-serve-dev', 'DEFAULT_GROUP', '', '\r\n#数据库配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root', '62746dd39011af26387366d949f93c25', '2026-01-10 03:40:59', '2026-01-09 19:41:00', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\",\"c_desc\":\"admin服务配置\"}');
+INSERT INTO `his_config_info` VALUES (0, 34, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\r\n#数据库配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root', '62746dd39011af26387366d949f93c25', '2026-01-10 03:41:27', '2026-01-09 19:41:28', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\",\"c_desc\":\"admin服务配置\"}');
+INSERT INTO `his_config_info` VALUES (12, 35, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\r\n#数据库配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root', '62746dd39011af26387366d949f93c25', '2026-01-10 03:41:30', '2026-01-09 19:41:31', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"admin服务配置\"}');
+INSERT INTO `his_config_info` VALUES (11, 36, 'cloudwaer-admin-serve-dev', 'DEFAULT_GROUP', '', '\r\n#数据库配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root', '62746dd39011af26387366d949f93c25', '2026-01-10 03:41:56', '2026-01-09 19:41:56', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"admin服务配置\"}');
+INSERT INTO `his_config_info` VALUES (11, 37, 'cloudwaer-admin-serve-dev', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379', 'a971b42c25cada3f78a347508ea831c6', '2026-01-10 03:44:46', '2026-01-09 19:44:47', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"admin服务配置\"}');
+INSERT INTO `his_config_info` VALUES (0, 38, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\r\n#数据库配置 以及redis配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root\r\n  data:\r\n    redis:\r\n      host: 127.0.0.1\r\n      port: 6379', '712bf18af692eeb957c0c9b01cab27d9', '2026-01-10 03:45:24', '2026-01-09 19:45:24', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\"}');
+INSERT INTO `his_config_info` VALUES (13, 39, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\r\n#数据库配置 以及redis配置\r\nspring:\r\n  datasource:\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root\r\n  data:\r\n    redis:\r\n      host: 127.0.0.1\r\n      port: 6379', '712bf18af692eeb957c0c9b01cab27d9', '2026-01-10 03:58:50', '2026-01-09 19:58:51', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (13, 40, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n    driver-class-name: com.mysql.cj.jdbc.Driver  # 确保配置了数据库驱动\n\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379', '6defb9f0635cb5dce697e11dc9aa0119', '2026-01-10 03:58:57', '2026-01-09 19:58:58', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (0, 41, 'cloudwaer-auth-service-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  \n\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379', 'd6ddb310364d1d6243b4cd1f3a58df2a', '2026-01-10 04:23:53', '2026-01-09 20:23:54', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\"}');
+INSERT INTO `his_config_info` VALUES (10, 42, 'application-common.yml', 'DEFAULT_GROUP', '', '#Redis配置\nspring:\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379\n\n#mybatis包扫描设置\nmybatis-plus:\n  mapper-locations: classpath*:/mappers/**/*.xml\n\n#项目设置\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health,info\n#mybatis分页插件设置\ncloudwaer:\n  mybatis:\n    page:\n      default-page-no: 1\n      default-page-size: 10\n      max-page-size: 200', '182277942184f14c16ea2626eea2234b', '2026-01-10 04:25:07', '2026-01-09 20:25:07', 'nacos', '127.0.0.1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"默认所有服务全部加载\"}');
+INSERT INTO `his_config_info` VALUES (14, 43, 'cloudwaer-auth-service-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  \n\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379', 'd6ddb310364d1d6243b4cd1f3a58df2a', '2026-01-10 04:27:35', '2026-01-09 20:27:36', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (13, 44, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  \n\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379', 'd6ddb310364d1d6243b4cd1f3a58df2a', '2026-01-10 04:27:46', '2026-01-09 20:27:46', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 45, 'application-common.yml', 'DEFAULT_GROUP', '', '#Redis配置\nspring:\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379\n\n#mybatis包扫描设置\nmybatis-plus:\n  mapper-locations: classpath*:/mappers/**/*.xml\n\n#项目设置\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health,info\n#mybatis分页插件设置\ncloudwaer:\n  mybatis:\n    page:\n      default-page-no: 1\n      default-page-size: 10\n      max-page-size: 200\n#安全放行接口 所有服务都生效\nsecurity:\n  jwt:\n    ignore-paths:\n      - /auth/login\n      - /auth/captcha\n      - /gateway/captcha\n      - /actuator/**', 'c0971ed306ba0aee4667c07ff494faed', '2026-01-10 04:29:05', '2026-01-09 20:29:05', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"默认所有服务全部加载\"}');
+INSERT INTO `his_config_info` VALUES (0, 46, 'cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  ', 'af39248a2044ae35ba690d9feb1a4c34', '2026-01-10 04:29:30', '2026-01-09 20:29:31', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\"}');
+INSERT INTO `his_config_info` VALUES (15, 47, 'cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  ', 'af39248a2044ae35ba690d9feb1a4c34', '2026-01-10 04:30:41', '2026-01-09 20:30:42', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (3, 48, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', '9a04b5aae9e02f5938c54deee0dfc6e7', '2026-01-13 22:50:29', '2026-01-13 14:50:30', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (3, 49, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: false\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', 'd359e6461d37037e1385f5de1b6c7c6e', '2026-01-13 22:51:45', '2026-01-13 14:51:46', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 50, 'application-common.yml', 'DEFAULT_GROUP', '', '#Redis配置\nspring:\n  data:\n    redis:\n      host: 127.0.0.1\n      port: 6379\n\n#mybatis包扫描设置\nmybatis-plus:\n  mapper-locations: classpath*:/mappers/**/*.xml\n\n#项目设置\nmanagement:\n  endpoints:\n    web:\n      exposure:\n        include: health,info\n#mybatis分页插件设置\ncloudwaer:\n  mybatis:\n    page:\n      default-page-no: 1\n      default-page-size: 10\n      max-page-size: 200\n#安全放行接口 所有服务都生效\nsecurity:\n  jwt:\n    ignore-paths:\n      - /auth/login\n      - /auth/captcha\n      - /gateway/captcha\n      - /actuator/**', 'c0971ed306ba0aee4667c07ff494faed', '2026-01-13 22:53:33', '2026-01-13 14:53:34', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"默认所有服务全部加载\"}');
+INSERT INTO `his_config_info` VALUES (13, 51, 'cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  ', 'af39248a2044ae35ba690d9feb1a4c34', '2026-01-13 22:53:33', '2026-01-13 14:53:34', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (14, 52, 'cloudwaer-auth-service-dev.yml', 'DEFAULT_GROUP', '', '\n#数据库配置 以及redis配置\nspring:\n  datasource:\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf-8&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n# 确保配置了数据库驱动\n    driver-class-name: com.mysql.cj.jdbc.Driver  ', 'af39248a2044ae35ba690d9feb1a4c34', '2026-01-13 22:53:33', '2026-01-13 14:53:34', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (15, 53, 'cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '\nspring:\n  cloud:\n    gateway:\n      discovery:\n        locator:\n          enabled: true\n\n    #路由设置\n      routes:\n        - id: auth-route\n          uri: lb://cloudwaer-auth-service\n          predicates:\n            - Path=/auth/**\n        - id: admin-route\n          uri: lb://cloudwaer-admin-serve\n          predicates:\n            - Path=/admin/**\n\n\ngateway:\n  auth:\n  #验证码开关\n    captcha-enabled: false\n    login-path: /auth/login\n    skip-paths:\n      - /auth/captcha\n      - /gateway/captcha\n      - /auth/logout\n    captcha-length: 6\n    captcha-ignore-case: true\n    captcha-expire-seconds: 300', '433aaf6a25f50ca41d6eef8994db5954', '2026-01-13 22:53:33', '2026-01-13 14:53:34', 'nacos', '0:0:0:0:0:0:0:1', 'D', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 54, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  captcha:\n    enabled: false      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '7fe65983ff2a36204b4358b625f02626', '2026-01-14 00:19:37', '2026-01-13 16:19:38', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 55, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '42fdb888eb04a210e9a9b3a09c7d2b8d', '2026-01-14 00:19:53', '2026-01-13 16:19:53', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 56, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '42fdb888eb04a210e9a9b3a09c7d2b8d', '2026-01-14 00:24:39', '2026-01-13 16:24:39', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 57, 'application-cloudwaer-fowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\\n  datasource:\\n    driver-class-name: com.mysql.cj.jdbc.Driver\\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\\n    username: root\\n    password: root\\n\\nflowable:\\n  database-schema-update: true\\n  async-executor-activate: false\\n  idm:\\n    enabled: false\\n\\nmybatis-plus:\\n  mapper-locations: classpath*:mapper/**/*.xml\\n  type-aliases-package: com.cloudwaer.**.entity\\n  configuration:\\n    map-underscore-to-camel-case: true\\n\\ncloudwaer:\\n  swagger:\\n    title: Flowable流程服务API\\n    version: 1.0\\n    description: Flowable流程服务的API文档\\n  api-scanner:\\n    enabled: true\\n    service-id: cloudwaer-fowable-serve\\n    exclude-methods:\\n      - error\\n      - health\\n    exclude-paths:\\n      - /actuator/**\\n      - /error\\n      - /swagger-ui/**\\n      - /v3/api-docs/**\\n    base-packages:\\n      - com.cloudwaer.fowable\\n\\nserver:\\n  port: 4344', '0fc28a5617c4fc768d60df7683f2bfd1', '2026-01-14 19:09:20', '2026-01-14 11:09:20', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 58, 'application-cloudwaer-fowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-fowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.fowable', '9eef34ee15d08e8fcc8b0bc1b5b93e05', '2026-01-14 19:10:18', '2026-01-14 11:10:19', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 59, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-fowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.fowable', '9eef34ee15d08e8fcc8b0bc1b5b93e05', '2026-01-14 19:24:14', '2026-01-14 11:24:15', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 60, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', '9808fb107db7a7556e241e296c0e2408', '2026-01-14 19:25:36', '2026-01-14 11:25:37', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 61, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', '9808fb107db7a7556e241e296c0e2408', '2026-01-14 19:30:23', '2026-01-14 11:30:23', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (1, 62, 'application-common.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', '15ede9d96351caea5ca46bbce9396bfe', '2026-01-14 19:30:48', '2026-01-14 11:30:48', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"所有服务都会默认加载这个配置文件\"}');
+INSERT INTO `his_config_info` VALUES (2, 63, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin', '89c100afec11c88baf208d34a48755cf', '2026-01-14 19:33:24', '2026-01-14 11:33:25', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (2, 64, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n# Swagger配置\ncloudwaer:\n\n\n  #日志配置模块\n  log:\n    enabled: true\n    exclude-paths:\n      - /actuator/**\n      - /auth/captcha\n      - /swagger-ui.html\n      - /v3/api-docs/**\n    exclude-http-methods:\n      - OPTIONS\n    exclude-class-names:\n      - com.cloudwaer.gateway.filter.HealthController\n    exclude-method-names:\n      - ping\n\n\n  #API文档模块\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n\n\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin\n  #网关配置\n  gateway:\n    refresh:\n      # 网关服务的服务ID（用于发现实例）\n      service-id: cloudwaer-gateway\n      # 刷新网关路由请求协议\n      scheme: http\n      # 刷新网关路由接口路径\n      path: /actuator/gateway/refresh', '239c0af779665c590e805474afa8e57b', '2026-01-14 19:35:25', '2026-01-14 11:35:26', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (1, 65, 'application-common.yml', 'DEFAULT_GROUP', '', 'spring:\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', 'fec385460838ec6830c14347a3941cd9', '2026-01-14 19:36:11', '2026-01-14 11:36:12', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"所有服务都会默认加载这个配置文件\"}');
+INSERT INTO `his_config_info` VALUES (3, 66, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', '9a04b5aae9e02f5938c54deee0dfc6e7', '2026-01-14 19:36:34', '2026-01-14 11:36:34', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 67, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '42fdb888eb04a210e9a9b3a09c7d2b8d', '2026-01-14 19:36:47', '2026-01-14 11:36:48', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (5, 68, 'application-cloudwaer-codegen-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_codegen_config?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 代码生成管理服务API\n    version: 1.0\n    description: 代码生成服务的API文档\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-codegen-serve\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.codegen\n#代码生成服务运行端口\nserver:\n  port: 4333', '020dfe2d1610cada4f44df9ef1aa3937', '2026-01-14 19:37:00', '2026-01-14 11:37:01', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"所有服务都会默认加载这个配置文件\"}');
+INSERT INTO `his_config_info` VALUES (1, 69, 'application-common.yml', 'DEFAULT_GROUP', '', 'mybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', '279432b90416ad2c4fb72262b9190b28', '2026-01-14 19:37:55', '2026-01-14 11:37:56', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"所有服务都会默认加载这个配置文件\"}');
+INSERT INTO `his_config_info` VALUES (2, 70, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\n#数据库 Redis配置\nspring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\ncloudwaer:\n  #日志配置模块\n  log:\n    enabled: true\n    exclude-paths:\n      - /actuator/**\n      - /auth/captcha\n      - /swagger-ui.html\n      - /v3/api-docs/**\n    exclude-http-methods:\n      - OPTIONS\n    exclude-class-names:\n      - com.cloudwaer.gateway.filter.HealthController\n    exclude-method-names:\n      - ping\n\n# Swagger配置\n  #API文档模块\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n\n\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin\n  #网关配置\n  gateway:\n    refresh:\n      # 网关服务的服务ID（用于发现实例）\n      service-id: cloudwaer-gateway\n      # 刷新网关路由请求协议\n      scheme: http\n      # 刷新网关路由接口路径\n      path: /actuator/gateway/refresh', 'bb8d79562fb63f63b09b46db51b2c0dd', '2026-01-14 19:38:16', '2026-01-14 11:38:16', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (2, 71, 'application-cloudwaer-admin-serve-dev.yml', 'DEFAULT_GROUP', '', '# Admin管理服务配置 (dev环境)\n# Data ID: application-cloudwaer-admin-serve-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4102\n#数据库 Redis配置\nspring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\ncloudwaer:\n  #日志配置模块\n  log:\n    enabled: true\n    exclude-paths:\n      - /actuator/**\n      - /auth/captcha\n      - /swagger-ui.html\n      - /v3/api-docs/**\n    exclude-http-methods:\n      - OPTIONS\n    exclude-class-names:\n      - com.cloudwaer.gateway.filter.HealthController\n    exclude-method-names:\n      - ping\n\n# Swagger配置\n  #API文档模块\n  swagger:\n    title: Admin管理服务API\n    version: 1.0\n    description: 用户、路由、权限管理服务的API文档\n\n\n  # API扫描器配置\n  api-scanner:\n    enabled: true\n    # 服务ID（必填，唯一标识，通常是服务名称）\n    service-id: cloudwaer-admin-serve\n    # 排除的方法名称（不扫描这些方法）\n    exclude-methods:\n      - error\n      - health\n    # 排除的路径模式（支持Ant路径匹配）\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    # 扫描的基础包路径（如果不配置，则扫描所有包）\n    base-packages:\n      - com.cloudwaer.admin\n  #网关配置\n  gateway:\n    refresh:\n      # 网关服务的服务ID（用于发现实例）\n      service-id: cloudwaer-gateway\n      # 刷新网关路由请求协议\n      scheme: http\n      # 刷新网关路由接口路径\n      path: /actuator/gateway/refresh', '59a0c151b1ebe2cf277512a5296b9e72', '2026-01-14 19:38:25', '2026-01-14 11:38:25', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (3, 72, 'application-cloudwaer-authentication-dev.yml', 'DEFAULT_GROUP', '', '# 认证授权服务配置 (dev环境)\n# Data ID: application-cloudwaer-authentication-dev.yml\n# Group: DEFAULT_GROUP\n\nserver:\n  port: 4101\n\nspring:\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"\n\nspringdoc:\n  api-docs:\n    path: /v3/api-docs\n  swagger-ui:\n    path: /swagger-ui.html\n    enabled: true\n\n# Swagger配置\ncloudwaer:\n  swagger:\n    title: 认证授权服务API\n    version: 1.0\n    description: 认证授权服务的API文档\n\n', '07759c71f35f73eff7e3fb94406af960', '2026-01-14 19:38:32', '2026-01-14 11:38:33', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 73, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', 'c096a01ef8889b8ebf22356df7621fe4', '2026-01-14 19:38:51', '2026-01-14 11:38:51', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 74, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'ae9e4b633d84ae732c8ebb37129dc83d', '2026-01-14 19:39:35', '2026-01-14 11:39:35', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (4, 75, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n    enabled: true      # 验证码开关\n    length: 4          # 位数\n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '42fdb888eb04a210e9a9b3a09c7d2b8d', '2026-01-14 21:52:39', '2026-01-14 13:52:40', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (4, 76, 'application-cloudwaer-gateway-dev.yml', 'DEFAULT_GROUP', '', '# 网关服务配置 (dev环境)\n# Data ID: application-cloudwaer-gateway-dev.yml\n# Group: DEFAULT_GROUP\nserver:\n  port: 4100\nspring:\n  main:\n    web-application-type: reactive\n  autoconfigure:\n    exclude:\n      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration\ncloudwaer:\n  # 动态路由设置\n  gateway:\n    dynamic-route:\n      # 管理端服务名（用于拉取动态路由列表）\n      admin-service-name: cloudwaer-admin-serve\n      # 管理端请求协议（用于动态路由拉取）\n      admin-scheme: http\n      # 管理端路由列表接口路径\n      route-list-path: /admin/gateway-route/list\n      # Redis 中缓存路由的 Key\n      redis-routes-key: cloudwaer:gateway:route:cache\n      # Redis 缓存路由过期时间（秒） 默认一天失效\n      redis-cache-seconds: 86400\n      # 本地内存路由缓存有效期（毫秒）\n      cache-duration-ms: 30000\n  # 验证码配置\n  captcha:\n  # 验证码开关\n    enabled: false \n    # 位数     \n    length: 4          \n    width: 120\n    height: 40\n    expire-seconds: 120\njwt:\n  secret: cloudwaer-secret-key-for-jwt-token-generation-minimum-256-bits\n  expiration: 86400000\n  allow-multiple-login: true\n  redis-key-prefix: \"cloudwaer:jwt:token:\"\n  user-token-list-key-prefix: \"cloudwaer:jwt:user:tokens:\"', '307d08c6c4507bfeb7aaf0c99e6ba0b8', '2026-01-15 18:19:50', '2026-01-15 10:19:51', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
+INSERT INTO `his_config_info` VALUES (10, 77, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'ae9e4b633d84ae732c8ebb37129dc83d', '2026-01-15 21:21:23', '2026-01-15 13:21:24', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 78, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: false\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', '3f5f50fd9914eb8e82efbfa413449745', '2026-01-16 01:06:45', '2026-01-15 17:06:45', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 79, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'ae9e4b633d84ae732c8ebb37129dc83d', '2026-01-16 01:07:46', '2026-01-15 17:07:46', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 80, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: false\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', '3f5f50fd9914eb8e82efbfa413449745', '2026-01-16 18:06:42', '2026-01-16 10:06:43', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+INSERT INTO `his_config_info` VALUES (10, 81, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: true\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'ae9e4b633d84ae732c8ebb37129dc83d', '2026-01-16 18:07:47', '2026-01-16 10:07:48', 'nacos', '127.0.0.1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\",\"c_desc\":\"Flowable服务配置\"}');
+
+-- ----------------------------
+-- Table structure for permissions
+-- ----------------------------
+DROP TABLE IF EXISTS `permissions`;
+CREATE TABLE `permissions`  (
+  `role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'role',
+  `resource` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'resource',
+  `action` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'action',
+  UNIQUE INDEX `uk_role_permission`(`role` ASC, `resource` ASC, `action` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of permissions
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for roles
+-- ----------------------------
+DROP TABLE IF EXISTS `roles`;
+CREATE TABLE `roles`  (
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'username',
+  `role` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'role',
+  UNIQUE INDEX `idx_user_role`(`username` ASC, `role` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of roles
+-- ----------------------------
+INSERT INTO `roles` VALUES ('nacos', 'ROLE_ADMIN');
+
+-- ----------------------------
+-- Table structure for sys_database_connection
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_database_connection`;
+CREATE TABLE `sys_database_connection`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '连接名称',
+  `db_type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '数据库类型（mysql, postgresql, oracle等）',
+  `host` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '主机地址',
+  `port` int(11) NOT NULL COMMENT '端口号',
+  `database` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '数据库名称',
+  `username` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码（加密存储）',
+  `url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '连接URL（可选）',
+  `enabled` tinyint(1) NULL DEFAULT 1 COMMENT '是否启用（0-否，1-是）',
+  `remark` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_name`(`name` ASC) USING BTREE,
+  INDEX `idx_db_type`(`db_type` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_enabled`(`enabled` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '数据库连接配置表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_database_connection
+-- ----------------------------
+INSERT INTO `sys_database_connection` VALUES (1991565755409891330, '本地Mysql', 'MySQL', '127.0.0.1', 3306, 'cloudwaer', 'root', 'root', NULL, 1, NULL, '2025-11-21 01:54:12', NULL, '2025-11-21 01:54:12', NULL, 1);
+INSERT INTO `sys_database_connection` VALUES (1991830218407124994, '本地mysql_mc', 'MySQL', '127.0.0.1', 3306, 'minecraft_forum', 'root', 'root', NULL, 1, NULL, '2025-11-21 19:25:05', NULL, '2025-11-21 19:25:05', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_dict
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_dict`;
+CREATE TABLE `sys_dict`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典类型',
+  `name` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '字典名称',
+  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_type`(`type` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_sort`(`sort` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典主表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_dict
+-- ----------------------------
+INSERT INTO `sys_dict` VALUES (1992000000000001000, 'status', '状态', 0, '状态字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000002000, 'delete_flag', '删除标识', 0, '删除标识字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000003000, 'boolean', '布尔', 0, '布尔字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000004000, 'flowable_type', '流程类型', 0, '流程类型字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (2013027807789092865, 'wf_process_status', '流程实例', 0, '流程实例状态', '2026-01-19 07:16:44', NULL, '2026-01-19 07:17:12', NULL, 1);
+INSERT INTO `sys_dict` VALUES (2013029000000000001, 'permission_type', '权限类型', 0, '权限类型字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict` VALUES (2013029000000000002, 'http_method', 'HTTP方法', 0, 'HTTP方法字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict` VALUES (2013029000000000003, 'flowable_priority', '任务优先级', 0, '流程任务优先级字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
+-- ----------------------------
+-- Table structure for sys_dict_item
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_dict_item`;
+CREATE TABLE `sys_dict_item`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `dict_id` bigint(20) NOT NULL COMMENT '字典ID',
+  `code` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '字典编码',
+  `value` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '字典值',
+  `label` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '显示名称',
+  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_dict_id`(`dict_id` ASC) USING BTREE,
+  INDEX `idx_dict_id_code`(`dict_id` ASC, `code` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '字典明细表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_dict_item
+-- ----------------------------
+INSERT INTO `sys_dict_item` VALUES (1992000000000001001, 1992000000000001000, '0', '0', '删除', 0, '状态-删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000001002, 1992000000000001000, '1', '1', '有效', 1, '状态-有效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000001003, 1992000000000001000, '2', '2', '无效', 2, '状态-无效', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000002001, 1992000000000002000, '0', '0', '未删除', 0, '删除标识-未删除', '2025-11-21 20:40:17', 'system', '2025-11-21 22:28:07', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000002002, 1992000000000002000, '1', '1', '已删除', 1, '删除标识-已删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000003001, 1992000000000003000, 'true', 'true', '是', 0, '布尔-是', '2025-11-21 20:40:17', 'system', '2025-11-21 22:23:50', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000003002, 1992000000000003000, 'false', 'false', '否', 1, '布尔-否', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004001, 1992000000000004000, 'leave', 'leave', '请假类型', 0, '流程类型-请假', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004002, 1992000000000004000, 'ea', 'ea', '审批类型', 1, '流程类型-审批', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004003, 1992000000000004000, 'expense', 'expense', '报销类型', 2, '流程类型-报销', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013028106117353473, 2013027807789092865, 'running', '0', '运行中', 0, '', '2026-01-19 07:17:55', NULL, '2026-01-19 07:17:55', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013028154754502658, 2013027807789092865, 'completed', '1', '已完成', 1, '', '2026-01-19 07:18:07', NULL, '2026-01-19 07:19:34', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013028202070446082, 2013027807789092865, 'suspended', '2', '已挂起', 2, '', '2026-01-19 07:18:18', NULL, '2026-01-19 07:19:43', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013028251974275073, 2013027807789092865, 'rejected', '3', '被拒绝', 3, '', '2026-01-19 07:18:30', NULL, '2026-01-19 07:19:38', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013028311856353281, 2013027807789092865, 'terminated', '4', '已终止', 4, '', '2026-01-19 07:18:44', NULL, '2026-01-19 07:19:48', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013028468014485506, 2013027807789092865, 'canceled', '5', '已取消', 5, '', '2026-01-19 07:19:22', NULL, '2026-01-19 07:19:28', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000101, 2013029000000000001, '1', '1', '菜单', 0, '权限类型-菜单', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000102, 2013029000000000001, '2', '2', '页面', 1, '权限类型-页面', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000103, 2013029000000000001, '3', '3', '操作', 2, '权限类型-操作', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000201, 2013029000000000002, 'GET', 'GET', 'GET', 0, 'HTTP方法-GET', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000202, 2013029000000000002, 'POST', 'POST', 'POST', 1, 'HTTP方法-POST', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000203, 2013029000000000002, 'PUT', 'PUT', 'PUT', 2, 'HTTP方法-PUT', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000204, 2013029000000000002, 'DELETE', 'DELETE', 'DELETE', 3, 'HTTP方法-DELETE', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000301, 2013029000000000003, 'low', 'low', '低级', 0, '任务优先级-低级', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000302, 2013029000000000003, 'normal', 'normal', '正常', 1, '任务优先级-正常', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000303, 2013029000000000003, 'urgent', 'urgent', '紧急', 2, '任务优先级-紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000304, 2013029000000000003, 'very_urgent', 'very_urgent', '非常紧急', 3, '任务优先级-非常紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
+-- ----------------------------
+-- Table structure for sys_form_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_form_config`;
+CREATE TABLE `sys_form_config`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `table_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '表名',
+  `connection_id` bigint(20) NOT NULL COMMENT '数据库连接ID',
+  `module_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '模块名称',
+  `package_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '包名',
+  `entity_name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '实体类名称',
+  `entity_comment` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '实体类注释',
+  `author` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '作者',
+  `form_fields` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '表单字段配置（JSON格式）',
+  `query_fields` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '查询字段列表（JSON格式）',
+  `primary_key_field` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '主键字段名',
+  `enable_pagination` tinyint(1) NULL DEFAULT 1 COMMENT '是否启用分页查询（0-否，1-是）',
+  `enable_logic_delete` tinyint(1) NULL DEFAULT 0 COMMENT '是否启用逻辑删除（0-否，1-是）',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_table_connection`(`table_name` ASC, `connection_id` ASC) USING BTREE,
+  INDEX `idx_connection_id`(`connection_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '表单配置表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_form_config
+-- ----------------------------
+
+-- ----------------------------
+-- Table structure for sys_gateway_route
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_gateway_route`;
+CREATE TABLE `sys_gateway_route`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `route_id` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '路由ID（唯一标识）',
+  `uri` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '路由URI（如：lb://service-name）',
+  `predicates` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '路由断言（JSON格式，如：[{\"name\":\"Path\",\"args\":{\"pattern\":\"/api/**\"}}]）',
+  `filters` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '路由过滤器（JSON格式）',
+  `order` int(11) NULL DEFAULT 0 COMMENT '路由顺序（数字越小优先级越高）',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '路由描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` bigint(20) NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` bigint(20) NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_route_id`(`route_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_order`(`order` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '网关路由表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_gateway_route
+-- ----------------------------
+INSERT INTO `sys_gateway_route` VALUES (1, 'cloudwaer-authentication', 'lb://cloudwaer-authentication', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/auth/**\"}}]', NULL, 0, '鉴权服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:11', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (2, 'cloudwaer-admin-serve', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/admin/**\"}}]', NULL, 0, '后台管理服务服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:00', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (1991546479613448194, 'cloudwaer-codegen-serve', 'lb://cloudwaer-codegen-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/codegen/**\"}}]', NULL, 0, '代码生成服务的网关转发配置', '2025-11-21 00:37:37', NULL, '2025-11-21 00:37:37', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', '', 0, '流程模块基础网关转发', '2026-01-14 23:19:48', NULL, '2026-01-25 01:37:51', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_permission`;
+CREATE TABLE `sys_permission`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `permission_code` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '权限编码',
+  `permission_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '权限名称',
+  `permission_type` int(11) NOT NULL COMMENT '权限类型：1-菜单，2-页面，3-操作',
+  `route_path` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '路由路径（菜单权限需要）',
+  `parent_id` bigint(20) NULL DEFAULT NULL COMMENT '父权限ID',
+  `sort` int(11) NULL DEFAULT 0 COMMENT '排序',
+  `icon` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '图标',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '权限描述',
+  `api_url` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'API请求地址',
+  `http_method` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '请求类型（GET, POST, PUT, DELETE）',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_code`(`permission_code` ASC) USING BTREE,
+  UNIQUE INDEX `uk_permission_code`(`permission_code` ASC) USING BTREE,
+  INDEX `idx_type`(`permission_type` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_parent_id`(`parent_id` ASC) USING BTREE,
+  INDEX `idx_permission_type`(`permission_type` ASC) USING BTREE,
+  INDEX `idx_http_method`(`http_method` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '权限表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_permission
+-- ----------------------------
+INSERT INTO `sys_permission` VALUES (1001, 'admin', '后台管理', 1, '', NULL, 1, 'Setting', '后台管理菜单', '', '', '2025-11-19 21:14:55', NULL, '2025-11-19 21:14:55', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1002, 'admin:permission', '菜单权限', 2, '/admin/permission', 1001, 1, 'Key', '权限管理页面', '', '', '2025-11-19 21:15:04', NULL, '2025-11-19 21:15:04', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1003, 'admin:permission:view', '查看权限', 3, '', 1002, 1, 'Search', '获取权限树 查看权限', '/admin/permission/tree', 'GET', '2025-11-19 21:15:07', NULL, '2025-11-19 21:15:07', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1004, 'admin:permission:add', '新增权限', 3, '', 1002, 2, 'FolderAdd', '权限页面-新增权限', '/admin/permission/save', 'POST', '2025-11-19 21:15:12', NULL, '2025-11-19 21:15:12', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1005, 'admin:permission:edit', '编辑权限', 3, '', 1002, 3, 'EditPen', '权限页面-编辑权限', '/admin/permission/update', 'PUT', '2025-11-19 21:15:12', NULL, '2025-11-19 21:15:12', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1006, 'admin:permission:delete', '删除权限', 3, '', 1002, 4, 'Delete', '权限页面-删除权限', '/admin/permission/delete', 'DELETE', '2025-11-19 21:15:12', NULL, '2025-11-19 21:15:12', NULL, 1);
+INSERT INTO `sys_permission` VALUES (114214272234, 'codegen:generator:view', '代码生成页面', 2, '/codegen/CodeGenerator', 125634234412342343, 1, '', '代码生成管理页面', '', '', '2025-11-21 01:31:10', NULL, '2025-11-21 01:31:10', NULL, 1);
+INSERT INTO `sys_permission` VALUES (125634234412342343, 'codegen', '代码生成', 1, NULL, NULL, 100, 'Document', '代码生成管理菜单', NULL, NULL, '2025-11-21 01:29:10', NULL, '2025-11-21 01:29:10', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991143600931201000, 'admin:role', '角色管理', 2, '/admin/role', 1001, 3, 'Coin', '角色管理页面', '', '', '2025-11-19 21:56:43', NULL, '2025-11-19 21:56:43', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991205164119891970, 'admin:user', '用户管理', 2, '/admin/user', 1001, 2, 'Avatar', '用户管理页面', '', '', '2025-11-20 02:01:21', NULL, '2025-11-20 02:01:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991242409023631362, 'admin:user:add', '添加用户', 3, '', 1991205164119891970, 0, 'FolderAdd', '新增用户', '/admin/user/save', 'POST', '2025-11-20 04:29:20', NULL, '2025-11-20 04:29:20', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991242808984072194, 'admin:user:delete', '删除用户', 3, '', 1991205164119891970, 0, 'Delete', '删除用户', '/admin/user/delete', 'DELETE', '2025-11-20 04:30:56', NULL, '2025-11-20 04:30:56', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991242997413179393, 'admin:user:edit', '修改用户', 3, '', 1991205164119891970, 0, 'EditPen', '更新用户', '/admin/user/update', 'PUT', '2025-11-20 04:31:41', NULL, '2025-11-20 04:31:41', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991243204884426753, 'admin:user:view', '查询用户', 3, '', 1991205164119891970, 0, 'Search', '分页查询用户列表', '/admin/user/page', 'GET', '2025-11-20 04:32:30', NULL, '2025-11-20 04:32:30', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991244603546398722, 'admin:role:add', '新增角色', 3, '', 1991143600931201000, 0, '', '新增角色', '/admin/role/save', 'POST', '2025-11-20 04:38:04', NULL, '2025-11-20 04:38:04', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991244778629230593, 'admin:role:delete', '删除角色', 3, '', 1991143600931201000, 0, '', '删除角色', '/admin/role/delete', 'DELETE', '2025-11-20 04:38:45', NULL, '2025-11-20 04:38:45', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991244964420120578, 'admin:role:edit', '修改角色', 3, '', 1991143600931201000, 0, '', '更新角色', '/admin/role/update', 'PUT', '2025-11-20 04:39:30', NULL, '2025-11-20 04:39:30', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991245154136879106, 'admin:role:view', '查看角色', 3, '', 1991143600931201000, 0, '', '分页查询角色列表', '/admin/role/page', 'GET', '2025-11-20 04:40:15', NULL, '2025-11-20 04:40:15', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991268323568517122, 'admin:user:assign-role', '分配角色给用户', 3, '', 1991205164119891970, 0, '', '分配角色给用户', '/admin/user/assign-roles', 'POST', '2025-11-20 06:12:19', NULL, '2025-11-20 06:12:19', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991268510370234370, 'admin:role:assign-permission', '分配权限给角色', 3, '', 1991143600931201000, 0, '', '分配权限给角色', '/admin/role/assign-permissions', 'POST', '2025-11-20 06:13:04', NULL, '2025-11-20 06:13:04', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991455913399685122, 'admin:gateway', '动态网关', 1, '', NULL, 1, 'Connection', '', '', '', '2025-11-20 18:37:44', NULL, '2025-11-20 18:37:44', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991456923035766785, 'admin:gateway:view', '网关列表', 2, '/gateway', 1991455913399685122, 0, 'DataAnalysis', '查看网关列表', '', '', '2025-11-20 18:41:45', NULL, '2025-11-20 18:41:45', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991473796049752066, 'admin:gateway:add', '新增网关', 3, '', 1991456923035766785, 0, '', '新增网关路由', '/admin/gateway-route/save', 'POST', '2025-11-20 19:48:47', NULL, '2025-11-20 19:48:47', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991473884234993666, 'admin:gateway:delete', '删除网关路由', 3, '', 1991456923035766785, 0, '', '删除网关路由', '/admin/gateway-route/delete', 'DELETE', '2025-11-20 19:49:08', NULL, '2025-11-20 19:49:08', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991473999733542914, 'admin:gateway:edit', '更新网关路由', 3, '', 1991456923035766785, 0, '', '', '/admin/gateway-route/update', 'PUT', '2025-11-20 19:49:36', NULL, '2025-11-20 19:49:36', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735617, 'admin:gateway:refresh', '刷新网关路由', 3, '', 1991456923035766785, 0, '', '刷新网关路由', '/admin/gateway-route/refresh', 'POST', '2025-11-20 19:51:33', NULL, '2025-11-20 19:51:33', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735618, 'codegen:connection:list', '查询数据库连接列表', 3, '', 1991829450476220417, 10, '', '查询数据库连接列表权限', '/codegen/database-connection/list', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735619, 'codegen:connection:page', '分页查询数据库连接', 3, '', 1991829450476220417, 11, '', '分页查询数据库连接权限', '/codegen/database-connection/page', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735620, 'codegen:connection:detail', '查询数据库连接详情', 3, '', 1991829450476220417, 12, '', '查询数据库连接详情权限', '/codegen/database-connection/detail', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735621, 'codegen:connection:test', '测试数据库连接', 3, '', 1991829450476220417, 13, '', '测试数据库连接权限', '/codegen/database-connection/test', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735622, 'codegen:connection:add', '新增数据库连接', 3, '', 1991829450476220417, 14, '', '新增数据库连接权限', '/codegen/database-connection/save', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735623, 'codegen:connection:edit', '更新数据库连接', 3, '', 1991829450476220417, 15, '', '更新数据库连接权限', '/codegen/database-connection/update', 'PUT', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735624, 'codegen:connection:delete', '删除数据库连接', 3, '', 1991829450476220417, 16, '', '删除数据库连接权限', '/codegen/database-connection/delete', 'DELETE', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735625, 'codegen:connection:toggle', '启用/禁用数据库连接', 3, '', 1991829450476220417, 17, '', '启用/禁用数据库连接权限', '/codegen/database-connection/toggle-enabled', 'PUT', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735626, 'codegen:metadata:tables', '查询数据库表列表', 3, NULL, 114214272234, 20, NULL, '查询数据库表列表权限', '/codegen/metadata/tables', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735627, 'codegen:metadata:table', '查询表结构元数据', 3, NULL, 114214272234, 21, NULL, '查询表结构元数据权限', '/codegen/metadata/table', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735628, 'codegen:metadata:tables:metadata', '批量查询表结构元数据', 3, NULL, 114214272234, 22, NULL, '批量查询表结构元数据权限', '/codegen/metadata/tables/metadata', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735629, 'codegen:form:generate', '生成表单配置', 3, NULL, 114214272234, 30, NULL, '生成表单配置权限', '/codegen/form/generate', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735630, 'codegen:form:generate:fields', '生成表单字段配置', 3, NULL, 114214272234, 31, NULL, '生成表单字段配置权限', '/codegen/form/generate-fields', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735631, 'codegen:form:save', '保存表单配置', 3, NULL, 114214272234, 32, NULL, '保存表单配置权限', '/codegen/form/save', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735632, 'codegen:form:config', '查询表单配置', 3, NULL, 114214272234, 33, NULL, '查询表单配置权限', '/codegen/form/config', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735633, 'codegen:form:config:id', '根据ID查询表单配置', 3, NULL, 114214272234, 34, NULL, '根据ID查询表单配置权限', '/codegen/form/config/{id}', 'GET', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735634, 'codegen:form:fields', '更新表单字段配置', 3, NULL, 114214272234, 35, NULL, '更新表单字段配置权限', '/codegen/form/fields', 'PUT', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735635, 'codegen:form:layout', '调整表单布局', 3, NULL, 114214272234, 36, NULL, '调整表单布局权限', '/codegen/form/layout', 'PUT', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735636, 'codegen:generator:backend', '生成后端代码', 3, NULL, 114214272234, 40, NULL, '生成后端代码权限', '/codegen/generator/backend', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735637, 'codegen:generator:frontend', '生成前端代码', 3, NULL, 114214272234, 41, NULL, '生成前端代码权限', '/codegen/generator/frontend', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735638, 'codegen:generator:permission', '生成权限SQL', 3, NULL, 114214272234, 42, NULL, '生成权限SQL权限', '/codegen/generator/permission', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991474490890735639, 'codegen:generator:all', '生成所有代码', 3, NULL, 114214272234, 43, NULL, '生成所有代码权限（后端、前端、权限SQL）', '/codegen/generator/all', 'POST', '2025-11-21 01:32:32', NULL, '2025-11-21 01:32:32', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1991829450476220417, 'codegen:connection:view', '数据源管理', 2, '/codegen/DatabaseConnection', 125634234412342343, 0, '', '', '', '', '2025-11-21 19:22:02', NULL, '2025-11-21 19:22:02', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001100, 'admin:dict:view', '字典管理', 2, '/admin/dict', 1001, 4, 'Notebook', '访问字典管理页面', '', '', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001200, 'admin:dict:page', '分页查询', 3, '', 1993000000000001100, 10, '', '分页查询字典', '/admin/dict/page', 'GET', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001210, 'admin:dict:detail', '查询详情', 3, '', 1993000000000001100, 11, '', '根据ID查询字典详情', '/admin/dict/detail', 'GET', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001300, 'admin:dict:add', '新增', 3, '', 1993000000000001100, 20, 'FolderAdd', '新增字典项', '/admin/dict/save', 'POST', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001310, 'admin:dict:edit', '更新', 3, '', 1993000000000001100, 21, 'EditPen', '更新字典项', '/admin/dict/update', 'PUT', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001320, 'admin:dict:delete', '删除', 3, '', 1993000000000001100, 22, 'Delete', '删除字典项', '/admin/dict/delete', 'DELETE', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (1993000000000001400, 'admin:dict:refresh', '刷新缓存', 3, '', 1993000000000001100, 30, 'Refresh', '刷新字典缓存', '/admin/dict/refresh', 'POST', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011849591380627457, 'flowable', '流程管理', 1, '', NULL, 0, 'Cpu', 'flowable流程页面', '', '', '2026-01-16 01:14:56', NULL, '2026-01-16 01:14:56', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011850922522693634, 'flowable:model', '模型管理', 2, '/flowable/modelmanagement', 2011849591380627457, 1, 'Document', '流程模型的新增、编辑、发布和管理', '', '', '2026-01-16 01:20:13', NULL, '2026-01-16 01:20:13', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851483955449857, 'flowable:application:view', '流程申请', 2, '/flowable/processapplication', 2011849591380627457, 4, 'ChatLineRound', '用户申请和启动新的流程实例', '', '', '2026-01-16 01:22:27', NULL, '2026-01-16 01:22:27', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683906, 'flowable:monitor:view', '流程监控', 2, '/flowable/processmonitor', 2011849591380627457, 3, 'Crop', '监控和管理运行中的流程实例', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683908, 'flowable:model:list', '查看模型列表', 3, '', 2011850922522693634, 2, '', 'Model list', '/flowable/model/list', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683909, 'flowable:model:save', '保存模型', 3, NULL, 2011850922522693634, 3, NULL, '新增或编辑流程模型', '/flowable/model/save', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683910, 'flowable:model:delete', '删除模型', 3, NULL, 2011850922522693634, 4, NULL, '删除流程模型', '/flowable/model/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683911, 'flowable:model:publish', '发布模型', 3, NULL, 2011850922522693634, 5, NULL, '发布流程模型', '/flowable/model/publish', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683912, 'flowable:model:copy', '复制模型', 3, NULL, 2011850922522693634, 6, NULL, '复制流程模型', '/flowable/model/copy', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683913, 'flowable:model:detail', '查看模型详情', 3, NULL, 2011850922522693634, 7, NULL, '查看流程模型详情', '/flowable/model/detail', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683914, 'flowable:model:rollback', '回滚模型', 3, NULL, 2011850922522693634, 8, NULL, '回滚到指定版本', '/flowable/model/rollback', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683916, 'flowable:designer:save', '保存流程设计', 3, NULL, 2011850922522693634, 2, NULL, '保存BPMN流程设计', '/flowable/designer/save', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683917, 'flowable:designer:import', '导入BPMN', 3, NULL, 2011850922522693634, 3, NULL, '导入BPMN文件', '/flowable/designer/import', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683918, 'flowable:designer:export', '导出BPMN', 3, NULL, 2011850922522693634, 4, NULL, '导出BPMN文件', '/flowable/designer/export', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683919, 'flowable:designer:preview', '预览流程', 3, NULL, 2011850922522693634, 5, NULL, '预览流程图', '/flowable/designer/preview', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683920, 'flowable:designer:validate', '验证BPMN', 3, NULL, 2011850922522693634, 6, NULL, '验证BPMN文件格式', '/flowable/designer/validate', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683922, 'flowable:process:start', '启动流程', 3, NULL, 2011851483955449857, 2, NULL, '启动新的流程实例', '/flowable/process/start', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683923, 'flowable:process:definitions', '查看流程定义', 3, NULL, 2011851483955449857, 3, NULL, '查看可申请的流程定义列表', '/flowable/process/definitions', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683924, 'flowable:process:detail', '查看流程详情', 3, NULL, 2011851483955449857, 4, NULL, '查看流程实例详情', '/flowable/process/detail', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683925, 'flowable:process:variables', '查看流程变量', 3, NULL, 2011851483955449857, 5, NULL, '查看流程实例变量', '/flowable/process/variables', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683926, 'flowable:process:history', '查看流程历史', 3, NULL, 2011851483955449857, 6, NULL, '查看流程操作历史', '/flowable/process/history', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683928, 'flowable:process:started', '查看流程实例', 3, '', 2011851625458683906, 2, '', 'Started processes', '/flowable/process/started', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683929, 'flowable:monitor:suspend', '挂起流程', 3, NULL, 2011851625458683906, 3, NULL, '挂起正在运行的流程', '/flowable/monitor/suspend', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683930, 'flowable:monitor:activate', '激活流程', 3, NULL, 2011851625458683906, 4, NULL, '激活已挂起的流程', '/flowable/monitor/activate', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683931, 'flowable:monitor:terminate', '终止流程', 3, NULL, 2011851625458683906, 5, NULL, '终止正在运行的流程', '/flowable/monitor/terminate', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683932, 'flowable:monitor:delete', '删除流程实例', 3, NULL, 2011851625458683906, 6, NULL, '删除流程实例', '/flowable/monitor/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683933, 'flowable:monitor:diagram', '查看流程图', 3, NULL, 2011851625458683906, 7, NULL, '查看流程实例图', '/flowable/monitor/diagram', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683934, 'flowable:monitor:batch', '批量操作', 3, NULL, 2011851625458683906, 8, NULL, '批量挂起/激活/终止流程', '/flowable/monitor/batch', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683935, 'flowable:task:view', '任务管理', 2, '/flowable/taskmanagement', 2011849591380627457, 5, 'Check', '任务管理菜单', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683937, 'flowable:task:todo', '查看待办任务', 3, NULL, 2011851625458683935, 2, NULL, '查看当前用户的待办任务', '/flowable/task/todo', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683938, 'flowable:task:done', '查看已办任务', 3, NULL, 2011851625458683935, 3, NULL, '查看当前用户的已办任务', '/flowable/task/done', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683939, 'flowable:task:claim', '认领任务', 3, NULL, 2011851625458683935, 4, NULL, '认领未分配的任务', '/flowable/task/claim', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683940, 'flowable:task:complete', '完成任务', 3, NULL, 2011851625458683935, 5, NULL, '完成当前任务', '/flowable/task/complete', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683941, 'flowable:task:detail', '查看任务详情', 3, NULL, 2011851625458683935, 6, NULL, '查看任务详情', '/flowable/task/detail', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683942, 'flowable:task:delete', '删除任务', 3, NULL, 2011851625458683935, 7, NULL, '删除任务', '/flowable/task/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683943, 'flowable:task:batch', '批量操作', 3, NULL, 2011851625458683935, 8, NULL, '批量认领或完成任务', '/flowable/task/batch', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683944, 'flowable:bpmn:deploy', '部署BPMN', 3, NULL, 2011850922522693634, 7, NULL, '部署BPMN流程定义', '/flowable/bpmn/deploy', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683945, 'flowable:bpmn:update', '更新BPMN', 3, NULL, 2011850922522693634, 8, NULL, '更新BPMN流程定义', '/flowable/bpmn/update', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683946, 'flowable:bpmn:delete', '删除部署', 3, NULL, 2011850922522693634, 9, NULL, '删除BPMN部署', '/flowable/bpmn/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683947, 'flowable:bpmn:extract', '提取节点', 3, NULL, 2011850922522693634, 10, NULL, '从BPMN提取节点信息', '/flowable/bpmn/extract-nodes', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683948, 'flowable:node:action:list', '查看节点动作', 3, NULL, 2011850922522693634, 9, NULL, '查看节点动作列表', '/flowable/node-action/list', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683949, 'flowable:node:action:save', '保存节点动作', 3, NULL, 2011850922522693634, 10, NULL, '保存节点动作配置', '/flowable/node-action/save', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683950, 'flowable:node:action:batch', '批量保存节点动作', 3, NULL, 2011850922522693634, 11, NULL, '批量保存节点动作', '/flowable/node-action/batch-save', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683951, 'flowable:node:action:delete', '删除节点动作', 3, NULL, 2011850922522693634, 12, NULL, '删除节点动作', '/flowable/node-action/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683952, 'flowable:node:action:status', '更新节点动作状态', 3, NULL, 2011850922522693634, 13, NULL, '启用或禁用节点动作', '/flowable/node-action/status', 'PUT', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683953, 'flowable:node:action:config', '获取节点动作配置', 3, NULL, 2011850922522693634, 14, NULL, '获取节点动作配置', '/flowable/node-action/config', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683954, 'flowable:file:upload', '文件上传', 3, '', 2013024515860238337, 1, '', '上传附件文件', '/file/upload', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683955, 'flowable:file:download', '文件下载', 3, '', 2013024515860238337, 2, '', '下载附件文件', '/file/download', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683956, 'flowable:file:delete', '删除文件', 3, '', 2013024515860238337, 3, '', '删除附件文件', '/file/delete', 'DELETE', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683957, 'flowable:statistics:dashboard', '查看统计面板', 3, NULL, 2011849591380627457, 6, NULL, '查看Flowable统计面板', '/flowable/statistics/dashboard', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683958, 'flowable:statistics:report', '生成报表', 3, NULL, 2011849591380627457, 7, NULL, '生成流程统计报表', '/flowable/statistics/report', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683959, 'flowable:statistics:export', '导出报表', 3, NULL, 2011849591380627457, 8, NULL, '导出统计报表', '/flowable/statistics/export', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683960, 'flowable:config:global', '全局配置', 3, NULL, 2011849591380627457, 9, NULL, 'Flowable全局配置管理', '/flowable/config/global', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683961, 'flowable:config:engine', '引擎配置', 3, NULL, 2011849591380627457, 10, NULL, 'Flowable引擎配置', '/flowable/config/engine', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683962, 'flowable:config:update', '更新配置', 3, NULL, 2011849591380627457, 11, NULL, '更新Flowable配置', '/flowable/config/update', 'PUT', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2013024515860238337, 'other', '其他权限集合', 1, '', NULL, 999, '', '', '', '', '2026-01-19 07:03:39', NULL, '2026-01-19 07:03:39', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2015115200922009602, 'admin:gateway:page', '查询网关路由', 3, '', 1991456923035766785, 0, '', '分页查询网关路由', '/admin/gateway-route/page', 'GET', '2026-01-25 01:31:18', NULL, '2026-01-25 01:31:18', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_role
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role`;
+CREATE TABLE `sys_role`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `role_code` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色编码',
+  `role_name` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '角色名称',
+  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '角色描述',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_code`(`role_code` ASC) USING BTREE,
+  UNIQUE INDEX `uk_role_code`(`role_code` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_role
+-- ----------------------------
+INSERT INTO `sys_role` VALUES (1, 'ADMIN', '管理员', '系统管理员', '2025-11-18 18:45:43', NULL, '2025-11-20 22:17:33', NULL, 1);
+INSERT INTO `sys_role` VALUES (2, 'USER', '普通用户', '普通用户', '2025-11-18 18:45:43', NULL, '2025-11-18 18:45:43', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_role_permission
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role_permission`;
+CREATE TABLE `sys_role_permission`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `permission_id` bigint(20) NOT NULL COMMENT '权限ID',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_role_permission`(`role_id` ASC, `permission_id` ASC) USING BTREE,
+  INDEX `idx_role_id`(`role_id` ASC) USING BTREE,
+  INDEX `idx_permission_id`(`permission_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '角色权限关系表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_role_permission
+-- ----------------------------
+INSERT INTO `sys_role_permission` VALUES (2012469302433832962, 2, 1001, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610177, 2, 1002, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610178, 2, 1003, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610179, 2, 1004, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610180, 2, 1005, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610181, 2, 1006, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610182, 2, 114214272234, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610183, 2, 125634234412342343, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610184, 2, 1991143600931201000, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610185, 2, 1991205164119891970, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302450610186, 2, 1991242409023631362, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719041, 2, 1991242808984072194, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719042, 2, 1991242997413179393, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719043, 2, 1991243204884426753, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719044, 2, 1991244603546398722, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719045, 2, 1991244778629230593, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719046, 2, 1991244964420120578, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719047, 2, 1991245154136879106, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719048, 2, 1991268323568517122, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719049, 2, 1991268510370234370, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719050, 2, 1991455913399685122, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719051, 2, 1991456923035766785, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719052, 2, 1991473796049752066, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302517719053, 2, 1991473884234993666, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827906, 2, 1991473999733542914, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827907, 2, 1991474490890735617, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827908, 2, 1991474490890735618, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827909, 2, 1991474490890735619, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827910, 2, 1991474490890735620, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827911, 2, 1991474490890735621, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827912, 2, 1991474490890735622, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827913, 2, 1991474490890735623, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827914, 2, 1991474490890735624, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827915, 2, 1991474490890735625, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827916, 2, 1991474490890735626, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827917, 2, 1991474490890735627, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827918, 2, 1991474490890735628, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827919, 2, 1991474490890735629, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827920, 2, 1991474490890735630, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302584827921, 2, 1991474490890735631, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936770, 2, 1991474490890735632, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936771, 2, 1991474490890735633, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936772, 2, 1991474490890735634, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936773, 2, 1991474490890735635, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936774, 2, 1991474490890735636, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936775, 2, 1991474490890735637, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936776, 2, 1991474490890735638, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936777, 2, 1991474490890735639, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936778, 2, 1991829450476220417, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936779, 2, 1993000000000001100, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936780, 2, 1993000000000001200, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936781, 2, 1993000000000001210, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936782, 2, 1993000000000001300, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936783, 2, 1993000000000001310, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936784, 2, 1993000000000001320, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302651936785, 2, 1993000000000001400, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045633, 2, 2011849591380627457, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045635, 2, 2011851625458683916, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045636, 2, 2011851625458683917, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045637, 2, 2011851625458683918, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045638, 2, 2011851625458683919, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045639, 2, 2011851625458683920, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045640, 2, 2011851625458683944, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045641, 2, 2011851625458683945, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045642, 2, 2011851625458683946, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045643, 2, 2011851625458683947, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045644, 2, 2011850922522693634, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045645, 2, 2011851625458683908, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045646, 2, 2011851625458683909, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302719045647, 2, 2011851625458683910, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154497, 2, 2011851625458683911, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154498, 2, 2011851625458683912, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154499, 2, 2011851625458683913, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154500, 2, 2011851625458683914, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154501, 2, 2011851625458683948, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154502, 2, 2011851625458683949, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154503, 2, 2011851625458683950, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154504, 2, 2011851625458683951, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154505, 2, 2011851625458683952, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154506, 2, 2011851625458683953, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154507, 2, 2011851625458683906, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154508, 2, 2011851625458683928, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154509, 2, 2011851625458683929, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154510, 2, 2011851625458683930, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154511, 2, 2011851625458683931, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302786154512, 2, 2011851625458683932, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069057, 2, 2011851625458683933, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069058, 2, 2011851625458683934, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069059, 2, 2011851483955449857, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069060, 2, 2011851625458683922, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069061, 2, 2011851625458683923, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069062, 2, 2011851625458683924, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069063, 2, 2011851625458683925, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069064, 2, 2011851625458683926, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069065, 2, 2011851625458683935, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069066, 2, 2011851625458683937, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069067, 2, 2011851625458683938, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069068, 2, 2011851625458683939, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069069, 2, 2011851625458683940, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069070, 2, 2011851625458683941, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069071, 2, 2011851625458683942, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069072, 2, 2011851625458683943, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069073, 2, 2011851625458683957, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069074, 2, 2011851625458683958, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302849069075, 2, 2011851625458683959, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372226, 2, 2011851625458683960, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372227, 2, 2011851625458683961, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372228, 2, 2011851625458683962, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372229, 2, 2011851625458683954, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372230, 2, 2011851625458683955, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2012469302920372231, 2, 2011851625458683956, '2026-01-17 18:17:26', NULL, '2026-01-17 18:17:26', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115440991387649, 1, 1001, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115441192714242, 1, 1002, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115441318543362, 1, 1003, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115441511481345, 1, 1004, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115441645699074, 1, 1005, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115441838637058, 1, 1006, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442027380737, 1, 114214272234, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442157404162, 1, 125634234412342343, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442354536450, 1, 1991143600931201000, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442551668737, 1, 1991205164119891970, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442681692162, 1, 1991242409023631362, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115442874630146, 1, 1991242808984072194, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443067568130, 1, 1991242997413179393, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443193397250, 1, 1991243204884426753, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443382140929, 1, 1991244603546398722, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443575078914, 1, 1991244778629230593, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443700908033, 1, 1991244964420120578, '2026-01-25 01:32:15', NULL, '2026-01-25 01:32:15', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115443898040321, 1, 1991245154136879106, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444086784002, 1, 1991268323568517122, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444216807426, 1, 1991268510370234370, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444409745410, 1, 1991455913399685122, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444539768833, 1, 1991456923035766785, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444732706817, 1, 1991473796049752066, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115444862730241, 1, 1991473884234993666, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115445055668226, 1, 1991473999733542914, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115445248606209, 1, 1991474490890735617, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115445387018241, 1, 1991474490890735618, '2026-01-25 01:32:16', NULL, '2026-01-25 01:32:16', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115448243339266, 1, 1991474490890735619, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115448436277249, 1, 1991474490890735620, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115448625020930, 1, 1991474490890735621, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115448750850050, 1, 1991474490890735622, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115448943788034, 1, 1991474490890735623, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449069617154, 1, 1991474490890735624, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449262555138, 1, 1991474490890735625, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449392578562, 1, 1991474490890735626, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449589710849, 1, 1991474490890735627, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449715539969, 1, 1991474490890735628, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115449908477953, 1, 1991474490890735629, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450101415938, 1, 1991474490890735630, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450231439362, 1, 1991474490890735631, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450420183041, 1, 1991474490890735632, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450554400770, 1, 1991474490890735633, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450747338754, 1, 1991474490890735634, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115450877362177, 1, 1991474490890735635, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451066105857, 1, 1991474490890735636, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451254849538, 1, 1991474490890735637, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451380678658, 1, 1991474490890735638, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451577810946, 1, 1991474490890735639, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451766554625, 1, 1991829450476220417, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115451959492609, 1, 1993000000000001100, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452148236290, 1, 1993000000000001200, '2026-01-25 01:32:17', NULL, '2026-01-25 01:32:17', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452278259713, 1, 1993000000000001210, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452471197698, 1, 1993000000000001300, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452597026818, 1, 1993000000000001310, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452789964801, 1, 1993000000000001320, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115452982902786, 1, 1993000000000001400, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453108731906, 1, 2009000000000002101, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453305864193, 1, 2009000000000002102, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453431693314, 1, 2009000000000002103, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453624631297, 1, 2009000000000002104, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453754654722, 1, 2009000000000002105, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115453943398401, 1, 2009000000000002106, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454073421825, 1, 2009000000000002107, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454266359810, 1, 2009000000000002108, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454455103490, 1, 2009000000000002201, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454585126914, 1, 2009000000000002202, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454782259202, 1, 2009000000000002203, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115454912282626, 1, 2009000000000002204, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455105220610, 1, 2009000000000002301, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455298158594, 1, 2009000000000002302, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455428182018, 1, 2009000000000002303, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455616925697, 1, 2009000000000002304, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455742754818, 1, 2009000000000002305, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115455935692801, 1, 2009000000000002306, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456128630785, 1, 2011435446835392513, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456254459906, 1, 2011452962718687234, '2026-01-25 01:32:18', NULL, '2026-01-25 01:32:18', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456447397889, 1, 2011477307084034049, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456577421314, 1, 2011477438734848002, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456774553601, 1, 2011477560004759554, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115456900382722, 1, 2011849591380627457, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457089126402, 1, 2011850922522693634, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457282064386, 1, 2011851483955449857, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457412087810, 1, 2011851625458683906, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457609220097, 1, 2011851625458683908, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457735049218, 1, 2011851625458683909, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115457927987201, 1, 2011851625458683910, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458058010626, 1, 2011851625458683911, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458250948609, 1, 2011851625458683912, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458380972033, 1, 2011851625458683913, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458573910017, 1, 2011851625458683914, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458699739138, 1, 2011851625458683916, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115458892677122, 1, 2011851625458683917, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459085615106, 1, 2011851625458683918, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459215638530, 1, 2011851625458683919, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459412770818, 1, 2011851625458683920, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459605708801, 1, 2011851625458683922, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459727343617, 1, 2011851625458683923, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115459920281601, 1, 2011851625458683924, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460050305025, 1, 2011851625458683925, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460239048705, 1, 2011851625458683926, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460427792385, 1, 2011851625458683928, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460557815810, 1, 2011851625458683929, '2026-01-25 01:32:19', NULL, '2026-01-25 01:32:19', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460750753793, 1, 2011851625458683930, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115460876582914, 1, 2011851625458683931, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461069520897, 1, 2011851625458683932, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461199544322, 1, 2011851625458683933, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461396676609, 1, 2011851625458683934, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461522505730, 1, 2011851625458683935, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461711249410, 1, 2011851625458683937, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115461904187394, 1, 2011851625458683938, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462030016514, 1, 2011851625458683939, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462218760193, 1, 2011851625458683940, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462352977921, 1, 2011851625458683941, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462550110209, 1, 2011851625458683942, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462675939329, 1, 2011851625458683943, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462868877314, 1, 2011851625458683944, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115462998900738, 1, 2011851625458683945, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115463191838722, 1, 2011851625458683946, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115463321862146, 1, 2011851625458683947, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115463514800130, 1, 2011851625458683948, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115463703543809, 1, 2011851625458683949, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115463829372929, 1, 2011851625458683950, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464022310913, 1, 2011851625458683951, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464215248897, 1, 2011851625458683952, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464349466625, 1, 2011851625458683953, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464546598914, 1, 2011851625458683957, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464672428034, 1, 2011851625458683958, '2026-01-25 01:32:20', NULL, '2026-01-25 01:32:20', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115464865366017, 1, 2011851625458683959, '2026-01-25 01:32:21', NULL, '2026-01-25 01:32:21', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115465049915394, 1, 2011851625458683960, '2026-01-25 01:32:21', NULL, '2026-01-25 01:32:21', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115465179938818, 1, 2011851625458683961, '2026-01-25 01:32:21', NULL, '2026-01-25 01:32:21', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115465368682498, 1, 2011851625458683962, '2026-01-25 01:32:21', NULL, '2026-01-25 01:32:21', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2015115465498705921, 1, 2015115200922009602, '2026-01-25 01:32:21', NULL, '2026-01-25 01:32:21', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_user
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user`;
+CREATE TABLE `sys_user`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '用户名',
+  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '密码',
+  `nickname` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '昵称',
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '邮箱',
+  `phone` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '手机号',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_username`(`username` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_user
+-- ----------------------------
+INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$QglwBinM.wSdYblvNtTIveMDfltN./vRjPczrA9FnZNQwU1SnvwU6', '管理员', 'chen_a_nan@qq.com', '', NULL, '2025-11-18 18:45:43', NULL, '2026-01-12 07:32:35', NULL, 1);
+INSERT INTO `sys_user` VALUES (1992208936665325569, 'test', '$2a$10$B6/HWEMm37XBm3vAJDpIduGCMam.iF8LspVQg21weWSTghugFz.he', '测试', 'wx-gpt-plus@qq.com', '', NULL, '2025-11-22 20:29:59', NULL, '2026-01-12 07:32:39', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_user_role
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_user_role`;
+CREATE TABLE `sys_user_role`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID',
+  `role_id` bigint(20) NOT NULL COMMENT '角色ID',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_user_role`(`user_id` ASC, `role_id` ASC) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_role_id`(`role_id` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户角色关系表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of sys_user_role
+-- ----------------------------
+INSERT INTO `sys_user_role` VALUES (2, 2, 1, '2025-11-20 02:28:41', NULL, '2025-11-20 02:28:52', NULL, 1);
+INSERT INTO `sys_user_role` VALUES (1991967599781089282, 1, 1, '2025-11-22 04:30:59', NULL, '2025-11-22 04:30:59', NULL, 1);
+INSERT INTO `sys_user_role` VALUES (2008296925178875906, 1992208936665325569, 2, '2026-01-06 05:57:54', NULL, '2026-01-06 05:57:54', NULL, 1);
+
+-- ----------------------------
+-- Table structure for tenant_capacity
+-- ----------------------------
+DROP TABLE IF EXISTS `tenant_capacity`;
+CREATE TABLE `tenant_capacity`  (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT 'Tenant ID',
+  `quota` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '配额，0表示使用默认值',
+  `usage` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '使用量',
+  `max_size` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '单个配置大小上限，单位为字节，0表示使用默认值',
+  `max_aggr_count` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '聚合子配置最大个数',
+  `max_aggr_size` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '单个聚合数据的子配置大小上限，单位为字节，0表示使用默认值',
+  `max_history_count` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '最大变更历史数量',
+  `gmt_create` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_tenant_id`(`tenant_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '租户容量信息表' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of tenant_capacity
+-- ----------------------------
+INSERT INTO `tenant_capacity` VALUES (1, 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 0, 0, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-23 17:41:01');
+
+-- ----------------------------
+-- Table structure for tenant_info
+-- ----------------------------
+DROP TABLE IF EXISTS `tenant_info`;
+CREATE TABLE `tenant_info`  (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `kp` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL COMMENT 'kp',
+  `tenant_id` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' COMMENT 'tenant_id',
+  `tenant_name` varchar(128) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT '' COMMENT 'tenant_name',
+  `tenant_desc` varchar(256) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'tenant_desc',
+  `create_source` varchar(32) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL COMMENT 'create_source',
+  `gmt_create` bigint(20) NOT NULL COMMENT '创建时间',
+  `gmt_modified` bigint(20) NOT NULL COMMENT '修改时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_tenant_info_kptenantid`(`kp` ASC, `tenant_id` ASC) USING BTREE,
+  INDEX `idx_tenant_id`(`tenant_id` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'tenant_info' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of tenant_info
+-- ----------------------------
+INSERT INTO `tenant_info` VALUES (1, '1', 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 'cloudwaer', 'cloudwaer新版本的命名空间', 'nacos', 1767884463440, 1767884463440);
+
+-- ----------------------------
+-- Table structure for users
+-- ----------------------------
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users`  (
+  `username` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'username',
+  `password` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL COMMENT 'password',
+  `enabled` tinyint(1) NOT NULL COMMENT 'enabled',
+  PRIMARY KEY (`username`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_bin ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of users
+-- ----------------------------
+INSERT INTO `users` VALUES ('nacos', '$2a$10$W74BAP0.FMDcLygXBXUvc.6MPyvs4Oy59KVFBKRv5KN.eDe9hME5i', 1);
 
 -- ----------------------------
 -- Table structure for wf_deployment

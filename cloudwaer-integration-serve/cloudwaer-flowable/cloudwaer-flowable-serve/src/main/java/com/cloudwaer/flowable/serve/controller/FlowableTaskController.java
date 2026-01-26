@@ -14,7 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/flowable/task")
 @Tag(name = "Flowable Task", description = "Flowable task endpoints")
 public class FlowableTaskController {
 

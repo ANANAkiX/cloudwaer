@@ -41,6 +41,11 @@ public class ApiInfo implements Serializable {
 	 */
 	private String className;
 
+	/**
+	 * 建议的权限自动生成代码 (或许能用上)
+	 */
+	private String permissionCode;
+
 	private String serviceId;
 
 	private String apiId;

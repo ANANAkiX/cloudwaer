@@ -1,0 +1,75 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: cloudwaer-boot
+  main:
+    web-application-type: servlet
+    allow-bean-definition-overriding: true
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cloudwaer_boot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  autoconfigure:
+    exclude:
+      - com.alibaba.cloud.nacos.NacosConfigAutoConfiguration
+      - com.alibaba.cloud.nacos.NacosDiscoveryAutoConfiguration
+      - com.alibaba.cloud.nacos.discovery.NacosDiscoveryClientAutoConfiguration
+      - com.alibaba.cloud.nacos.discovery.NacosServiceRegistryAutoConfiguration
+
+  cloud:
+    bootstrap:
+      enabled: false
+    discovery:
+      enabled: false
+    nacos:
+      config:
+        enabled: false
+      discovery:
+        enabled: false
+    openfeign:
+      client:
+        config:
+          cloudwaer-admin-serve:
+            url: http://localhost:${server.port}
+
+# Feign: 单体模式下固定走本机（由前端只改 .env 来调整 base url）
+# (deprecated) left intentionally blank; use spring.cloud.openfeign.client.config
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,mappings
+
+logging:
+  level:
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: DEBUG
+
+cloudwaer:
+  captcha:
+    enabled: false
+  api-scanner:
+    serviceId: cloudwaer-boot
+
+
+mybatis-plus:
+  mapper-locations: classpath*:mapper/**/*.xml
+  type-aliases-package: com.cloudwaer.**.entity
+  configuration:
+    map-underscore-to-camel-case: true
+
+flowable:
+  database-schema-update: update
+  async-executor-activate: false
+  idm:
+    enabled: false

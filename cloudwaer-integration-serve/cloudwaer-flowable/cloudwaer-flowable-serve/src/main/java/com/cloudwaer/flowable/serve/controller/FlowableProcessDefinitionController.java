@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/definition")
+@RequestMapping("/flowable/definition")
 @Tag(name = "流程定义管理", description = "流程定义相关接口")
 public class FlowableProcessDefinitionController {
 

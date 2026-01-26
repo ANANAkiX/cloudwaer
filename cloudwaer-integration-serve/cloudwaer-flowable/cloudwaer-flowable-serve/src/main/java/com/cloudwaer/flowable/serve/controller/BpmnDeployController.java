@@ -18,7 +18,7 @@ import java.util.List;
  * @since 2026-01-15
  */
 @RestController
-@RequestMapping("/bpmn-deploy")
+@RequestMapping("/flowable/bpmn-deploy")
 @Tag(name = "BPMN Deploy", description = "BPMN部署管理接口")
 public class BpmnDeployController {
 

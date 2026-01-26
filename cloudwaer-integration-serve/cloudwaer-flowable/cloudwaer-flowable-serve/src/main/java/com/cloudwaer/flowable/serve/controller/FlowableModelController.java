@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/model")
+@RequestMapping("/flowable/model")
 @Tag(name = "Flowable Model", description = "Flowable model endpoints")
 public class FlowableModelController {
 
@@ -38,7 +38,7 @@ public class FlowableModelController {
 	}
 
 	@GetMapping("/list")
-	@Operation(summary = "Model list")
+	@Operation(summary = "获取模型列表")
 	public Result<PageResult<FlowableModelListDTO>> list(PageDTO pageDTO) {
 		return Result.success(modelService.list(pageDTO));
 	}

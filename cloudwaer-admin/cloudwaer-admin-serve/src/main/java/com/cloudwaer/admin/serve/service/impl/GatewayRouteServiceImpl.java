@@ -210,6 +210,7 @@ public class GatewayRouteServiceImpl extends ServiceImpl<GatewayRouteMapper, Gat
 			List<ServiceInstance> instances = discoveryClient.getInstances(gatewayRefreshProperties.getServiceId());
 			if (instances == null || instances.isEmpty()) {
 				log.warn("未找到网关服务实例，无法刷新路由");
+				//TODO 未找到网关可能是单体应用  单体应用也不需要配置网关路由
 				return false;
 			}
 

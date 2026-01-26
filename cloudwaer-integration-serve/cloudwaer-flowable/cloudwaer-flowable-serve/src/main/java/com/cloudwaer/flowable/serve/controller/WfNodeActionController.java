@@ -1,7 +1,5 @@
 package com.cloudwaer.flowable.serve.controller;
 
-import com.cloudwaer.common.core.dto.PageDTO;
-import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.flowable.serve.entity.WfNodeAction;
 import com.cloudwaer.flowable.serve.service.WfNodeActionService;
@@ -19,7 +17,7 @@ import java.util.List;
  * @since 2026-01-15
  */
 @RestController
-@RequestMapping("/node-action")
+@RequestMapping("/flowable/node-action")
 @Tag(name = "Node Action", description = "节点动作管理接口")
 public class WfNodeActionController {
 

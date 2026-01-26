@@ -3,7 +3,6 @@ package com.cloudwaer.admin.serve.controller;
 import com.cloudwaer.admin.api.dto.PermissionDTO;
 import com.cloudwaer.admin.api.dto.PermissionIdQueryDTO;
 import com.cloudwaer.admin.serve.service.PermissionService;
-import com.cloudwaer.common.core.annotation.PermitAll;
 import com.cloudwaer.common.core.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +33,6 @@ public class PermissionController {
 	 */
 	@GetMapping("/tree")
 	@Operation(summary = "获取权限树", description = "获取所有权限的树形结构，支持复合搜索（权限名称、权限代码、权限描述），搜索结果默认展开")
-	@PermitAll
 	public Result<List<PermissionDTO>> getPermissionTree(
 			@RequestParam(value = "keyword", required = false) String keyword) {
 		List<PermissionDTO> tree = permissionService.getPermissionTree(keyword);

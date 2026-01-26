@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/process")
+@RequestMapping("/flowable/process")
 @Tag(name = "Flowable Process", description = "Flowable process endpoints")
 public class FlowableProcessController {
 

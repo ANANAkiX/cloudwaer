@@ -2,6 +2,8 @@ package com.cloudwaer.admin.api.dto;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class DictDTO {
 
@@ -17,6 +19,6 @@ public class DictDTO {
 
 	private String description;
 
-	private java.util.List<DictItemDTO> items;
+	private List<DictItemDTO> items;
 
 }

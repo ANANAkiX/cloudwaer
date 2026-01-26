@@ -45,18 +45,18 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 			throws ServletException, java.io.IOException {
 
 		// 添加日志，确认过滤器被调用
-		log.debug("权限授权过滤器被调用: method={}, path={}", request.getMethod(), request.getRequestURI());
+		log.info("权限授权过滤器被调用: method={}, path={}", request.getMethod(), request.getRequestURI());
 
 		// 检查是否是静态资源或排除的路径
 		String path = request.getRequestURI();
 		if (isExcludedPath(path)) {
-			log.debug("路径在排除列表中，直接放行: {}", path);
+			log.info("路径在排除列表中，直接放行: {}", path);
 			filterChain.doFilter(request, response);
 			return;
 		}
 		// 检查是否有@PermitAll注解
 		if (isPermitAll(request)) {
-			log.debug("@PermitAll matched, skip auth check: {} {}", request.getMethod(), request.getRequestURI());
+			log.info("@PermitAll matched, skip auth check: {} {}", request.getMethod(), request.getRequestURI());
 			filterChain.doFilter(request, response);
 			return;
 		}
@@ -82,7 +82,7 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 
 		// 如果该接口没有配置权限，直接放行（可能是新接口还未配置权限）
 		if (!StringUtils.hasText(requiredPermissionCode)) {
-			log.debug("接口未配置权限，直接放行: {} {}", method, path);
+			log.info("接口未配置权限，直接放行: {} {}", method, path);
 			filterChain.doFilter(request, response);
 			return;
 		}
