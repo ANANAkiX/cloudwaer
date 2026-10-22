@@ -44,11 +44,21 @@ public class ApiInfo implements Serializable {
 	/**
 	 * 建议的权限自动生成代码 (或许能用上)
 	 */
-	private String permissionCode;
-
 	private String serviceId;
 
 	private String apiId;
+
+	/**
+	 * 权限编码（自动生成）
+	 *
+	 * <p>
+	 * 生成规则：{serviceId}:{normalizedFullPath}:{HTTP_METHOD} 其中 normalizedFullPath =
+	 * 去掉开头的"/"，并将中间的"/"替换为"-"。
+	 *
+	 * <p>
+	 * 示例：cloudwaer-admin-serve:route-user:GET
+	 */
+	private String permissionCode;
 
 	/**
 	 * 描述（从@Operation或注释中获取）

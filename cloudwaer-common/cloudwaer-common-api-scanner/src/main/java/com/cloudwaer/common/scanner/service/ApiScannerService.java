@@ -90,7 +90,41 @@ public class ApiScannerService {
 		for (ApiInfo api : apis) {
 			api.setServiceId(serviceId);
 			api.setApiId(buildApiId(serviceId, api));
+			api.setPermissionCode(buildPermissionCode(serviceId, api));
 		}
+	}
+
+	private String buildPermissionCode(String serviceId, ApiInfo api) {
+		if (!StringUtils.hasText(serviceId) || api == null) {
+			return null;
+		}
+		String fullPath = api.getFullPath();
+		String method = api.getMethod();
+		if (!StringUtils.hasText(fullPath) || !StringUtils.hasText(method)) {
+			return null;
+		}
+
+		String normalizedFullPath = normalizeFullPath(fullPath);
+		String normalizedMethod = method.trim().toUpperCase(Locale.ROOT);
+		if (!StringUtils.hasText(normalizedFullPath) || !StringUtils.hasText(normalizedMethod)) {
+			return null;
+		}
+		return serviceId + ":" + normalizedFullPath + ":" + normalizedMethod;
+	}
+
+	private String normalizeFullPath(String fullPath) {
+		String path = fullPath.trim();
+		if (path.length() > 1 && path.endsWith("/")) {
+			path = path.substring(0, path.length() - 1);
+		}
+		if (path.startsWith("/")) {
+			path = path.substring(1);
+		}
+		// collapse multiple slashes (defensive)
+		while (path.contains("//")) {
+			path = path.replace("//", "/");
+		}
+		return path.replace("/", "-");
 	}
 
 	private String buildApiId(String serviceId, ApiInfo api) {

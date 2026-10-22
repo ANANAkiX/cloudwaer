@@ -11,6 +11,7 @@
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
+ Date: 09/02/2026 06:51:47
  Date: 24/01/2026 01:43:45
 */
 
@@ -49,6 +50,7 @@ INSERT INTO `sys_dict` VALUES (2013027807789092865, 'wf_process_status', '流程
 INSERT INTO `sys_dict` VALUES (2013029000000000001, 'permission_type', '权限类型', 0, '权限类型字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict` VALUES (2013029000000000002, 'http_method', 'HTTP方法', 0, 'HTTP方法字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict` VALUES (2013029000000000003, 'flowable_priority', '任务优先级', 0, '流程任务优先级字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -92,17 +94,24 @@ INSERT INTO `sys_dict_item` VALUES (2013028202070446082, 2013027807789092865, 's
 INSERT INTO `sys_dict_item` VALUES (2013028251974275073, 2013027807789092865, 'rejected', '3', '被拒绝', 3, '', '2026-01-19 07:18:30', NULL, '2026-01-19 07:19:38', NULL, 1);
 INSERT INTO `sys_dict_item` VALUES (2013028311856353281, 2013027807789092865, 'terminated', '4', '已终止', 4, '', '2026-01-19 07:18:44', NULL, '2026-01-19 07:19:48', NULL, 1);
 INSERT INTO `sys_dict_item` VALUES (2013028468014485506, 2013027807789092865, 'canceled', '5', '已取消', 5, '', '2026-01-19 07:19:22', NULL, '2026-01-19 07:19:28', NULL, 1);
+
+-- permission_type
 INSERT INTO `sys_dict_item` VALUES (2013029000000000101, 2013029000000000001, '1', '1', '菜单', 0, '权限类型-菜单', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000102, 2013029000000000001, '2', '2', '页面', 1, '权限类型-页面', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000103, 2013029000000000001, '3', '3', '操作', 2, '权限类型-操作', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
+-- http_method
 INSERT INTO `sys_dict_item` VALUES (2013029000000000201, 2013029000000000002, 'GET', 'GET', 'GET', 0, 'HTTP方法-GET', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000202, 2013029000000000002, 'POST', 'POST', 'POST', 1, 'HTTP方法-POST', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000203, 2013029000000000002, 'PUT', 'PUT', 'PUT', 2, 'HTTP方法-PUT', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000204, 2013029000000000002, 'DELETE', 'DELETE', 'DELETE', 3, 'HTTP方法-DELETE', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
+-- flowable_priority
 INSERT INTO `sys_dict_item` VALUES (2013029000000000301, 2013029000000000003, 'low', 'low', '低级', 0, '任务优先级-低级', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000302, 2013029000000000003, 'normal', 'normal', '正常', 1, '任务优先级-正常', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000303, 2013029000000000003, 'urgent', 'urgent', '紧急', 2, '任务优先级-紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000304, 2013029000000000003, 'very_urgent', 'very_urgent', '非常紧急', 3, '任务优先级-非常紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+
 
 -- ----------------------------
 -- Table structure for sys_gateway_route
@@ -133,6 +142,8 @@ CREATE TABLE `sys_gateway_route`  (
 INSERT INTO `sys_gateway_route` VALUES (1, 'cloudwaer-authentication', 'lb://cloudwaer-authentication', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/auth/**\"}}]', NULL, 0, '鉴权服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:11', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (2, 'cloudwaer-admin-serve', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/admin/**\"}}]', NULL, 0, '后台管理服务服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:00', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (1991546479613448194, 'cloudwaer-codegen-serve', 'lb://cloudwaer-codegen-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/codegen/**\"}}]', NULL, 0, '代码生成服务的网关转发配置', '2025-11-21 00:37:37', NULL, '2025-11-21 00:37:37', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (1992205324727853058, 'ws-cloudwaer-im-service', 'lb:ws://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/ws/**\"}}]', NULL, 0, '仅让 WebSocket 握手走这条，避免影响 REST 调用\n', '2025-11-22 20:15:37', NULL, '2026-01-06 05:56:00', NULL, 0);
+INSERT INTO `sys_gateway_route` VALUES (1992239401883295746, 'rest-cloudwaer-im-service', 'lb://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/**\"}}]', NULL, 1, '处理 /im/** 的 HTTP 接口', '2025-11-22 22:31:02', NULL, '2026-01-06 05:56:13', NULL, 0);
 INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]', 0, 'cloudwaer-flowable-serve 的基础网关转发', '2026-01-14 23:19:48', NULL, '2026-01-15 01:06:01', NULL, 1);
 
 -- ----------------------------
@@ -226,7 +237,7 @@ INSERT INTO `sys_permission` VALUES (1993000000000001310, 'admin:dict:edit', '�
 INSERT INTO `sys_permission` VALUES (1993000000000001320, 'admin:dict:delete', '删除', 3, '', 1993000000000001100, 22, 'Delete', '删除字典项', '/admin/dict/delete', 'DELETE', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
 INSERT INTO `sys_permission` VALUES (1993000000000001400, 'admin:dict:refresh', '刷新缓存', 3, '', 1993000000000001100, 30, 'Refresh', '刷新字典缓存', '/admin/dict/refresh', 'POST', '2025-11-21 20:54:21', NULL, '2025-11-21 20:54:21', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011849591380627457, 'flowable', '流程管理', 1, '', NULL, 0, 'Cpu', 'flowable流程页面', '', '', '2026-01-16 01:14:56', NULL, '2026-01-16 01:14:56', NULL, 1);
-INSERT INTO `sys_permission` VALUES (2011850922522693634, 'flowable:model', '模型管理', 2, '/flowable/modelmanagement', 2011849591380627457, 1, 'Document', '流程模型的新增、编辑、发布和管理', '', '', '2026-01-16 01:20:13', NULL, '2026-01-16 01:20:13', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011850922522693634, 'flowable:model', '流程模型管理', 2, '/flowable/modelmanagement', 2011849591380627457, 1, 'Document', '流程模型的新增、编辑、发布和管理', '', '', '2026-01-16 01:20:13', NULL, '2026-01-16 01:20:13', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851483955449857, 'flowable:application:view', '流程申请', 2, '/flowable/processapplication', 2011849591380627457, 4, 'ChatLineRound', '用户申请和启动新的流程实例', '', '', '2026-01-16 01:22:27', NULL, '2026-01-16 01:22:27', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683906, 'flowable:monitor:view', '流程监控', 2, '/flowable/processmonitor', 2011849591380627457, 3, 'Crop', '监控和管理运行中的流程实例', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683908, 'flowable:model:list', '查看模型列表', 3, NULL, 2011850922522693634, 2, NULL, '查看流程模型列表', '/model/list', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
@@ -241,11 +252,13 @@ INSERT INTO `sys_permission` VALUES (2011851625458683917, 'flowable:designer:imp
 INSERT INTO `sys_permission` VALUES (2011851625458683918, 'flowable:designer:export', '导出BPMN', 3, NULL, 2011850922522693634, 4, NULL, '导出BPMN文件', '/designer/export', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683919, 'flowable:designer:preview', '预览流程', 3, NULL, 2011850922522693634, 5, NULL, '预览流程图', '/designer/preview', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683920, 'flowable:designer:validate', '验证BPMN', 3, NULL, 2011850922522693634, 6, NULL, '验证BPMN文件格式', '/designer/validate', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683921, 'flowable:application:route', '流程申请页面', 2, '/flowable/process-application', 2011851483955449857, 1, NULL, '流程申请页面路由权限', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:38:14', NULL, 0);
 INSERT INTO `sys_permission` VALUES (2011851625458683922, 'flowable:process:start', '启动流程', 3, NULL, 2011851483955449857, 2, NULL, '启动新的流程实例', '/process/start', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683923, 'flowable:process:definitions', '查看流程定义', 3, NULL, 2011851483955449857, 3, NULL, '查看可申请的流程定义列表', '/process/definitions', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683924, 'flowable:process:detail', '查看流程详情', 3, NULL, 2011851483955449857, 4, NULL, '查看流程实例详情', '/process/detail', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683925, 'flowable:process:variables', '查看流程变量', 3, NULL, 2011851483955449857, 5, NULL, '查看流程实例变量', '/process/variables', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683926, 'flowable:process:history', '查看流程历史', 3, NULL, 2011851483955449857, 6, NULL, '查看流程操作历史', '/process/history', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683927, 'flowable:monitor:route', '流程监控页面', 2, '/flowable/process-monitor', 2011851625458683906, 1, NULL, '流程监控页面路由权限', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:38:18', NULL, 0);
 INSERT INTO `sys_permission` VALUES (2011851625458683928, 'flowable:monitor:instances', '查看流程实例', 3, NULL, 2011851625458683906, 2, NULL, '查看所有流程实例', '/monitor/instances', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683929, 'flowable:monitor:suspend', '挂起流程', 3, NULL, 2011851625458683906, 3, NULL, '挂起正在运行的流程', '/monitor/suspend', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683930, 'flowable:monitor:activate', '激活流程', 3, NULL, 2011851625458683906, 4, NULL, '激活已挂起的流程', '/monitor/activate', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
@@ -254,6 +267,7 @@ INSERT INTO `sys_permission` VALUES (2011851625458683932, 'flowable:monitor:dele
 INSERT INTO `sys_permission` VALUES (2011851625458683933, 'flowable:monitor:diagram', '查看流程图', 3, NULL, 2011851625458683906, 7, NULL, '查看流程实例图', '/monitor/diagram', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683934, 'flowable:monitor:batch', '批量操作', 3, NULL, 2011851625458683906, 8, NULL, '批量挂起/激活/终止流程', '/monitor/batch', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683935, 'flowable:task:view', '任务管理', 2, '/flowable/taskmanagement', 2011849591380627457, 5, 'Check', '任务管理菜单', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
+INSERT INTO `sys_permission` VALUES (2011851625458683936, 'flowable:task:route', '任务管理页面', 2, '/flowable/task-management', 2011851625458683935, 1, NULL, '任务管理页面路由权限', '', '', '2026-01-16 01:23:01', NULL, '2026-01-16 01:38:24', NULL, 0);
 INSERT INTO `sys_permission` VALUES (2011851625458683937, 'flowable:task:todo', '查看待办任务', 3, NULL, 2011851625458683935, 2, NULL, '查看当前用户的待办任务', '/task/todo', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683938, 'flowable:task:done', '查看已办任务', 3, NULL, 2011851625458683935, 3, NULL, '查看当前用户的已办任务', '/task/done', 'GET', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683939, 'flowable:task:claim', '认领任务', 3, NULL, 2011851625458683935, 4, NULL, '认领未分配的任务', '/task/claim', 'POST', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
@@ -307,6 +321,7 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 INSERT INTO `sys_role` VALUES (1, 'ADMIN', '管理员', '系统管理员', '2025-11-18 18:45:43', NULL, '2025-11-20 22:17:33', NULL, 1);
 INSERT INTO `sys_role` VALUES (2, 'USER', '普通用户', '普通用户', '2025-11-18 18:45:43', NULL, '2025-11-18 18:45:43', NULL, 1);
+INSERT INTO `sys_role` VALUES (1991511330100232193, 'TEST', '测试', '', '2025-11-20 22:17:56', NULL, '2025-11-20 22:18:04', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_role_permission
