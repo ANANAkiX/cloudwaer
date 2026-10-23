@@ -1,17 +1,16 @@
 package com.cloudwaer.common.core.service;
 
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.core.config.JwtProperties;
 import com.cloudwaer.common.core.util.JwtUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Token管理服务（Redis存储）
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenService {
 
 	@Autowired(required = false)
-	private StringRedisTemplate redisTemplate;
+	private RedisUtil redisUtil;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
@@ -43,7 +42,7 @@ public class TokenService {
 	 * @return Token UUID（包装后的Token标识）
 	 */
 	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions) {
-		if (redisTemplate == null) {
+		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法存储Token");
 			return null;
 		}
@@ -88,11 +87,11 @@ public class TokenService {
 			// 存储Token数据到Redis
 			String tokenDataJson = getObjectMapper().writeValueAsString(tokenData);
 			long expirationSeconds = jwtProperties.getExpiration() / 1000;
-			redisTemplate.opsForValue().set(tokenKey, tokenDataJson, expirationSeconds, TimeUnit.SECONDS);
+			redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 			// 将Token UUID添加到用户的Token列表中
-			redisTemplate.opsForSet().add(userTokenListKey, tokenUuid);
-			redisTemplate.expire(userTokenListKey, expirationSeconds, TimeUnit.SECONDS);
+			redisUtil.setAdd(userTokenListKey, tokenUuid);
+			redisUtil.expire(userTokenListKey, expirationSeconds);
 
 			log.info("Token生成并存储成功: userId={}, tokenUuid={}, allowMultipleLogin={}", userId, tokenUuid,
 					jwtProperties.isAllowMultipleLogin());
@@ -111,7 +110,7 @@ public class TokenService {
 	 * @return 是否有效
 	 */
 	public boolean validateToken(String tokenUuid) {
-		if (redisTemplate == null) {
+		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法验证Token");
 			return false;
 		}
@@ -122,7 +121,7 @@ public class TokenService {
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			return redisTemplate.hasKey(tokenKey);
+			return redisUtil.hasKey(tokenKey);
 		}
 		catch (Exception e) {
 			log.error("验证Token失败: tokenUuid={}", tokenUuid, e);
@@ -136,13 +135,13 @@ public class TokenService {
 	 * @return JWT Token
 	 */
 	public String getJwtToken(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return null;
 		}
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			String tokenDataJson = redisTemplate.opsForValue().get(tokenKey);
+			String tokenDataJson = redisUtil.get(tokenKey);
 
 			if (StringUtils.hasText(tokenDataJson)) {
 				Map<String, Object> tokenData = getObjectMapper().readValue(tokenDataJson,
@@ -164,13 +163,13 @@ public class TokenService {
 	 * @return 用户信息Map
 	 */
 	public Map<String, Object> getTokenData(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return null;
 		}
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			String tokenDataJson = redisTemplate.opsForValue().get(tokenKey);
+			String tokenDataJson = redisUtil.get(tokenKey);
 
 			if (StringUtils.hasText(tokenDataJson)) {
 				return getObjectMapper().readValue(tokenDataJson, new TypeReference<Map<String, Object>>() {
@@ -189,7 +188,7 @@ public class TokenService {
 	 * @param tokenUuid Token UUID
 	 */
 	public void deleteToken(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return;
 		}
 
@@ -199,13 +198,13 @@ public class TokenService {
 
 			if (tokenData != null) {
 				// 删除Token
-				redisTemplate.delete(tokenKey);
+				redisUtil.delete(tokenKey);
 
 				// 从用户Token列表中移除
 				Long userId = extractLongValue(tokenData.get("userId"));
 				if (userId != null) {
 					String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-					redisTemplate.opsForSet().remove(userTokenListKey, tokenUuid);
+					redisUtil.setRemove(userTokenListKey, tokenUuid);
 				}
 
 				log.info("Token删除成功: tokenUuid={}", tokenUuid);
@@ -221,20 +220,20 @@ public class TokenService {
 	 * @param userId 用户ID
 	 */
 	public void clearUserTokens(Long userId) {
-		if (redisTemplate == null || userId == null) {
+		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
 			return;
 		}
 
 		try {
 			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-			Set<String> tokenUuids = redisTemplate.opsForSet().members(userTokenListKey);
+			Set<String> tokenUuids = redisUtil.setMembers(userTokenListKey);
 
 			if (tokenUuids != null && !tokenUuids.isEmpty()) {
 				for (String tokenUuid : tokenUuids) {
 					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-					redisTemplate.delete(tokenKey);
+					redisUtil.delete(tokenKey);
 				}
-				redisTemplate.delete(userTokenListKey);
+				redisUtil.delete(userTokenListKey);
 				log.info("清除用户所有Token成功: userId={}, tokenCount={}", userId, tokenUuids.size());
 			}
 		}
@@ -251,13 +250,13 @@ public class TokenService {
 	 * @return 更新的Token数量
 	 */
 	public int updateUserTokenPermissions(Long userId, List<String> newPermissions) {
-		if (redisTemplate == null || userId == null) {
+		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
 			return 0;
 		}
 
 		try {
 			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-			Set<String> tokenUuids = redisTemplate.opsForSet().members(userTokenListKey);
+			Set<String> tokenUuids = redisUtil.setMembers(userTokenListKey);
 
 			if (tokenUuids == null || tokenUuids.isEmpty()) {
 				log.debug("用户没有活跃的Token: userId={}", userId);
@@ -277,7 +276,7 @@ public class TokenService {
 					Map<String, Object> tokenData = getTokenData(tokenUuid);
 					if (tokenData == null) {
 						// Token已过期或不存在，从Set中移除
-						redisTemplate.opsForSet().remove(userTokenListKey, tokenUuid);
+						redisUtil.setRemove(userTokenListKey, tokenUuid);
 						skipCount++;
 						log.debug("Token已过期，跳过更新: userId={}, tokenUuid={}", userId, tokenUuid);
 						continue;
@@ -336,7 +335,7 @@ public class TokenService {
 					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
 					String tokenDataJson = getObjectMapper().writeValueAsString(updatedTokenData);
 					long expirationSeconds = jwtProperties.getExpiration() / 1000;
-					redisTemplate.opsForValue().set(tokenKey, tokenDataJson, expirationSeconds, TimeUnit.SECONDS);
+					redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 					updateCount++;
 					log.debug("更新Token权限成功: userId={}, tokenUuid={}, permissions={}", tokenUserId, tokenUuid,

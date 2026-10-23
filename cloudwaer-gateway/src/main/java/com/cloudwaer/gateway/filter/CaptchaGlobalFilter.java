@@ -1,6 +1,7 @@
 package com.cloudwaer.gateway.filter;
 
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.core.util.WebFluxResponseUtil;
 import com.cloudwaer.gateway.config.CaptchaProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -34,7 +34,7 @@ public class CaptchaGlobalFilter implements GlobalFilter, Ordered {
 
 	private final CaptchaProperties props;
 
-	private final StringRedisTemplate redis;
+	private final RedisUtil redisUtil;
 
 	private final ObjectMapper objectMapper;
 
@@ -66,7 +66,7 @@ public class CaptchaGlobalFilter implements GlobalFilter, Ordered {
 		}
 
 		String key = CAPTCHA_KEY_PREFIX + captchaId;
-		String expect = redis.opsForValue().get(key);
+		String expect = redisUtil.get(key);
 		if (!StringUtils.hasText(expect)) {
 			return captchaError(exchange, 400, "验证码已过期，请重新获取");
 		}
@@ -77,7 +77,7 @@ public class CaptchaGlobalFilter implements GlobalFilter, Ordered {
 
 		// 校验通过后即刻删除，防止重复使用
 		try {
-			redis.delete(key);
+			redisUtil.delete(key);
 		}
 		catch (Exception e) {
 			log.debug("Captcha key delete failed: key={}", key, e);

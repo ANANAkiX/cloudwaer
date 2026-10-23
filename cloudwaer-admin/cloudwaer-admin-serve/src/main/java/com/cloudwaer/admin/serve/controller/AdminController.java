@@ -8,6 +8,7 @@ import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.annotation.RequireLogin;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
+import com.cloudwaer.common.redis.annotation.RedisCache;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
@@ -110,6 +111,7 @@ public class AdminController {
 	@GetMapping("/permission/current")
 	@RequireLogin
 	@Operation(summary = "获取当前用户的权限列表", description = "通过Token获取当前登录用户拥有的权限编码列表")
+	@RedisCache(key = "permission:user:#{#auth.userId}", time = 3600)
 	public Result<List<String>> getCurrentUserPermissions() {
 		Long userId = SecurityContextUtil.getCurrentUserId();
 		List<String> permissions = permissionService.getPermissionCodesByUserId(userId);
