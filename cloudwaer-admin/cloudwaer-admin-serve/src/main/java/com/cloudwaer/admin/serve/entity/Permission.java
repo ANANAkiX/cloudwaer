@@ -55,14 +55,4 @@ public class Permission extends BaseEntity {
 	 */
 	private String description;
 
-	/**
-	 * API请求地址
-	 */
-	private String apiUrl;
-
-	/**
-	 * 请求类型（GET, POST, PUT, DELETE）
-	 */
-	private String httpMethod;
-
 }

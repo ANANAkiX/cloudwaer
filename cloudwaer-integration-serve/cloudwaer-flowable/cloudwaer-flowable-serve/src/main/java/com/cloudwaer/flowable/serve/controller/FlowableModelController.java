@@ -1,5 +1,6 @@
 package com.cloudwaer.flowable.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -26,54 +27,63 @@ public class FlowableModelController {
 	private FlowableModelService modelService;
 
 	@PostMapping("/save")
+	@PermissionCode("flowable:model:save")
 	@Operation(summary = "Save model")
 	public Result<Long> save(@RequestBody FlowableModelSaveDTO dto) {
 		return Result.success(modelService.saveModel(dto));
 	}
 
 	@GetMapping("/detail")
+	@PermissionCode("flowable:model:detail")
 	@Operation(summary = "Model detail")
 	public Result<FlowableModelDetailDTO> detail(@RequestParam Long id) {
 		return Result.success(modelService.getDetail(id));
 	}
 
 	@GetMapping("/list")
+	@PermissionCode("flowable:model:list")
 	@Operation(summary = "获取模型列表")
 	public Result<PageResult<FlowableModelListDTO>> list(PageDTO pageDTO) {
 		return Result.success(modelService.list(pageDTO));
 	}
 
 	@GetMapping("/versions")
+	@PermissionCode("flowable:model:list")
 	@Operation(summary = "Model versions")
 	public Result<List<FlowableModelListDTO>> versions(@RequestParam String modelKey) {
 		return Result.success(modelService.listVersions(modelKey));
 	}
 
 	@PostMapping("/publish")
+	@PermissionCode("flowable:model:publish")
 	@Operation(summary = "Publish model")
 	public Result<Boolean> publish(@RequestBody FlowableModelPublishDTO dto) {
 		return Result.success(modelService.publish(dto.getId()));
 	}
 
 	@PostMapping("/copy")
+	@PermissionCode("flowable:model:copy")
 	@Operation(summary = "Copy model")
 	public Result<Boolean> copy(@RequestBody FlowableModelCopyDTO dto) {
 		return Result.success(modelService.copy(dto));
 	}
 
 	@PostMapping("/rollback")
+	@PermissionCode("flowable:model:rollback")
 	@Operation(summary = "Rollback model")
 	public Result<Boolean> rollback(@RequestBody FlowableModelRollbackDTO dto) {
 		return Result.success(modelService.rollback(dto));
 	}
 
 	@GetMapping("/bpmn")
+	@PermissionCode("flowable:model:detail")
 	@Operation(summary = "Get BPMN XML")
 	public Result<String> bpmn(@RequestParam Long id) {
 		return Result.success(modelService.getBpmnXml(id));
 	}
 
 	@DeleteMapping("/delete")
+	@PermissionCode("flowable:model:delete")
 	@Operation(summary = "Delete model")
 	public Result<Boolean> delete(@RequestBody FlowableIdDTO dto) {
 		return Result.success(modelService.deleteModel(dto.getId()));

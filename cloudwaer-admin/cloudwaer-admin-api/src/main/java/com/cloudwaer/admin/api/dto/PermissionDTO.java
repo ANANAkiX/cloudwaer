@@ -64,16 +64,6 @@ public class PermissionDTO implements Serializable {
 	private String description;
 
 	/**
-	 * API请求地址
-	 */
-	private String apiUrl;
-
-	/**
-	 * 请求类型（GET, POST, PUT, DELETE）
-	 */
-	private String httpMethod;
-
-	/**
 	 * 子权限列表
 	 */
 	private List<PermissionDTO> children;

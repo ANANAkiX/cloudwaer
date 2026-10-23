@@ -1,9 +1,9 @@
 package com.cloudwaer.common.security.filter;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
+import com.cloudwaer.common.core.annotation.RequireLogin;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
-import com.cloudwaer.common.core.annotation.PermitAll;
-import com.cloudwaer.common.core.service.PermissionCacheService;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -13,7 +13,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerExecutionChain;
@@ -30,9 +29,6 @@ import java.util.List;
 @Slf4j
 @Component
 public class PermissionAuthorizationFilter extends OncePerRequestFilter {
-
-	@Autowired(required = false)
-	private PermissionCacheService permissionCacheService;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
@@ -54,36 +50,47 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		// 检查是否有@PermitAll注解
-		if (isPermitAll(request)) {
-			log.info("@PermitAll matched, skip auth check: {} {}", request.getMethod(), request.getRequestURI());
+
+		// 从注解获取权限代码
+		PermissionCode permissionCodeAnnotation = getPermissionCodeAnnotation(request);
+		if (permissionCodeAnnotation == null) {
+			// 未配置权限码时，检查是否要求"仅登录"（自服务接口）
+			RequireLogin requireLogin = getRequireLoginAnnotation(request);
+			if (requireLogin != null) {
+				Long userId = SecurityContextUtil.getCurrentUserId();
+				if (userId == null) {
+					log.warn("接口要求登录但未登录或Token无效: method={}, path={}", request.getMethod(), path);
+					writeErrorResponse(response, Result.fail(ResultCode.UNAUTHORIZED.getCode(), "未登录或Token无效"));
+					return;
+				}
+				log.debug("登录校验通过: method={}, path={}, userId={}", request.getMethod(), path, userId);
+				filterChain.doFilter(request, response);
+				return;
+			}
+			log.debug("接口未配置@PermissionCode/@RequireLogin注解，按匿名接口放行: {} {}", request.getMethod(),
+					request.getRequestURI());
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		// 如果权限缓存服务未配置，直接放行
-		if (permissionCacheService == null) {
-			log.warn("PermissionCacheService未配置，跳过权限验证");
+		// 检查是否跳过权限验证
+		if (!permissionCodeAnnotation.enable()) {
+			// 对于 enable=false 的接口，要求必须是内部服务调用
+			if (!isInternalCall(request)) {
+				log.warn("接口配置为 enable=false 但不是内部调用，拒绝访问: {} {}", request.getMethod(), request.getRequestURI());
+				writeErrorResponse(response, Result.fail(ResultCode.FORBIDDEN.getCode(), "仅限内部服务调用"));
+				return;
+			}
+			log.info("@PermissionCode(enable=false) 且是内部调用，放行: {} {}", request.getMethod(), request.getRequestURI());
 			filterChain.doFilter(request, response);
 			return;
 		}
 
-		// 获取请求方法和路径
-		String method = request.getMethod();
-
-		// 规范化路径（去除上下文路径）
-		String contextPath = request.getContextPath();
-		if (StringUtils.hasText(contextPath) && path.startsWith(contextPath)) {
-			path = path.substring(contextPath.length());
-		}
-
-		// 从Redis获取该接口需要的权限代码
-		String requiredPermissionCode = permissionCacheService.getPermissionCode(method, path);
-
-		// 如果该接口没有配置权限，直接放行（可能是新接口还未配置权限）
-		if (!StringUtils.hasText(requiredPermissionCode)) {
-			log.info("接口未配置权限，直接放行: {} {}", method, path);
-			filterChain.doFilter(request, response);
+		// 获取权限代码
+		String requiredPermissionCode = permissionCodeAnnotation.value();
+		if (requiredPermissionCode == null || requiredPermissionCode.isEmpty()) {
+			log.warn("@PermissionCode注解值为空，拒绝访问: {} {}", request.getMethod(), request.getRequestURI());
+			writeErrorResponse(response, Result.fail(ResultCode.FORBIDDEN.getCode(), "权限配置错误"));
 			return;
 		}
 
@@ -92,20 +99,20 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 
 		// 如果用户未登录或没有权限信息，拒绝访问
 		if (userPermissions == null || userPermissions.isEmpty()) {
-			log.warn("用户未登录或没有权限信息: method={}, path={}", method, path);
+			log.warn("用户未登录或没有权限信息: method={}, path={}", request.getMethod(), path);
 			writeErrorResponse(response, Result.fail(ResultCode.UNAUTHORIZED.getCode(), "未登录或Token无效"));
 			return;
 		}
 
 		// 检查用户是否有该权限
 		if (!userPermissions.contains(requiredPermissionCode)) {
-			log.warn("用户没有访问权限: method={}, path={}, requiredPermission={}, userPermissions={}", method, path,
-					requiredPermissionCode, userPermissions);
-			writeErrorResponse(response, Result.fail(ResultCode.FORBIDDEN.getCode(), "没有访问权限"));
+			log.warn("用户没有访问权限: method={}, path={}, requiredPermission={}, userPermissions={}", request.getMethod(),
+					path, requiredPermissionCode, userPermissions);
+			writeErrorResponse(response, Result.fail(ResultCode.FORBIDDEN.getCode(), "禁止访问"));
 			return;
 		}
 
-		log.debug("权限验证通过: method={}, path={}, permission={}", method, path, requiredPermissionCode);
+		log.debug("权限验证通过: method={}, path={}, permission={}", request.getMethod(), path, requiredPermissionCode);
 		filterChain.doFilter(request, response);
 	}
 
@@ -119,27 +126,52 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 				|| path.equals("/favicon.ico");
 	}
 
-	private boolean isPermitAll(HttpServletRequest request) {
+	/**
+	 * 检查是否是内部服务调用 只有携带 X-Internal-Call: true header 的请求才被认为是内部调用
+	 */
+	private boolean isInternalCall(HttpServletRequest request) {
+		String internalCallHeader = request.getHeader("X-Internal-Call");
+		return "true".equals(internalCallHeader);
+	}
+
+	/**
+	 * 获取请求处理方法上的@PermissionCode注解
+	 */
+	private PermissionCode getPermissionCodeAnnotation(HttpServletRequest request) {
+		HandlerMethod handlerMethod = getHandlerMethod(request);
+		return handlerMethod != null ? handlerMethod.getMethodAnnotation(PermissionCode.class) : null;
+	}
+
+	/**
+	 * 获取请求处理方法上的@RequireLogin注解
+	 */
+	private RequireLogin getRequireLoginAnnotation(HttpServletRequest request) {
+		HandlerMethod handlerMethod = getHandlerMethod(request);
+		return handlerMethod != null ? handlerMethod.getMethodAnnotation(RequireLogin.class) : null;
+	}
+
+	/**
+	 * 解析请求对应的HandlerMethod
+	 */
+	private HandlerMethod getHandlerMethod(HttpServletRequest request) {
 		if (requestMappingHandlerMapping == null) {
-			return false;
+			return null;
 		}
 
 		try {
 			HandlerExecutionChain chain = requestMappingHandlerMapping.getHandler(request);
 			if (chain == null) {
-				return false;
+				return null;
 			}
 			Object handler = chain.getHandler();
 			if (!(handler instanceof HandlerMethod)) {
-				return false;
+				return null;
 			}
-			HandlerMethod handlerMethod = (HandlerMethod) handler;
-			return handlerMethod.hasMethodAnnotation(PermitAll.class)
-					|| handlerMethod.getBeanType().isAnnotationPresent(PermitAll.class);
+			return (HandlerMethod) handler;
 		}
 		catch (Exception e) {
-			log.debug("PermitAll detection failed: {}", e.getMessage());
-			return false;
+			log.debug("解析HandlerMethod失败: {}", e.getMessage());
+			return null;
 		}
 	}
 

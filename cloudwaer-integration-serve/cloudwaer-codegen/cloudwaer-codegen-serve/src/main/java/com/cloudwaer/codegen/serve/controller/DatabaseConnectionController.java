@@ -1,5 +1,6 @@
 package com.cloudwaer.codegen.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -43,6 +44,7 @@ public class DatabaseConnectionController {
 	 * 获取所有数据库连接列表
 	 */
 	@GetMapping("/list")
+	@PermissionCode("codegen:connection:list")
 	@Operation(summary = "获取所有数据库连接列表", description = "获取所有启用的数据库连接配置")
 	public Result<List<DatabaseConnectionDTO>> getAllConnections() {
 		LambdaQueryWrapper<DatabaseConnection> wrapper = new LambdaQueryWrapper<>();
@@ -60,6 +62,7 @@ public class DatabaseConnectionController {
 	 * 分页查询数据库连接列表
 	 */
 	@GetMapping("/page")
+	@PermissionCode("codegen:connection:page")
 	@Operation(summary = "分页查询数据库连接列表", description = "分页获取数据库连接配置，支持关键词搜索")
 	public Result<PageResult<DatabaseConnectionDTO>> getConnectionPage(@Validated PageDTO pageDTO) {
 		LambdaQueryWrapper<DatabaseConnection> wrapper = new LambdaQueryWrapper<>();
@@ -92,6 +95,7 @@ public class DatabaseConnectionController {
 	 * 根据ID获取数据库连接详情
 	 */
 	@GetMapping("/detail")
+	@PermissionCode("codegen:connection:detail")
 	@Operation(summary = "根据ID获取数据库连接详情", description = "通过连接ID查询数据库连接详细信息")
 	public Result<DatabaseConnectionDTO> getConnectionById(@RequestParam Long id) {
 		DatabaseConnection connection = databaseConnectionService.getById(id);
@@ -108,6 +112,7 @@ public class DatabaseConnectionController {
 	 * 测试数据库连接
 	 */
 	@PostMapping("/test")
+	@PermissionCode("codegen:connection:test")
 	@Operation(summary = "测试数据库连接", description = "测试数据库连接配置是否有效")
 	public Result<Boolean> testConnection(@RequestBody @Validated DatabaseConnectionDTO connectionDTO) {
 		try {
@@ -133,6 +138,7 @@ public class DatabaseConnectionController {
 	 * 新增数据库连接配置
 	 */
 	@PostMapping("/save")
+	@PermissionCode("codegen:connection:add")
 	@Operation(summary = "新增数据库连接配置", description = "创建新的数据库连接配置")
 	public Result<Boolean> saveConnection(@RequestBody @Validated DatabaseConnectionDTO connectionDTO) {
 		try {
@@ -148,6 +154,7 @@ public class DatabaseConnectionController {
 	 * 更新数据库连接配置
 	 */
 	@PutMapping("/update")
+	@PermissionCode("codegen:connection:edit")
 	@Operation(summary = "更新数据库连接配置", description = "更新数据库连接配置信息")
 	public Result<Boolean> updateConnection(@RequestBody @Validated DatabaseConnectionDTO connectionDTO) {
 		try {
@@ -166,6 +173,7 @@ public class DatabaseConnectionController {
 	 * 删除数据库连接配置
 	 */
 	@DeleteMapping("/delete")
+	@PermissionCode("codegen:connection:delete")
 	@Operation(summary = "删除数据库连接配置", description = "删除指定数据库连接配置")
 	public Result<Boolean> deleteConnection(@RequestParam Long id) {
 		Boolean result = databaseConnectionService.removeById(id);
@@ -176,6 +184,7 @@ public class DatabaseConnectionController {
 	 * 启用/禁用数据库连接配置
 	 */
 	@PutMapping("/toggle-enabled")
+	@PermissionCode("codegen:connection:toggle")
 	@Operation(summary = "启用/禁用数据库连接配置", description = "切换数据库连接配置的启用状态")
 	public Result<Boolean> toggleEnabled(@RequestParam Long id, @RequestParam Boolean enabled) {
 		DatabaseConnection connection = databaseConnectionService.getById(id);

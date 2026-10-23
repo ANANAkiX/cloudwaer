@@ -44,13 +44,6 @@ public interface AdminFeignClient {
 	Result<List<String>> getPermissionsByUserId(@RequestParam("userId") Long userId);
 
 	/**
-	 * 获取所有权限的API映射（用于权限缓存） 返回格式：Map<"GET /api/user/list", "admin:user:list">
-	 * @return 权限映射Map
-	 */
-	@GetMapping("/permission/api-mapping")
-	Result<Map<String, String>> getPermissionApiMapping();
-
-	/**
 	 * 获取所有网关路由
 	 * @return 网关路由列表
 	 */

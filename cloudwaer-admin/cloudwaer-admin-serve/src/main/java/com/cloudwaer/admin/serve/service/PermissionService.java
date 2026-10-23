@@ -71,14 +71,4 @@ public interface PermissionService extends IService<Permission> {
 	 */
 	List<String> getPermissionCodesByUserId(Long userId);
 
-	/**
-	 * 获取所有权限的API映射 返回格式：Map<"GET /api/user/list", "admin:user:list">。
-	 *
-	 * <p>
-	 * 只返回权限类型为"操作"（permissionType={@code PermissionConstants.TYPE_ACTION}）且配置了 httpMethod
-	 * 和 apiUrl 的权限。
-	 * @return 权限API映射
-	 */
-	Map<String, String> getPermissionApiMapping();
-
 }

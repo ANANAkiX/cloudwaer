@@ -1,5 +1,6 @@
 package com.cloudwaer.codegen.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.codegen.api.dto.CodeGenConfigDTO;
 import com.cloudwaer.codegen.api.dto.FormFieldConfigDTO;
 import com.cloudwaer.codegen.api.dto.TableMetadataDTO;
@@ -36,6 +37,7 @@ public class FormGeneratorController {
 	 * 根据表结构生成表单配置
 	 */
 	@PostMapping("/generate")
+	@PermissionCode("codegen:form:generate")
 	@Operation(summary = "生成表单配置", description = "根据数据库表结构自动生成表单配置")
 	public Result<CodeGenConfigDTO> generateFormConfig(@RequestParam Long connectionId,
 			@RequestParam String tableName) {
@@ -53,6 +55,7 @@ public class FormGeneratorController {
 	 * 根据表结构元数据生成表单字段配置
 	 */
 	@PostMapping("/generate-fields")
+	@PermissionCode("codegen:form:generate:fields")
 	@Operation(summary = "生成表单字段配置", description = "根据表结构元数据生成表单字段配置列表")
 	public Result<List<FormFieldConfigDTO>> generateFormFields(@RequestBody @Validated TableMetadataDTO tableMetadata) {
 		try {
@@ -69,6 +72,7 @@ public class FormGeneratorController {
 	 * 保存或更新表单配置
 	 */
 	@PostMapping("/save")
+	@PermissionCode("codegen:form:save")
 	@Operation(summary = "保存表单配置", description = "保存或更新表单配置")
 	public Result<Boolean> saveFormConfig(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {
@@ -85,6 +89,7 @@ public class FormGeneratorController {
 	 * 获取表单配置
 	 */
 	@GetMapping("/config")
+	@PermissionCode("codegen:form:config")
 	@Operation(summary = "获取表单配置", description = "根据表名和连接ID获取表单配置，如果不存在则自动生成")
 	public Result<CodeGenConfigDTO> getFormConfig(@RequestParam Long connectionId, @RequestParam String tableName) {
 		try {
@@ -101,6 +106,7 @@ public class FormGeneratorController {
 	 * 根据ID获取表单配置
 	 */
 	@GetMapping("/config/{id}")
+	@PermissionCode("codegen:form:config:id")
 	@Operation(summary = "根据ID获取表单配置", description = "通过配置ID获取表单配置详情")
 	public Result<CodeGenConfigDTO> getFormConfigById(@PathVariable Long id) {
 		try {
@@ -117,6 +123,7 @@ public class FormGeneratorController {
 	 * 更新表单字段配置（用于布局调整）
 	 */
 	@PutMapping("/fields")
+	@PermissionCode("codegen:form:fields")
 	@Operation(summary = "更新表单字段配置", description = "更新表单字段配置，支持布局调整、字段顺序调整等")
 	public Result<Boolean> updateFormFields(@RequestParam Long connectionId, @RequestParam String tableName,
 			@RequestBody List<FormFieldConfigDTO> formFields) {
@@ -139,6 +146,7 @@ public class FormGeneratorController {
 	 * 调整表单布局（批量更新字段的布局信息）
 	 */
 	@PutMapping("/layout")
+	@PermissionCode("codegen:form:layout")
 	@Operation(summary = "调整表单布局", description = "批量更新表单字段的布局信息（行索引、栅格跨度等）")
 	public Result<Boolean> adjustFormLayout(@RequestParam Long connectionId, @RequestParam String tableName,
 			@RequestBody List<FormFieldConfigDTO> formFields) {

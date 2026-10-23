@@ -1,5 +1,6 @@
 package com.cloudwaer.flowable.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -19,6 +20,7 @@ public class FlowableProcessDefinitionController {
 	private FlowableProcessDefinitionService processDefinitionService;
 
 	@GetMapping("/list")
+	@PermissionCode("flowable:process:definitions")
 	@Operation(summary = "获取流程定义列表")
 	public Result<PageResult<FlowableProcessDefinitionDTO>> getProcessDefinitions(PageDTO pageDTO,
 			@RequestParam(required = false) String category, @RequestParam(required = false) String keyword) {
@@ -28,6 +30,7 @@ public class FlowableProcessDefinitionController {
 	}
 
 	@GetMapping("/detail")
+	@PermissionCode("flowable:process:definitions")
 	@Operation(summary = "获取流程定义详情")
 	public Result<FlowableProcessDefinitionDTO> getProcessDefinitionDetail(@RequestParam String id) {
 		FlowableProcessDefinitionDTO result = processDefinitionService.getProcessDefinitionDetail(id);

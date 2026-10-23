@@ -1,5 +1,6 @@
 package com.cloudwaer.flowable.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -24,78 +25,91 @@ public class FlowableProcessController {
 	private FlowableProcessService processService;
 
 	@PostMapping("/start")
+	@PermissionCode("flowable:process:start")
 	@Operation(summary = "Start process")
 	public Result<String> start(@RequestBody FlowableProcessStartDTO dto) {
 		return Result.success(processService.startProcess(dto));
 	}
 
 	@GetMapping("/started")
+	@PermissionCode("flowable:monitor:instances")
 	@Operation(summary = "Started processes")
 	public Result<PageResult<FlowableProcessInstanceDTO>> started(PageDTO pageDTO) {
 		return Result.success(processService.listStarted(pageDTO));
 	}
 
 	@GetMapping("/detail")
+	@PermissionCode("flowable:process:detail")
 	@Operation(summary = "Process detail")
 	public Result<FlowableProcessInstanceDTO> detail(@RequestParam String id) {
 		return Result.success(processService.getDetail(id));
 	}
 
 	@DeleteMapping("/delete")
+	@PermissionCode("flowable:monitor:delete")
 	@Operation(summary = "Delete process instance")
 	public Result<Boolean> delete(@RequestBody FlowableProcessDeleteDTO dto) {
 		return Result.success(processService.deleteProcess(dto.getProcessInstanceId()));
 	}
 
 	@PostMapping("/suspend")
+	@PermissionCode("flowable:monitor:suspend")
 	@Operation(summary = "Suspend process instance")
 	public Result<Boolean> suspend(@RequestParam String processInstanceId) {
 		return Result.success(processService.suspendProcess(processInstanceId));
 	}
 
 	@PostMapping("/activate")
+	@PermissionCode("flowable:monitor:activate")
 	@Operation(summary = "Activate process instance")
 	public Result<Boolean> activate(@RequestParam String processInstanceId) {
 		return Result.success(processService.activateProcess(processInstanceId));
 	}
 
 	@PostMapping("/restart")
+	@PermissionCode("flowable:monitor:activate")
 	@Operation(summary = "Restart process instance")
 	public Result<Boolean> restart(@RequestParam String processInstanceId) {
 		return Result.success(processService.restartProcess(processInstanceId));
 	}
 
 	@PostMapping("/terminate")
+	@PermissionCode("flowable:monitor:terminate")
 	@Operation(summary = "Terminate process instance")
 	public Result<Boolean> terminate(@RequestParam String processInstanceId) {
 		return Result.success(processService.terminateProcess(processInstanceId));
 	}
 
 	@GetMapping("/diagram")
+	@PermissionCode("flowable:monitor:diagram")
 	@Operation(summary = "Get process diagram")
 	public Result<String> getDiagram(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessDiagram(processInstanceId));
 	}
 
 	@GetMapping("/bpmn")
+	@PermissionCode("flowable:process:detail")
 	@Operation(summary = "Get process BPMN XML")
 	public Result<String> getBpmn(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessBpmnXml(processInstanceId));
 	}
 
 	@GetMapping("/variables")
+	@PermissionCode("flowable:process:variables")
 	@Operation(summary = "Get process variables")
 	public Result<List<Map<String, Object>>> getVariables(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessVariables(processInstanceId));
 	}
 
 	@GetMapping("/history")
+	@PermissionCode("flowable:process:history")
 	@Operation(summary = "Get process history")
 	public Result<List<Map<String, Object>>> getHistory(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessHistory(processInstanceId));
 	}
 
 	@GetMapping("/highlight")
+	@PermissionCode("flowable:process:history")
 	@Operation(summary = "Get process highlight")
 	public Result<Map<String, Object>> getHighlight(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessHighlight(processInstanceId));
