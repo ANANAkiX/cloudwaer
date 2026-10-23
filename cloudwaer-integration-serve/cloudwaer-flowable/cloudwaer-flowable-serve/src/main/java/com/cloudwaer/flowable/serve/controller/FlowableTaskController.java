@@ -1,5 +1,6 @@
 package com.cloudwaer.flowable.serve.controller;
 
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/task")
+@RequestMapping("/flowable/task")
 @Tag(name = "Flowable Task", description = "Flowable task endpoints")
 public class FlowableTaskController {
 
@@ -22,36 +23,42 @@ public class FlowableTaskController {
 	private FlowableTaskService taskService;
 
 	@GetMapping("/todo")
+	@PermissionCode("flowable:task:todo")
 	@Operation(summary = "Todo tasks")
 	public Result<PageResult<FlowableTaskDTO>> todo(PageDTO pageDTO) {
 		return Result.success(taskService.listTodo(pageDTO));
 	}
 
 	@GetMapping("/done")
+	@PermissionCode("flowable:task:done")
 	@Operation(summary = "Done tasks")
 	public Result<PageResult<FlowableTaskDTO>> done(PageDTO pageDTO) {
 		return Result.success(taskService.listDone(pageDTO));
 	}
 
 	@PostMapping("/claim")
+	@PermissionCode("flowable:task:claim")
 	@Operation(summary = "Claim task")
 	public Result<Boolean> claim(@RequestBody FlowableTaskClaimDTO dto) {
 		return Result.success(taskService.claim(dto.getTaskId()));
 	}
 
 	@PostMapping("/complete")
+	@PermissionCode("flowable:task:complete")
 	@Operation(summary = "Complete task")
 	public Result<Boolean> complete(@RequestBody FlowableTaskCompleteDTO dto) {
 		return Result.success(taskService.complete(dto));
 	}
 
 	@GetMapping("/detail")
+	@PermissionCode("flowable:task:detail")
 	@Operation(summary = "Task detail")
 	public Result<FlowableTaskDTO> detail(@RequestParam String id) {
 		return Result.success(taskService.getDetail(id));
 	}
 
 	@DeleteMapping("/delete")
+	@PermissionCode("flowable:task:delete")
 	@Operation(summary = "Delete task")
 	public Result<Boolean> delete(@RequestBody FlowableTaskDeleteDTO dto) {
 		return Result.success(taskService.deleteTask(dto.getTaskId()));

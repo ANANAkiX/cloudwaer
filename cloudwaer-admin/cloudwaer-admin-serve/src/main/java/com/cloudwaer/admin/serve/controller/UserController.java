@@ -2,6 +2,7 @@ package com.cloudwaer.admin.serve.controller;
 
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.serve.service.UserService;
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -32,6 +33,7 @@ public class UserController {
 	 * 获取所有用户列表
 	 */
 	@GetMapping("/list")
+	@PermissionCode("admin:user:view")
 	@Operation(summary = "获取所有用户列表", description = "获取所有用户信息")
 	public Result<List<UserDTO>> getAllUsers() {
 		List<UserDTO> users = userService.getAllUsers();
@@ -42,6 +44,7 @@ public class UserController {
 	 * 分页查询用户列表
 	 */
 	@GetMapping("/page")
+	@PermissionCode("admin:user:view")
 	@Operation(summary = "分页查询用户列表", description = "分页获取用户信息，支持复合搜索（用户名、昵称、邮箱、手机号）")
 	public Result<PageResult<UserDTO>> getUserPage(@RequestParam(value = "current", defaultValue = "1") Long current,
 			@RequestParam(value = "size", defaultValue = "10") Long size,
@@ -58,6 +61,7 @@ public class UserController {
 	 * 根据ID获取用户
 	 */
 	@GetMapping("/detail")
+	@PermissionCode("admin:user:view")
 	@Operation(summary = "根据ID获取用户", description = "通过用户ID查询用户详细信息")
 	public Result<UserDTO> getUserById(@RequestParam("id") Long id) {
 		UserDTO user = userService.getUserById(id);
@@ -68,6 +72,7 @@ public class UserController {
 	 * 新增用户
 	 */
 	@PostMapping("/save")
+	@PermissionCode("admin:user:add")
 	@Operation(summary = "新增用户", description = "创建新的用户")
 	public Result<Boolean> saveUser(@RequestBody @Validated UserDTO userDTO) {
 		Boolean result = userService.saveUser(userDTO);
@@ -78,6 +83,7 @@ public class UserController {
 	 * 更新用户
 	 */
 	@PutMapping("/update")
+	@PermissionCode("admin:user:edit")
 	@Operation(summary = "更新用户", description = "更新用户信息")
 	public Result<Boolean> updateUser(@RequestBody @Validated UserDTO userDTO) {
 		Boolean result = userService.updateUser(userDTO);
@@ -88,6 +94,7 @@ public class UserController {
 	 * 删除用户
 	 */
 	@DeleteMapping("/delete")
+	@PermissionCode("admin:user:delete")
 	@Operation(summary = "删除用户", description = "删除指定用户")
 	public Result<Boolean> deleteUser(@RequestParam("id") Long id) {
 		Boolean result = userService.deleteUser(id);
@@ -98,6 +105,7 @@ public class UserController {
 	 * 分配角色给用户
 	 */
 	@PostMapping("/assign-roles")
+	@PermissionCode("admin:user:assign-role")
 	@Operation(summary = "分配角色给用户", description = "为用户分配角色")
 	public Result<Boolean> assignRoles(@RequestParam("userId") Long userId, @RequestBody List<Object> roleIds) {
 		// 处理前端可能发送的字符串ID（避免精度丢失）

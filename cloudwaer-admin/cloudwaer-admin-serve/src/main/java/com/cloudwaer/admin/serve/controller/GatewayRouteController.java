@@ -3,7 +3,7 @@ package com.cloudwaer.admin.serve.controller;
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
 import com.cloudwaer.admin.api.dto.PermissionIdQueryDTO;
 import com.cloudwaer.admin.serve.service.GatewayRouteService;
-import com.cloudwaer.common.core.annotation.PermitAll;
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -35,7 +35,6 @@ public class GatewayRouteController {
 	 */
 	@GetMapping("/list")
 	@Operation(summary = "获取所有网关路由", description = "获取所有有效的网关路由列表（用于网关服务，优先从Redis加载）")
-	@PermitAll
 	public Result<List<GatewayRouteDTO>> getAllRoutes() {
 		List<GatewayRouteDTO> routes = gatewayRouteService.getAllRoutes();
 		return Result.success(routes);
@@ -45,6 +44,7 @@ public class GatewayRouteController {
 	 * 分页查询网关路由列表
 	 */
 	@GetMapping("/page")
+	@PermissionCode("admin:gateway:view")
 	@Operation(summary = "分页查询网关路由", description = "分页查询网关路由列表，支持关键词搜索")
 	public Result<PageResult<GatewayRouteDTO>> getRoutesByPage(PageDTO pageDTO) {
 		PageResult<GatewayRouteDTO> pageResult = gatewayRouteService.getRoutesByPage(pageDTO);
@@ -55,6 +55,7 @@ public class GatewayRouteController {
 	 * 根据ID获取网关路由
 	 */
 	@GetMapping("/detail")
+	@PermissionCode("admin:gateway:view")
 	@Operation(summary = "根据ID获取网关路由", description = "通过路由ID查询网关路由详细信息")
 	public Result<GatewayRouteDTO> getRouteById(@RequestParam Long id) {
 		GatewayRouteDTO route = gatewayRouteService.getRouteById(id);
@@ -65,6 +66,7 @@ public class GatewayRouteController {
 	 * 新增网关路由
 	 */
 	@PostMapping("/save")
+	@PermissionCode("admin:gateway:add")
 	@Operation(summary = "新增网关路由", description = "创建新的网关路由")
 	public Result<Boolean> saveRoute(@RequestBody @Validated GatewayRouteDTO routeDTO) {
 		Boolean result = gatewayRouteService.saveRoute(routeDTO);
@@ -75,6 +77,7 @@ public class GatewayRouteController {
 	 * 更新网关路由
 	 */
 	@PutMapping("/update")
+	@PermissionCode("admin:gateway:edit")
 	@Operation(summary = "更新网关路由", description = "更新网关路由信息")
 	public Result<Boolean> updateRoute(@RequestBody @Validated GatewayRouteDTO routeDTO) {
 		Boolean result = gatewayRouteService.updateRoute(routeDTO);
@@ -85,6 +88,7 @@ public class GatewayRouteController {
 	 * 删除网关路由
 	 */
 	@DeleteMapping("/delete")
+	@PermissionCode("admin:gateway:delete")
 	@Operation(summary = "删除网关路由", description = "删除指定网关路由")
 	public Result<Boolean> deleteRoute(@RequestBody @Validated PermissionIdQueryDTO queryDTO) {
 		Boolean result = gatewayRouteService.deleteRoute(queryDTO.getId());
@@ -95,6 +99,7 @@ public class GatewayRouteController {
 	 * 刷新网关路由
 	 */
 	@PostMapping("/refresh")
+	@PermissionCode("admin:gateway:refresh")
 	@Operation(summary = "刷新网关路由", description = "通知网关服务重新加载路由配置")
 	public Result<Boolean> refreshRoutes() {
 		Boolean result = gatewayRouteService.refreshRoutes();

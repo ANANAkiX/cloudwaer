@@ -131,7 +131,7 @@ CREATE TABLE `group_capacity`  (
 -- ----------------------------
 -- Records of group_capacity
 -- ----------------------------
-INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-22 18:08:52');
+INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-01-23 23:21:09');
 
 -- ----------------------------
 -- Table structure for his_config_info

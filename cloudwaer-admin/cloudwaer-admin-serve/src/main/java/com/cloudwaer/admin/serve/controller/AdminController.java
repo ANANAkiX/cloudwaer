@@ -4,6 +4,8 @@ import com.cloudwaer.admin.api.dto.RouteDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.admin.serve.service.UserService;
+import com.cloudwaer.common.core.annotation.PermissionCode;
+import com.cloudwaer.common.core.annotation.RequireLogin;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,6 +40,7 @@ public class AdminController {
 	 * 根据用户名获取用户信息
 	 */
 	@GetMapping("/user/username")
+	@PermissionCode(value = "admin:user:username", enable = false)
 	@Operation(summary = "根据用户名获取用户信息", description = "通过用户名查询用户详细信息")
 	public Result<UserDTO> getUserByUsername(@RequestParam("username") String username) {
 		UserDTO userDTO = userService.getUserByUsername(username);
@@ -48,6 +51,7 @@ public class AdminController {
 	 * 根据邮箱获取用户信息
 	 */
 	@GetMapping("/user/email")
+	@PermissionCode(value = "admin:user:email", enable = false)
 	@Operation(summary = "根据用户名获取用户信息", description = "通过用户名查询用户详细信息")
 	public Result<UserDTO> getUserByEmail(@RequestParam("email") String email) {
 		UserDTO userDTO = userService.getUserByEmail(email);
@@ -58,12 +62,10 @@ public class AdminController {
 	 * 获取当前用户信息
 	 */
 	@GetMapping("/user/current")
+	@RequireLogin
 	@Operation(summary = "获取当前用户信息", description = "通过Token获取当前登录用户的详细信息")
 	public Result<UserDTO> getCurrentUser() {
 		Long userId = SecurityContextUtil.getCurrentUserId();
-		if (userId == null) {
-			return Result.fail(401, "未登录或Token无效");
-		}
 		UserDTO userDTO = userService.getUserById(userId);
 		return Result.success(userDTO);
 	}
@@ -72,6 +74,7 @@ public class AdminController {
 	 * 根据用户ID获取路由列表
 	 */
 	@GetMapping("/route/user")
+	@PermissionCode(value = "admin:route:user", enable = false)
 	@Operation(summary = "根据用户ID获取路由列表", description = "通过用户ID查询用户可访问的路由列表（树形结构）")
 	public Result<List<RouteDTO>> getRoutesByUserId(@RequestParam("userId") Long userId) {
 		List<RouteDTO> routes = permissionService.getRoutesByUserId(userId);
@@ -82,12 +85,10 @@ public class AdminController {
 	 * 获取当前用户的路由列表
 	 */
 	@GetMapping("/route/current")
+	@RequireLogin
 	@Operation(summary = "获取当前用户的路由列表", description = "通过Token获取当前登录用户可访问的路由列表（树形结构）")
 	public Result<List<RouteDTO>> getCurrentUserRoutes() {
 		Long userId = SecurityContextUtil.getCurrentUserId();
-		if (userId == null) {
-			return Result.fail(401, "未登录或Token无效");
-		}
 		List<RouteDTO> routes = permissionService.getRoutesByUserId(userId);
 		return Result.success(routes);
 	}
@@ -96,6 +97,7 @@ public class AdminController {
 	 * 根据用户ID获取权限列表
 	 */
 	@GetMapping("/permission/user")
+	@PermissionCode(value = "admin:permission:user", enable = false)
 	@Operation(summary = "根据用户ID获取权限列表", description = "通过用户ID查询用户拥有的权限编码列表")
 	public Result<List<String>> getPermissionsByUserId(@RequestParam("userId") Long userId) {
 		List<String> permissions = permissionService.getPermissionCodesByUserId(userId);
@@ -106,12 +108,10 @@ public class AdminController {
 	 * 获取当前用户的权限列表
 	 */
 	@GetMapping("/permission/current")
+	@RequireLogin
 	@Operation(summary = "获取当前用户的权限列表", description = "通过Token获取当前登录用户拥有的权限编码列表")
 	public Result<List<String>> getCurrentUserPermissions() {
 		Long userId = SecurityContextUtil.getCurrentUserId();
-		if (userId == null) {
-			return Result.fail(401, "未登录或Token无效");
-		}
 		List<String> permissions = permissionService.getPermissionCodesByUserId(userId);
 		return Result.success(permissions);
 	}

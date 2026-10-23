@@ -13,7 +13,6 @@ import com.cloudwaer.admin.serve.mapper.RolePermissionMapper;
 import com.cloudwaer.admin.serve.mapper.UserRoleMapper;
 import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.common.core.exception.BusinessException;
-import com.cloudwaer.common.core.service.PermissionCacheService;
 import com.cloudwaer.common.core.service.TokenService;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -40,9 +39,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
 	@Autowired
 	private RolePermissionMapper rolePermissionMapper;
-
-	@Autowired(required = false)
-	private PermissionCacheService permissionCacheService;
 
 	@Autowired(required = false)
 	private TokenService tokenService;
@@ -156,7 +152,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
 		routeDTO.setName(permission.getPermissionCode());
 		routeDTO.setParentId(permission.getParentId());
-		routeDTO.setApiUrl(permission.getApiUrl());
 
 		// 设置组件路径（只有有实际路由路径的才设置组件）
 		// 前端使用 @/views${route.component}，所以component应该是类似 "/dashboard" 或
@@ -383,16 +378,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 		// ID的自动生成已在MetaObjectHandler中统一处理，无需在此判断
 		boolean result = this.save(permission);
 
-		// 如果保存成功，更新权限缓存和用户Token权限信息
-		if (result) {
-			// 更新权限映射缓存（如果是操作类型权限）
-			if (permissionDTO.getPermissionType() != null && permissionDTO.getPermissionType() == 3) {
-				refreshPermissionCache();
-			}
-			// 注意：新增权限后，如果该权限还没有被分配给任何角色，则不需要更新用户Token
-			// 只有当权限被分配给角色后，才会通过分配权限的逻辑更新用户Token
-		}
-
 		return result;
 	}
 
@@ -424,11 +409,8 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 		BeanUtils.copyProperties(permissionDTO, permission);
 		boolean result = this.updateById(permission);
 
-		// 如果更新成功，更新权限缓存和用户Token权限信息
+		// 如果更新成功，更新用户Token权限信息
 		if (result) {
-			// 更新权限映射缓存（因为可能修改了API地址或请求方法）
-			refreshPermissionCache();
-
 			// 如果权限编码改变了，需要更新所有拥有该权限的用户的Token权限信息
 			// 因为权限编码改变会影响用户的权限代码列表
 			if (permissionCodeChanged) {
@@ -463,11 +445,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 		updateUserTokensByPermissionId(id);
 
 		boolean result = this.removeById(id);
-
-		// 如果删除成功，更新权限缓存
-		if (result) {
-			refreshPermissionCache();
-		}
 
 		return result;
 	}
@@ -592,73 +569,6 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 		rolePermissionWrapper.in(RolePermission::getRoleId, roleIds);
 		List<RolePermission> rolePermissions = rolePermissionMapper.selectList(rolePermissionWrapper);
 		return rolePermissions.stream().map(RolePermission::getPermissionId).distinct().collect(Collectors.toList());
-	}
-
-	@Override
-	public Map<String, String> getPermissionApiMapping() {
-		// 查询所有权限类型为"操作"（permissionType=3）且配置了httpMethod和apiUrl的权限
-		LambdaQueryWrapper<Permission> wrapper = new LambdaQueryWrapper<>();
-		wrapper.eq(Permission::getPermissionType, 3) // 3-操作
-			.isNotNull(Permission::getHttpMethod)
-			.isNotNull(Permission::getApiUrl)
-			.ne(Permission::getHttpMethod, "")
-			.ne(Permission::getApiUrl, "");
-
-		List<Permission> permissions = this.list(wrapper);
-
-		// 构建权限映射：Map<"GET /api/user/list", "admin:user:list">
-		Map<String, String> permissionMap = getStringStringMap(permissions);
-
-		return permissionMap;
-	}
-
-	private static @NonNull Map<String, String> getStringStringMap(List<Permission> permissions) {
-		Map<String, String> permissionMap = new HashMap<>();
-		for (Permission permission : permissions) {
-			String httpMethod = permission.getHttpMethod();
-			String apiUrl = permission.getApiUrl();
-			String permissionCode = permission.getPermissionCode();
-
-			if (httpMethod != null && apiUrl != null && permissionCode != null) {
-				// 规范化API URL（去除末尾的斜杠）
-				String normalizedApiUrl = apiUrl.trim();
-				if (normalizedApiUrl.endsWith("/") && normalizedApiUrl.length() > 1) {
-					normalizedApiUrl = normalizedApiUrl.substring(0, normalizedApiUrl.length() - 1);
-				}
-
-				// 构建Key：GET /api/user/list
-				String key = httpMethod.toUpperCase() + " " + normalizedApiUrl;
-				permissionMap.put(key, permissionCode);
-			}
-		}
-		return permissionMap;
-	}
-
-	/**
-	 * 刷新Redis中的权限缓存 从数据库获取最新的权限映射并更新到Redis
-	 */
-	private void refreshPermissionCache() {
-		if (permissionCacheService == null) {
-			return;
-		}
-
-		try {
-			// 从数据库获取最新的权限API映射
-			Map<String, String> permissionMap = getPermissionApiMapping();
-
-			if (permissionMap != null && !permissionMap.isEmpty()) {
-				// 更新Redis中的权限缓存
-				permissionCacheService.cachePermissions(permissionMap);
-				log.info("权限缓存已更新: 共 {} 个权限映射", permissionMap.size());
-			}
-			else {
-				log.warn("权限映射为空，无法更新缓存");
-			}
-		}
-		catch (Exception e) {
-			log.error("更新权限缓存失败", e);
-			// 不更新缓存不影响操作的成功，只记录错误日志
-		}
 	}
 
 	/**

@@ -43,11 +43,6 @@ public class RouteDTO implements Serializable {
 	private Long parentId;
 
 	/**
-	 * API请求地址
-	 */
-	private String apiUrl;
-
-	/**
 	 * 子路由
 	 */
 	private List<RouteDTO> children;

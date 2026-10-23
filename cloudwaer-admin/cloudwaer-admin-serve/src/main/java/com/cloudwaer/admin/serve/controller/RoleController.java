@@ -2,6 +2,7 @@ package com.cloudwaer.admin.serve.controller;
 
 import com.cloudwaer.admin.api.dto.RoleDTO;
 import com.cloudwaer.admin.serve.service.RoleService;
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -32,6 +33,7 @@ public class RoleController {
 	 * 获取所有角色列表
 	 */
 	@GetMapping("/list")
+	@PermissionCode("admin:role:view")
 	@Operation(summary = "获取所有角色列表", description = "获取所有角色信息")
 	public Result<List<RoleDTO>> getAllRoles() {
 		List<RoleDTO> roles = roleService.getAllRoles();
@@ -42,6 +44,7 @@ public class RoleController {
 	 * 分页查询角色列表
 	 */
 	@GetMapping("/page")
+	@PermissionCode("admin:role:view")
 	@Operation(summary = "分页查询角色列表", description = "分页获取角色信息，支持复合搜索（角色名称、角色代码）")
 	public Result<PageResult<RoleDTO>> getRolePage(@RequestParam(value = "current", defaultValue = "1") Long current,
 			@RequestParam(value = "size", defaultValue = "10") Long size,
@@ -58,6 +61,7 @@ public class RoleController {
 	 * 根据ID获取角色
 	 */
 	@GetMapping("/detail")
+	@PermissionCode("admin:role:view")
 	@Operation(summary = "根据ID获取角色", description = "通过角色ID查询角色详细信息")
 	public Result<RoleDTO> getRoleById(@RequestParam("id") Long id) {
 		RoleDTO role = roleService.getRoleById(id);
@@ -68,6 +72,7 @@ public class RoleController {
 	 * 新增角色
 	 */
 	@PostMapping("/save")
+	@PermissionCode("admin:role:add")
 	@Operation(summary = "新增角色", description = "创建新的角色")
 	public Result<Boolean> saveRole(@RequestBody @Validated RoleDTO roleDTO) {
 		Boolean result = roleService.saveRole(roleDTO);
@@ -78,6 +83,7 @@ public class RoleController {
 	 * 更新角色
 	 */
 	@PutMapping("/update")
+	@PermissionCode("admin:role:edit")
 	@Operation(summary = "更新角色", description = "更新角色信息")
 	public Result<Boolean> updateRole(@RequestBody @Validated RoleDTO roleDTO) {
 		Boolean result = roleService.updateRole(roleDTO);
@@ -88,6 +94,7 @@ public class RoleController {
 	 * 删除角色
 	 */
 	@DeleteMapping("/delete")
+	@PermissionCode("admin:role:delete")
 	@Operation(summary = "删除角色", description = "删除指定角色")
 	public Result<Boolean> deleteRole(@RequestParam("id") Long id) {
 		Boolean result = roleService.deleteRole(id);
@@ -98,6 +105,7 @@ public class RoleController {
 	 * 分配权限给角色
 	 */
 	@PostMapping("/assign-permissions")
+	@PermissionCode("admin:role:assign-permission")
 	@Operation(summary = "分配权限给角色", description = "为角色分配权限")
 	public Result<Boolean> assignPermissions(@RequestParam("roleId") Long roleId,
 			@RequestBody List<Object> permissionIds) {

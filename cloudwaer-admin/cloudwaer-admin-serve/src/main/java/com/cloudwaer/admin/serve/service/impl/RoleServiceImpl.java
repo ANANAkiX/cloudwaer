@@ -14,7 +14,6 @@ import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.admin.serve.service.RoleService;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
-import com.cloudwaer.common.core.service.PermissionCacheService;
 import com.cloudwaer.common.core.service.TokenService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -45,9 +44,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
 	@Autowired(required = false)
 	private PermissionService permissionService;
-
-	@Autowired(required = false)
-	private PermissionCacheService permissionCacheService;
 
 	@Override
 	public List<RoleDTO> getAllRoles() {
@@ -140,9 +136,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
 		// 更新拥有该角色的所有用户的Token权限信息（不删除Token，只更新权限）
 		updateUserTokenPermissionsByRoleId(roleId);
-		// 更新Redis中的权限缓存（权限映射：API路径 -> 权限代码）
-		refreshPermissionCache();
-		// 手动更新TOKEN对应的权限映射
 		return true;
 	}
 
@@ -178,33 +171,6 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 		catch (Exception e) {
 			log.error("更新用户Token权限失败: roleId={}", roleId, e);
 			// 不更新Token不影响权限分配的成功，只记录错误日志
-		}
-	}
-
-	/**
-	 * 刷新Redis中的权限缓存 从数据库获取最新的权限映射并更新到Redis
-	 */
-	private void refreshPermissionCache() {
-		if (permissionCacheService == null || permissionService == null) {
-			return;
-		}
-
-		try {
-			// 从数据库获取最新的权限API映射
-			java.util.Map<String, String> permissionMap = permissionService.getPermissionApiMapping();
-
-			if (permissionMap != null && !permissionMap.isEmpty()) {
-				// 更新Redis中的权限缓存
-				permissionCacheService.cachePermissions(permissionMap);
-				log.info("权限缓存已更新: 共 {} 个权限映射", permissionMap.size());
-			}
-			else {
-				log.warn("权限映射为空，无法更新缓存");
-			}
-		}
-		catch (Exception e) {
-			log.error("更新权限缓存失败", e);
-			// 不更新缓存不影响权限分配的成功，只记录错误日志
 		}
 	}
 

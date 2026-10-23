@@ -57,11 +57,6 @@
             <version>2.2.19</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>com.cloudwaer</groupId>
-            <artifactId>cloudwaer-common-api-scanner</artifactId>
-            <scope>compile</scope>
-        </dependency>
     </dependencies>
 </project>
 

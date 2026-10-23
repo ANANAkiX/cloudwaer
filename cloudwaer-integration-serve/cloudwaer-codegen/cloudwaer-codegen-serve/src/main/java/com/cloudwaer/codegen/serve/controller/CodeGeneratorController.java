@@ -2,6 +2,7 @@ package com.cloudwaer.codegen.serve.controller;
 
 import com.cloudwaer.codegen.api.dto.CodeGenConfigDTO;
 import com.cloudwaer.codegen.serve.service.CodeGeneratorService;
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -37,6 +38,7 @@ public class CodeGeneratorController {
 	 * 生成后端代码
 	 */
 	@PostMapping("/backend")
+	@PermissionCode("codegen:generator:backend")
 	@Operation(summary = "生成后端代码", description = "根据配置生成后端代码（Entity、Mapper、Service、Controller、DTO）")
 	public Result<Map<String, String>> generateBackendCode(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {
@@ -56,6 +58,7 @@ public class CodeGeneratorController {
 	 * 生成前端代码
 	 */
 	@PostMapping("/frontend")
+	@PermissionCode("codegen:generator:frontend")
 	@Operation(summary = "生成前端代码", description = "根据配置生成前端代码（API接口、Vue页面）")
 	public Result<Map<String, String>> generateFrontendCode(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {
@@ -75,6 +78,7 @@ public class CodeGeneratorController {
 	 * 生成权限SQL
 	 */
 	@PostMapping("/permission")
+	@PermissionCode("codegen:generator:permission")
 	@Operation(summary = "生成权限SQL", description = "根据配置生成权限SQL（默认CRUD权限）")
 	public Result<String> generatePermissionSql(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {
@@ -94,6 +98,7 @@ public class CodeGeneratorController {
 	 * 预览生成的文件路径列表
 	 */
 	@PostMapping("/preview")
+	@PermissionCode("codegen:generator:preview")
 	@Operation(summary = "预览生成的文件路径", description = "预览将要生成的代码文件路径列表，不生成实际文件")
 	public Result<Map<String, Object>> previewGeneratedFiles(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {
@@ -110,6 +115,7 @@ public class CodeGeneratorController {
 	 * 生成所有代码（后端、前端、权限SQL）并打包为ZIP压缩包
 	 */
 	@PostMapping("/all")
+	@PermissionCode("codegen:generator:all")
 	@Operation(summary = "生成所有代码", description = "根据配置生成后端代码、前端代码和权限SQL，并打包为ZIP压缩包")
 	public ResponseEntity<InputStreamResource> generateAllCode(@RequestBody @Validated CodeGenConfigDTO configDTO) {
 		try {

@@ -1,7 +1,6 @@
 package com.cloudwaer.flowable.serve.controller;
 
-import com.cloudwaer.common.core.dto.PageDTO;
-import com.cloudwaer.common.core.dto.PageResult;
+import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.flowable.serve.entity.WfNodeAction;
 import com.cloudwaer.flowable.serve.service.WfNodeActionService;
@@ -19,7 +18,7 @@ import java.util.List;
  * @since 2026-01-15
  */
 @RestController
-@RequestMapping("/node-action")
+@RequestMapping("/flowable/node-action")
 @Tag(name = "Node Action", description = "节点动作管理接口")
 public class WfNodeActionController {
 
@@ -27,6 +26,7 @@ public class WfNodeActionController {
 	private WfNodeActionService nodeActionService;
 
 	@PostMapping("/save")
+	@PermissionCode("flowable:node:action:save")
 	@Operation(summary = "保存节点动作配置")
 	public Result<Boolean> save(@RequestBody WfNodeAction nodeAction) {
 		boolean success = nodeActionService.saveNodeAction(nodeAction);
@@ -34,6 +34,7 @@ public class WfNodeActionController {
 	}
 
 	@PostMapping("/batch-save")
+	@PermissionCode("flowable:node:action:batch")
 	@Operation(summary = "批量保存节点动作配置")
 	public Result<Boolean> batchSave(@RequestBody List<WfNodeAction> nodeActions) {
 		boolean success = nodeActionService.batchSaveNodeActions(nodeActions);
@@ -41,6 +42,7 @@ public class WfNodeActionController {
 	}
 
 	@DeleteMapping("/delete/{id}")
+	@PermissionCode("flowable:node:action:delete")
 	@Operation(summary = "删除节点动作配置")
 	public Result<Boolean> delete(@PathVariable Long id) {
 		boolean success = nodeActionService.deleteNodeAction(id);
@@ -48,6 +50,7 @@ public class WfNodeActionController {
 	}
 
 	@GetMapping("/list")
+	@PermissionCode("flowable:node:action:list")
 	@Operation(summary = "查询节点动作列表")
 	public Result<List<WfNodeAction>> list(@RequestParam String modelKey, @RequestParam Integer modelVersion,
 			@RequestParam(required = false) String nodeId, @RequestParam String eventType) {
@@ -56,6 +59,7 @@ public class WfNodeActionController {
 	}
 
 	@GetMapping("/model/{modelId}")
+	@PermissionCode("flowable:node:action:list")
 	@Operation(summary = "根据模型ID查询动作配置")
 	public Result<List<WfNodeAction>> listByModelId(@PathVariable Long modelId) {
 		List<WfNodeAction> actions = nodeActionService.listActionsByModelId(modelId);
@@ -63,6 +67,7 @@ public class WfNodeActionController {
 	}
 
 	@PutMapping("/status/{id}")
+	@PermissionCode("flowable:node:action:status")
 	@Operation(summary = "更新节点动作状态")
 	public Result<Boolean> updateStatus(@PathVariable Long id, @RequestParam Integer enabled) {
 		boolean success = nodeActionService.updateNodeActionStatus(id, enabled);
@@ -70,6 +75,7 @@ public class WfNodeActionController {
 	}
 
 	@GetMapping("/config")
+	@PermissionCode("flowable:node:action:config")
 	@Operation(summary = "获取节点动作配置")
 	public Result<String> getConfig(@RequestParam String processDefinitionId, @RequestParam String nodeId) {
 		String config = nodeActionService.getNodeActionConfig(processDefinitionId, nodeId);
