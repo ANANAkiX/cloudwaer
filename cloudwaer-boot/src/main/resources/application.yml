@@ -8,11 +8,29 @@ spring:
     web-application-type: servlet
     allow-bean-definition-overriding: true
 
+  # 多数据源：各模块沿用微服务时期的原库
+  # primary=flowable：保证 Flowable 引擎（无 ThreadLocal 时）绝不落到 admin 库
+  # admin/codegen 由请求过滤器 / 包路径切面显式切换
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/cloudwaer_boot?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: root
+    dynamic:
+      primary: flowable
+      strict: false
+      datasource:
+        admin:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+          username: root
+          password: root
+        flowable:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+          username: root
+          password: root
+        codegen:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://localhost:3306/cloudwaer_codegen_config?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+          username: root
+          password: root
 
   data:
     redis:
