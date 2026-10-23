@@ -50,6 +50,7 @@ INSERT INTO `sys_dict` VALUES (2013027807789092865, 'wf_process_status', '流程
 INSERT INTO `sys_dict` VALUES (2013029000000000001, 'permission_type', '权限类型', 0, '权限类型字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict` VALUES (2013029000000000002, 'http_method', 'HTTP方法', 0, 'HTTP方法字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict` VALUES (2013029000000000003, 'flowable_priority', '任务优先级', 0, '流程任务优先级字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict` VALUES (2013029000000000004, 'wf_model_status', '模型版本状态', 0, '流程模型版本状态字典', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
 
 
 -- ----------------------------
@@ -112,6 +113,14 @@ INSERT INTO `sys_dict_item` VALUES (2013029000000000302, 2013029000000000003, 'n
 INSERT INTO `sys_dict_item` VALUES (2013029000000000303, 2013029000000000003, 'urgent', 'urgent', '紧急', 2, '任务优先级-紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000304, 2013029000000000003, 'very_urgent', 'very_urgent', '非常紧急', 3, '任务优先级-非常紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 
+-- wf_model_status
+INSERT INTO `sys_dict_item` VALUES (2013029000000000401, 2013029000000000004, '0', '0', '草稿', 0, '模型版本-草稿', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000402, 2013029000000000004, '1', '1', '已发布', 1, '模型版本-已发布', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000403, 2013029000000000004, '2', '2', '已归档', 2, '模型版本-已归档', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000404, 2013029000000000004, '3', '3', '已更新未发布', 3, '模型版本-已更新未发布', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000405, 2013029000000000004, '4', '4', '已回滚未发布', 4, '模型版本-已回滚未发布', '2026-10-23 23:00:00', 'system', '2026-10-23 23:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000406, 2013029000000000004, '5', '5', '已关闭', 5, '模型版本-已关闭', '2026-10-23 23:30:00', 'system', '2026-10-23 23:30:00', 'system', 1);
+
 
 -- ----------------------------
 -- Table structure for sys_gateway_route
@@ -144,7 +153,7 @@ INSERT INTO `sys_gateway_route` VALUES (2, 'cloudwaer-admin-serve', 'lb://cloudw
 INSERT INTO `sys_gateway_route` VALUES (1991546479613448194, 'cloudwaer-codegen-serve', 'lb://cloudwaer-codegen-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/codegen/**\"}}]', NULL, 0, '代码生成服务的网关转发配置', '2025-11-21 00:37:37', NULL, '2025-11-21 00:37:37', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (1992205324727853058, 'ws-cloudwaer-im-service', 'lb:ws://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/ws/**\"}}]', NULL, 0, '仅让 WebSocket 握手走这条，避免影响 REST 调用\n', '2025-11-22 20:15:37', NULL, '2026-01-06 05:56:00', NULL, 0);
 INSERT INTO `sys_gateway_route` VALUES (1992239401883295746, 'rest-cloudwaer-im-service', 'lb://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/**\"}}]', NULL, 1, '处理 /im/** 的 HTTP 接口', '2025-11-22 22:31:02', NULL, '2026-01-06 05:56:13', NULL, 0);
-INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', '[{\"name\":\"StripPrefix\",\"args\":{\"parts\":\"1\"}}]', 0, 'cloudwaer-flowable-serve 的基础网关转发', '2026-01-14 23:19:48', NULL, '2026-01-15 01:06:01', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', NULL, 0, 'cloudwaer-flowable-serve 的基础网关转发（与 admin/codegen 一致，保留 /flowable 前缀，勿加 StripPrefix）', '2026-01-14 23:19:48', NULL, '2026-01-15 01:06:01', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_permission
