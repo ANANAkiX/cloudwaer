@@ -44,6 +44,11 @@
             <artifactId>cloudwaer-common-swagger</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-redis</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Business services (embedded) -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
@@ -109,6 +114,25 @@
         <dependency>
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-codegen-serve</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-blog-serve</artifactId>
             <version>${project.version}</version>
             <exclusions>
                 <exclusion>

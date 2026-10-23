@@ -47,6 +47,9 @@ public class DynamicDataSourceRouteFilter extends OncePerRequestFilter {
 		if (path != null && path.contains("/codegen/")) {
 			return "codegen";
 		}
+		if (path != null && path.contains("/blog/")) {
+			return "blog";
+		}
 		// /admin/**、/auth/** 及其它一律 admin
 		return "admin";
 	}

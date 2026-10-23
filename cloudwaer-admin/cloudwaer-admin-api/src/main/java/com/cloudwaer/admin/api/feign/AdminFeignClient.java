@@ -1,11 +1,14 @@
 package com.cloudwaer.admin.api.feign;
 
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
+import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.RouteDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.common.core.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
@@ -58,5 +61,13 @@ public interface AdminFeignClient {
 	 */
 	@GetMapping("/user/by-role-ids")
 	Result<List<String>> getUsernamesByRoleIds(@RequestParam("roleIds") List<Long> roleIds);
+
+	/**
+	 * 用户注册（内部接口，由 authentication 服务转发匿名注册请求）
+	 * @param registerDTO 注册信息
+	 * @return 是否成功
+	 */
+	@PostMapping("/user/register")
+	Result<Boolean> registerUser(@RequestBody RegisterDTO registerDTO);
 
 }

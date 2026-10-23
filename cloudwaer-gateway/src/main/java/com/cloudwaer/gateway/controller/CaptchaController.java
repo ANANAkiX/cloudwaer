@@ -1,10 +1,10 @@
 package com.cloudwaer.gateway.controller;
 
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.gateway.config.CaptchaProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.FastByteArrayOutputStream;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +27,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CaptchaController {
 
-	private final StringRedisTemplate stringRedisTemplate;
+	private final RedisUtil redisUtil;
 
 	private final CaptchaProperties props;
 
@@ -46,8 +46,7 @@ public class CaptchaController {
 			String code = randomCode(props.getLength());
 
 			// store to redis (lower case for case-insensitive compare)
-			stringRedisTemplate.opsForValue()
-				.set(CAPTCHA_KEY_PREFIX + id, code.toLowerCase(), Duration.ofSeconds(props.getExpireSeconds()));
+			redisUtil.set(CAPTCHA_KEY_PREFIX + id, code.toLowerCase(), Duration.ofSeconds(props.getExpireSeconds()));
 
 			String imageBase64 = buildImageBase64(code, props.getWidth(), props.getHeight());
 

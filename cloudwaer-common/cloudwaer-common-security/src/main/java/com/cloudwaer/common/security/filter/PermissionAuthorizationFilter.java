@@ -51,6 +51,12 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 			return;
 		}
 
+		// 客户端绑定：有 Token 时校验 X-Client-Id 与登录 clientId 一致
+		if (!validateClientBinding(request)) {
+			writeErrorResponse(response, Result.fail(ResultCode.UNAUTHORIZED.getCode(), "客户端与Token不匹配"));
+			return;
+		}
+
 		// 从注解获取权限代码
 		PermissionCode permissionCodeAnnotation = getPermissionCodeAnnotation(request);
 		if (permissionCodeAnnotation == null) {
@@ -114,6 +120,27 @@ public class PermissionAuthorizationFilter extends OncePerRequestFilter {
 
 		log.debug("权限验证通过: method={}, path={}, permission={}", request.getMethod(), path, requiredPermissionCode);
 		filterChain.doFilter(request, response);
+	}
+
+	/**
+	 * 客户端绑定校验：请求头 X-Client-Id 与 Token 登录 clientId 一致
+	 */
+	private boolean validateClientBinding(HttpServletRequest request) {
+		String tokenUuid = SecurityContextUtil.getCurrentToken();
+		if (tokenUuid == null || tokenUuid.isBlank()) {
+			return true;
+		}
+		try {
+			com.cloudwaer.common.core.service.TokenService tokenService = org.springframework.web.context.support.WebApplicationContextUtils
+				.getWebApplicationContext(request.getServletContext())
+				.getBean(com.cloudwaer.common.core.service.TokenService.class);
+			String clientId = request.getHeader(com.cloudwaer.common.core.constant.CommonConstants.CLIENT_ID_HEADER);
+			return tokenService.validateTokenClient(tokenUuid, clientId);
+		}
+		catch (Exception e) {
+			log.warn("客户端绑定校验异常: {}", e.getMessage());
+			return false;
+		}
 	}
 
 	/**

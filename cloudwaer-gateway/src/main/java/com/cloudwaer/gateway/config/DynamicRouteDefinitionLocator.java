@@ -3,6 +3,7 @@ package com.cloudwaer.gateway.config;
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +18,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -61,7 +61,7 @@ public class DynamicRouteDefinitionLocator
 	private final AtomicBoolean applicationReady = new AtomicBoolean(false);
 
 	@Autowired(required = false)
-	private StringRedisTemplate stringRedisTemplate;
+	private RedisUtil redisUtil;
 
 	@Autowired
 	private DynamicRouteProperties dynamicRouteProperties;
@@ -276,14 +276,13 @@ public class DynamicRouteDefinitionLocator
 	 * 从 Redis 读取 DTO 列表
 	 */
 	private List<GatewayRouteDTO> loadRoutesFromRedisDTOs() {
-		if (stringRedisTemplate == null || objectMapper == null)
+		if (redisUtil == null || !redisUtil.isAvailable())
 			return Collections.emptyList();
 		try {
-			String json = stringRedisTemplate.opsForValue().get(dynamicRouteProperties.getRedisRoutesKey());
-			if (json == null || json.isEmpty())
-				return Collections.emptyList();
-			return objectMapper.readValue(json,
-					objectMapper.getTypeFactory().constructCollectionType(List.class, GatewayRouteDTO.class));
+			List<GatewayRouteDTO> routes = redisUtil.getObject(dynamicRouteProperties.getRedisRoutesKey(),
+					new com.fasterxml.jackson.core.type.TypeReference<List<GatewayRouteDTO>>() {
+					});
+			return routes == null ? Collections.emptyList() : routes;
 		}
 		catch (Exception e) {
 			log.debug("读取Redis路由缓存失败: {}", e.getMessage());
@@ -295,13 +294,11 @@ public class DynamicRouteDefinitionLocator
 	 * 将最新路由写入 Redis 做缓存
 	 */
 	private void saveRoutesToRedis(List<GatewayRouteDTO> routeDTOs) {
-		if (stringRedisTemplate == null || objectMapper == null || routeDTOs == null)
+		if (redisUtil == null || !redisUtil.isAvailable() || routeDTOs == null)
 			return;
 		try {
-			String json = objectMapper.writeValueAsString(routeDTOs);
-			stringRedisTemplate.opsForValue()
-				.set(dynamicRouteProperties.getRedisRoutesKey(), json, dynamicRouteProperties.getRedisCacheSeconds(),
-						TimeUnit.SECONDS);
+			redisUtil.setObject(dynamicRouteProperties.getRedisRoutesKey(), routeDTOs,
+					dynamicRouteProperties.getRedisCacheSeconds(), TimeUnit.SECONDS);
 		}
 		catch (Exception e) {
 			log.debug("写入Redis路由缓存失败: {}", e.getMessage());

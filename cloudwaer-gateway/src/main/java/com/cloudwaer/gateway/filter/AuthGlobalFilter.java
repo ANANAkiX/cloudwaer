@@ -67,8 +67,11 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 			return unauthorizedResponse(exchange);
 		}
 
-		if (!tokenService.validateToken(tokenUuid)) {
-			log.warn("Token验证失败: tokenUuid={}", tokenUuid);
+		// 客户端绑定校验：X-Client-Id 必须与 Token 登录时的 clientId 一致
+		String clientId = request.getHeaders()
+			.getFirst(com.cloudwaer.common.core.constant.CommonConstants.CLIENT_ID_HEADER);
+		if (!tokenService.validateTokenClient(tokenUuid, clientId)) {
+			log.warn("Token客户端校验失败: tokenUuid={}, clientId={}", tokenUuid, clientId);
 			return unauthorizedResponse(exchange);
 		}
 

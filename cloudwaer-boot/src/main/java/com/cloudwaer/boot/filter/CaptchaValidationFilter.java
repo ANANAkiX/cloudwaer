@@ -2,12 +2,12 @@ package com.cloudwaer.boot.filter;
 
 import com.cloudwaer.boot.config.CaptchaProperties;
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,13 +25,13 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
 
 	private final CaptchaProperties props;
 
-	private final StringRedisTemplate redis;
+	private final RedisUtil redisUtil;
 
 	private final ObjectMapper objectMapper;
 
-	public CaptchaValidationFilter(CaptchaProperties props, StringRedisTemplate redis, ObjectMapper objectMapper) {
+	public CaptchaValidationFilter(CaptchaProperties props, RedisUtil redisUtil, ObjectMapper objectMapper) {
 		this.props = props;
-		this.redis = redis;
+		this.redisUtil = redisUtil;
 		this.objectMapper = objectMapper;
 	}
 
@@ -51,22 +51,21 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
 
 		String captchaId = request.getHeader(HEADER_CAPTCHA_ID);
 		String captchaCode = request.getHeader(HEADER_CAPTCHA_CODE);
-		if (!org.springframework.util.StringUtils.hasText(captchaId)) {
+		if (!StringUtils.hasText(captchaId)) {
 			captchaId = request.getParameter("captchaId");
 		}
-		if (!org.springframework.util.StringUtils.hasText(captchaCode)) {
+		if (!StringUtils.hasText(captchaCode)) {
 			captchaCode = request.getParameter("captchaCode");
 		}
 
-		if (!org.springframework.util.StringUtils.hasText(captchaId)
-				|| !org.springframework.util.StringUtils.hasText(captchaCode)) {
+		if (!StringUtils.hasText(captchaId) || !StringUtils.hasText(captchaCode)) {
 			writeError(response, Result.fail(400, "缺少验证码参数"));
 			return;
 		}
 
 		String key = CAPTCHA_KEY_PREFIX + captchaId;
-		String expect = redis.opsForValue().get(key);
-		if (!org.springframework.util.StringUtils.hasText(expect)) {
+		String expect = redisUtil.get(key);
+		if (!StringUtils.hasText(expect)) {
 			writeError(response, Result.fail(400, "验证码已过期，请重新获取"));
 			return;
 		}
@@ -77,9 +76,10 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
 		}
 
 		try {
-			redis.delete(key);
+			redisUtil.delete(key);
 		}
 		catch (Exception e) {
+			// ignore
 		}
 
 		filterChain.doFilter(request, response);

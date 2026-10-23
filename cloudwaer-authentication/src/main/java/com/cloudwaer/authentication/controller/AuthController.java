@@ -2,6 +2,7 @@ package com.cloudwaer.authentication.controller;
 
 import com.cloudwaer.authentication.dto.LoginRequestDTO;
 import com.cloudwaer.authentication.dto.LoginResponseDTO;
+import com.cloudwaer.authentication.dto.RegisterRequestDTO;
 import com.cloudwaer.authentication.service.AuthService;
 import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.result.Result;
@@ -57,6 +58,16 @@ public class AuthController {
 		result.put("token", login.getToken()); // 只返回UUID包装的Token
 		log.info("用户登录成功: username={}", login.getUsername());
 		return Result.success(result);
+	}
+
+	/**
+	 * 注册
+	 */
+	@PostMapping("/register")
+	@PermissionCode(value = "auth:register", enable = false)
+	@Operation(summary = "用户注册", description = "匿名注册新用户，默认分配访客角色")
+	public Result<Boolean> register(@Validated @RequestBody RegisterRequestDTO registerRequest) {
+		return Result.success(authService.register(registerRequest));
 	}
 
 	/**

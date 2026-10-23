@@ -4,16 +4,17 @@
 
 Cloudwaer 是一个基于 Spring Cloud 的微服务架构项目，采用前后端分离设计，内置统一认证、权限、网关、动态路由、字典、集成等能力。
 
+前端仓库：`cloudwaer-ui`（及可选 `cloudwaer-blog-ui` 公开展示端）。
+
 ## 技术栈
 
 ### 后端
-- Spring Boot 3.2.x
-- Spring Cloud 2023.x
-- Spring Cloud Alibaba 2022.x
-- Spring Authorization Server（JWT）
+- Java 17 / Spring Boot 3.2.x
+- Spring Cloud 2023.x / Spring Cloud Alibaba
+- JWT（自研 TokenService + Redis）
 - Spring Cloud Gateway
 - MyBatis-Plus
-- Nacos（注册/配置）
+- Nacos（注册/配置，微服务模式）
 - MySQL、Redis
 
 ### 前端
@@ -24,14 +25,14 @@ Cloudwaer 是一个基于 Spring Cloud 的微服务架构项目，采用前后�
 
 ```
 cloudwaer/
-├─ cloudwaer-common/                 # 公共模块（核心工具、JWT、TokenService 等）
-├─ cloudwaer-authentication/         # 认证服务（登录/登出、Token 校验）
-├─ cloudwaer-gateway/                # API 网关（统一转发、路由、过滤器）
-├─ cloudwaer-admin/                  # 后台管理
-│  ├─ cloudwaer-admin-api/           # 对外 API 接口定义（Feign、DTO）
-│  └─ cloudwaer-admin-serve/         # 业务服务实现
-├─ cloudwaer-integration-serve/      # 集成服务
-└─ cloudwaer-ui/                     # 前端工程
+├─ cloudwaer-common/           # 公共（core / redis / security / log / swagger）
+├─ cloudwaer-authentication/   # 认证服务
+├─ cloudwaer-gateway/          # API 网关
+├─ cloudwaer-admin/            # 用户/角色/权限/字典/网关路由
+├─ cloudwaer-integration-serve/# codegen + flowable
+├─ cloudwaer-blog/             # 博客（api + serve，库 cloudwaer_blog）
+├─ cloudwaer-boot/             # 单体启动（本地默认，多数据源）
+└─ db/                         # 全量 SQL + db/changes/ 增量脚本
 ```
 
 ## 环境要求
@@ -40,51 +41,66 @@ cloudwaer/
 - Node.js 18+
 - MySQL 8.0+
 - Redis 6.0+
-- Nacos 2.2+
+- Nacos 2.2+（仅微服务模式）
 
 ## 端口约定（默认）
-- Nacos: 8848
-- Gateway: 4100
-- Authentication: 4101
-- Admin-Serve: 4102
 
-实际端口请以各模块 `application.yml` 或 Nacos 配置为准。
+| 组件 | 端口 |
+|------|------|
+| **cloudwaer-boot（单体，本地推荐）** | **9999** |
+| cloudwaer-ui 前端 | 4000 |
+| cloudwaer-blog-ui 前台 | 4100 |
+| Nacos | 8848 |
+
+微服务分拆时端口以各模块 `bootstrap.yml` / Nacos 配置为准。  
+**不要**把 Gateway 写成 4100（4100 是博客前台开发端口）。
+
+## 数据库
+
+全量脚本在 `db/`：
+
+| 文件 | 库 |
+|------|-----|
+| `db/cloudwaer.sql` | `cloudwaer`（sys_*） |
+| `db/cloudwaer_blog.sql` | `cloudwaer_blog` |
+| `db/cloudwaer_flowable.sql` | `cloudwaer_flowable` |
+| `db/cloudwaer_codegen_config.sql` | `cloudwaer_codegen_config` |
+| `db/cloudwaer_config.sql` | Nacos 配置库 |
+
+增量变更脚本放 `db/changes/`，命名 `作用-时间.sql`（见仓库 `AGENTS.md`）。
+
+**不存在** `sql/init.sql`；**不存在**根目录 `nacos-config-example/`（Nacos 配置请用 `db/cloudwaer_config.sql` 或控制台手工导入）。
 
 ## 准备与启动
 
-- 数据库与Redis
-  - 创建数据库，导入初始化 SQL（用户/角色/权限/字典 等）。
-  - 启动 Redis。
-- 启动 Nacos
-  - 从官方下载并解压 Nacos（https://nacos.io/）。
-  - 执行数据库脚本 `cloudwaer_config.sql` 打开nacos的application.properties 初始化 Nacos 配置Nacos存储数据的MySql地址用户名密码等。
-  - 启动 Nacos 服务。
-  - 备选方案：不导入SQL文件 直接启动nacos 在nacos终端中 导入nacos-config下面的配置文件以便本地快速启动。
-- 构建与运行
-  - 根目录执行：`mvn -U -T 1C -DskipTests clean package`
-  - 按顺序启动服务：Authentication -> Admin-Serve -> Gateway
-  - 注意 `Gateway`服务必须是等待 `Admin` 服务启动之后才能启动 (防止动态网关无法加载导致请求404)
-  - 前端见 `cloudwaer-ui/README.md`
+### 单体（本地默认）
+1. 导入上述 5 个 SQL（至少 `cloudwaer` + `cloudwaer_blog` + `cloudwaer_flowable`）。
+2. 启动 Redis。
+3. 启动 `cloudwaer-boot`（读 `application.yml` 多数据源，无 Nacos）。
+4. `cd cloudwaer-ui && npm install && npm run dev` → http://localhost:4000
 
-## 关键接口
-- 认证
-  - POST `/auth/login`            登录，返回 `{ token: string }`
-  - POST `/auth/logout`           登出，服务端删除 Token
-  - GET  `/auth/token/valid`      检查当前请求 Token 是否有效（前端定时轮询）
+### 微服务
+1. Nacos + `cloudwaer_config.sql`
+2. 按序：Authentication → Admin-Serve → **Gateway（最后）**
+3. 网关动态路由来自 `/admin/gateway-route/list`（匿名）
 
-## 网关与动态路由
-- 推荐通过后端维护路由，前端网关页面可新增/编辑/刷新。
-- 常见模板：外链代理（Nacos/Swagger）、基础转发。
+## 构建与校验
+
+```bash
+# 后端
+mvn -DskipTests clean package          # validate 含 spring-javaformat
+bash scripts/check-rbac.sh             # RBAC 注解/种子/前端码比对（尽力而为）
+
+# 前端
+cd ../cloudwaer-ui && npm run build
+npm run typecheck                      # vue-tsc@2；历史 Flowable 大页已 exclude，仍有遗留错误为非阻断
+```
 
 ## 权限与RBAC
-- 基于角色的访问控制：用户-角色-权限 多对多。
-- 菜单/路由与权限码一体化，前端按权限动态生成路由。
+- 用户-角色-权限多对多；`@PermissionCode` ↔ `db/cloudwaer.sql` 种子 ↔ 前端 `permission.ts` 三方一致。
+- 码风格：`模块:资源:动作`。
+- 角色变更会刷新在线 Token 权限（无需强制重登）。
 
-## 常见问题
-- 登录后偶发不跳转：已在前端通过 `toLogin()` 增强（replace + 顶层跳转兜底）。
-- Token 过期未感知：前端已接入每分钟定时校验 `/auth/token/valid`，并在 401 时强制跳转登录。
-
-## 开发建议
-- 统一从 Nacos 管理配置，区分 `dev/test/prod` 环境。
-- API 需遵循统一返回结构 `Result{ code, message, data }`，分页字段 `total/current/size/pages` 返回数字类型（后端已提供转换工具）。
-
+## 关键接口
+- POST `/auth/login` / `/auth/logout`
+- GET  `/auth/token/valid`（前端定时轮询）

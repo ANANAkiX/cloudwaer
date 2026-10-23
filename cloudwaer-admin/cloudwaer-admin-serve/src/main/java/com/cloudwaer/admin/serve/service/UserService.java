@@ -1,6 +1,7 @@
 package com.cloudwaer.admin.serve.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.serve.entity.User;
 import com.cloudwaer.common.core.dto.PageDTO;
@@ -55,6 +56,13 @@ public interface UserService extends IService<User> {
 	 * @return 是否成功
 	 */
 	Boolean saveUser(UserDTO userDTO);
+
+	/**
+	 * 用户注册（创建用户并分配访客角色）
+	 * @param registerDTO 注册信息
+	 * @return 是否成功
+	 */
+	Boolean register(RegisterDTO registerDTO);
 
 	/**
 	 * 更新用户

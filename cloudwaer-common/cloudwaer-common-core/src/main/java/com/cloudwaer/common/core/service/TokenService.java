@@ -1,17 +1,16 @@
 package com.cloudwaer.common.core.service;
 
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.core.config.JwtProperties;
 import com.cloudwaer.common.core.util.JwtUtil;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Token管理服务（Redis存储）
@@ -23,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class TokenService {
 
 	@Autowired(required = false)
-	private StringRedisTemplate redisTemplate;
+	private RedisUtil redisUtil;
 
 	@Autowired(required = false)
 	private ObjectMapper objectMapper;
@@ -35,18 +34,25 @@ public class TokenService {
 	private JwtUtil jwtUtil;
 
 	/**
-	 * 生成并存储 Token
-	 * @param userId 用户ID
-	 * @param username 用户名
-	 * @param roleIds 角色ID列表
-	 * @param permissions 权限代码列表
-	 * @return Token UUID（包装后的Token标识）
+	 * 生成并存储 Token（兼容旧调用，默认 client=admin）
 	 */
 	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions) {
-		if (redisTemplate == null) {
+		return generateAndStoreToken(userId, username, roleIds, permissions, "admin");
+	}
+
+	/**
+	 * 生成并存储 Token
+	 * @param clientId 客户端标识（admin/blog），Token 跨端不通用
+	 * @return Token UUID
+	 */
+	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions,
+			String clientId) {
+		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法存储Token");
 			return null;
 		}
+
+		String boundClient = StringUtils.hasText(clientId) ? clientId.trim() : "admin";
 
 		// 生成UUID作为Token标识
 		String tokenUuid = UUID.randomUUID().toString().replace("-", "");
@@ -56,6 +62,7 @@ public class TokenService {
 		claims.put("sub", username);
 		claims.put("userId", userId);
 		claims.put("tokenUuid", tokenUuid);
+		claims.put("clientId", boundClient);
 		if (roleIds != null && !roleIds.isEmpty()) {
 			claims.put("roleIds", roleIds);
 			claims.put("roleId", roleIds.get(0)); // 兼容旧代码
@@ -74,6 +81,7 @@ public class TokenService {
 		tokenData.put("username", username);
 		tokenData.put("roleIds", roleIds);
 		tokenData.put("permissions", permissions);
+		tokenData.put("clientId", boundClient);
 		tokenData.put("createTime", System.currentTimeMillis());
 
 		try {
@@ -88,14 +96,14 @@ public class TokenService {
 			// 存储Token数据到Redis
 			String tokenDataJson = getObjectMapper().writeValueAsString(tokenData);
 			long expirationSeconds = jwtProperties.getExpiration() / 1000;
-			redisTemplate.opsForValue().set(tokenKey, tokenDataJson, expirationSeconds, TimeUnit.SECONDS);
+			redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 			// 将Token UUID添加到用户的Token列表中
-			redisTemplate.opsForSet().add(userTokenListKey, tokenUuid);
-			redisTemplate.expire(userTokenListKey, expirationSeconds, TimeUnit.SECONDS);
+			redisUtil.setAdd(userTokenListKey, tokenUuid);
+			redisUtil.expire(userTokenListKey, expirationSeconds);
 
-			log.info("Token生成并存储成功: userId={}, tokenUuid={}, allowMultipleLogin={}", userId, tokenUuid,
-					jwtProperties.isAllowMultipleLogin());
+			log.info("Token生成并存储成功: userId={}, tokenUuid={}, clientId={}, allowMultipleLogin={}", userId, tokenUuid,
+					boundClient, jwtProperties.isAllowMultipleLogin());
 
 			return tokenUuid;
 		}
@@ -106,12 +114,51 @@ public class TokenService {
 	}
 
 	/**
+	 * 校验 Token 是否属于指定客户端
+	 * @param tokenUuid Token UUID
+	 * @param clientId 请求声明的客户端标识
+	 * @return true=有效且客户端匹配
+	 */
+	public boolean validateTokenClient(String tokenUuid, String clientId) {
+		if (!validateToken(tokenUuid)) {
+			return false;
+		}
+		if (!StringUtils.hasText(clientId)) {
+			// 未声明客户端时：兼容旧 Token（无 clientId）放行；有 clientId 的 Token 要求声明一致
+			Map<String, Object> data = getTokenData(tokenUuid);
+			Object bound = data == null ? null : data.get("clientId");
+			return bound == null || StringUtils.hasText(String.valueOf(bound));
+		}
+		Map<String, Object> data = getTokenData(tokenUuid);
+		if (data == null) {
+			return false;
+		}
+		Object bound = data.get("clientId");
+		// 旧 Token 无 clientId：放行（平滑升级）；有则必须一致
+		if (bound == null || !StringUtils.hasText(String.valueOf(bound))) {
+			return true;
+		}
+		return clientId.equals(String.valueOf(bound));
+	}
+
+	/**
+	 * 获取 Token 绑定的客户端标识
+	 */
+	public String getTokenClientId(String tokenUuid) {
+		Map<String, Object> data = getTokenData(tokenUuid);
+		if (data == null || data.get("clientId") == null) {
+			return null;
+		}
+		return String.valueOf(data.get("clientId"));
+	}
+
+	/**
 	 * 验证Token是否有效（检查Redis中是否存在）
 	 * @param tokenUuid Token UUID
 	 * @return 是否有效
 	 */
 	public boolean validateToken(String tokenUuid) {
-		if (redisTemplate == null) {
+		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法验证Token");
 			return false;
 		}
@@ -122,7 +169,7 @@ public class TokenService {
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			return redisTemplate.hasKey(tokenKey);
+			return redisUtil.hasKey(tokenKey);
 		}
 		catch (Exception e) {
 			log.error("验证Token失败: tokenUuid={}", tokenUuid, e);
@@ -136,13 +183,13 @@ public class TokenService {
 	 * @return JWT Token
 	 */
 	public String getJwtToken(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return null;
 		}
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			String tokenDataJson = redisTemplate.opsForValue().get(tokenKey);
+			String tokenDataJson = redisUtil.get(tokenKey);
 
 			if (StringUtils.hasText(tokenDataJson)) {
 				Map<String, Object> tokenData = getObjectMapper().readValue(tokenDataJson,
@@ -164,13 +211,13 @@ public class TokenService {
 	 * @return 用户信息Map
 	 */
 	public Map<String, Object> getTokenData(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return null;
 		}
 
 		try {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-			String tokenDataJson = redisTemplate.opsForValue().get(tokenKey);
+			String tokenDataJson = redisUtil.get(tokenKey);
 
 			if (StringUtils.hasText(tokenDataJson)) {
 				return getObjectMapper().readValue(tokenDataJson, new TypeReference<Map<String, Object>>() {
@@ -189,7 +236,7 @@ public class TokenService {
 	 * @param tokenUuid Token UUID
 	 */
 	public void deleteToken(String tokenUuid) {
-		if (redisTemplate == null || !StringUtils.hasText(tokenUuid)) {
+		if (redisUtil == null || !redisUtil.isAvailable() || !StringUtils.hasText(tokenUuid)) {
 			return;
 		}
 
@@ -199,13 +246,13 @@ public class TokenService {
 
 			if (tokenData != null) {
 				// 删除Token
-				redisTemplate.delete(tokenKey);
+				redisUtil.delete(tokenKey);
 
 				// 从用户Token列表中移除
 				Long userId = extractLongValue(tokenData.get("userId"));
 				if (userId != null) {
 					String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-					redisTemplate.opsForSet().remove(userTokenListKey, tokenUuid);
+					redisUtil.setRemove(userTokenListKey, tokenUuid);
 				}
 
 				log.info("Token删除成功: tokenUuid={}", tokenUuid);
@@ -221,20 +268,20 @@ public class TokenService {
 	 * @param userId 用户ID
 	 */
 	public void clearUserTokens(Long userId) {
-		if (redisTemplate == null || userId == null) {
+		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
 			return;
 		}
 
 		try {
 			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-			Set<String> tokenUuids = redisTemplate.opsForSet().members(userTokenListKey);
+			Set<String> tokenUuids = redisUtil.setMembers(userTokenListKey);
 
 			if (tokenUuids != null && !tokenUuids.isEmpty()) {
 				for (String tokenUuid : tokenUuids) {
 					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
-					redisTemplate.delete(tokenKey);
+					redisUtil.delete(tokenKey);
 				}
-				redisTemplate.delete(userTokenListKey);
+				redisUtil.delete(userTokenListKey);
 				log.info("清除用户所有Token成功: userId={}, tokenCount={}", userId, tokenUuids.size());
 			}
 		}
@@ -251,13 +298,13 @@ public class TokenService {
 	 * @return 更新的Token数量
 	 */
 	public int updateUserTokenPermissions(Long userId, List<String> newPermissions) {
-		if (redisTemplate == null || userId == null) {
+		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
 			return 0;
 		}
 
 		try {
 			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
-			Set<String> tokenUuids = redisTemplate.opsForSet().members(userTokenListKey);
+			Set<String> tokenUuids = redisUtil.setMembers(userTokenListKey);
 
 			if (tokenUuids == null || tokenUuids.isEmpty()) {
 				log.debug("用户没有活跃的Token: userId={}", userId);
@@ -277,7 +324,7 @@ public class TokenService {
 					Map<String, Object> tokenData = getTokenData(tokenUuid);
 					if (tokenData == null) {
 						// Token已过期或不存在，从Set中移除
-						redisTemplate.opsForSet().remove(userTokenListKey, tokenUuid);
+						redisUtil.setRemove(userTokenListKey, tokenUuid);
 						skipCount++;
 						log.debug("Token已过期，跳过更新: userId={}, tokenUuid={}", userId, tokenUuid);
 						continue;
@@ -306,12 +353,16 @@ public class TokenService {
 					// 使用传入的新权限，如果没有则保持原权限（这种情况不应该发生，但为了安全）
 					List<String> permissions = newPermissions != null ? newPermissions
 							: (List<String>) tokenData.get("permissions");
+					Object clientId = tokenData.get("clientId");
 
 					// 构建新的JWT Claims
 					Map<String, Object> claims = new HashMap<>();
 					claims.put("sub", username);
 					claims.put("userId", tokenUserId);
 					claims.put("tokenUuid", tokenUuid);
+					if (clientId != null) {
+						claims.put("clientId", clientId);
+					}
 					if (roleIds != null && !roleIds.isEmpty()) {
 						claims.put("roleIds", roleIds);
 						claims.put("roleId", roleIds.get(0)); // 兼容旧代码
@@ -330,13 +381,16 @@ public class TokenService {
 					updatedTokenData.put("username", username);
 					updatedTokenData.put("roleIds", roleIds);
 					updatedTokenData.put("permissions", permissions);
+					if (clientId != null) {
+						updatedTokenData.put("clientId", clientId);
+					}
 					updatedTokenData.put("createTime", tokenData.get("createTime")); // 保持原创建时间
 
 					// 更新Redis中的Token数据
 					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
 					String tokenDataJson = getObjectMapper().writeValueAsString(updatedTokenData);
 					long expirationSeconds = jwtProperties.getExpiration() / 1000;
-					redisTemplate.opsForValue().set(tokenKey, tokenDataJson, expirationSeconds, TimeUnit.SECONDS);
+					redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 					updateCount++;
 					log.debug("更新Token权限成功: userId={}, tokenUuid={}, permissions={}", tokenUserId, tokenUuid,

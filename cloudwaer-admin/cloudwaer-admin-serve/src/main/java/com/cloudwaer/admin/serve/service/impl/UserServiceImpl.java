@@ -4,14 +4,21 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
+import com.cloudwaer.admin.serve.entity.Role;
 import com.cloudwaer.admin.serve.entity.User;
 import com.cloudwaer.admin.serve.entity.UserRole;
+import com.cloudwaer.admin.serve.mapper.RoleMapper;
 import com.cloudwaer.admin.serve.mapper.UserMapper;
 import com.cloudwaer.admin.serve.mapper.UserRoleMapper;
+import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.admin.serve.service.UserService;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
+import com.cloudwaer.common.core.exception.BusinessException;
+import com.cloudwaer.common.core.service.TokenService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -26,14 +33,24 @@ import java.util.stream.Collectors;
  *
  * @author cloudwaer
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
 	@Autowired
 	private UserRoleMapper userRoleMapper;
 
+	@Autowired
+	private RoleMapper roleMapper;
+
 	@Autowired(required = false)
 	private PasswordEncoder passwordEncoder;
+
+	@Autowired(required = false)
+	private TokenService tokenService;
+
+	@Autowired(required = false)
+	private PermissionService permissionService;
 
 	@Override
 	public UserDTO getUserByUsername(String username) {
@@ -128,6 +145,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	}
 
 	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Boolean register(RegisterDTO registerDTO) {
+		Long exists = this.count(new LambdaQueryWrapper<User>().eq(User::getUsername, registerDTO.getUsername()));
+		if (exists != null && exists > 0) {
+			throw new BusinessException("用户名已存在");
+		}
+
+		Role guestRole = roleMapper
+			.selectOne(new LambdaQueryWrapper<Role>().eq(Role::getRoleCode, "GUEST").last("LIMIT 1"));
+		if (guestRole == null) {
+			throw new BusinessException("访客角色未初始化，请先导入 db/cloudwaer_blog.sql");
+		}
+
+		UserDTO userDTO = new UserDTO();
+		userDTO.setUsername(registerDTO.getUsername());
+		userDTO.setPassword(registerDTO.getPassword());
+		userDTO.setNickname(registerDTO.getNickname() != null && !registerDTO.getNickname().isBlank()
+				? registerDTO.getNickname() : registerDTO.getUsername());
+		userDTO.setRoleIds(List.of(guestRole.getId()));
+		return saveUser(userDTO);
+	}
+
+	@Override
 	public Boolean updateUser(UserDTO userDTO) {
 		User user = new User();
 		BeanUtils.copyProperties(userDTO, user);
@@ -176,7 +216,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 			}
 		}
 
+		// 角色变更后立即刷新该用户全部在线 Token 权限（否则需重新登录才生效）
+		refreshUserTokenPermissions(userId);
 		return true;
+	}
+
+	/**
+	 * 刷新用户 Token 中的权限码（不重登）
+	 */
+	private void refreshUserTokenPermissions(Long userId) {
+		if (tokenService == null || permissionService == null || userId == null) {
+			return;
+		}
+		try {
+			List<String> latestPermissions = permissionService.getPermissionCodesByUserId(userId);
+			int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
+			log.info("分配角色后刷新Token权限: userId={}, tokenCount={}, permissions={}", userId, updateCount,
+					latestPermissions);
+		}
+		catch (Exception e) {
+			log.error("分配角色后刷新Token权限失败: userId={}", userId, e);
+		}
 	}
 
 	private UserDTO toUserDTO(User user, boolean maskPassword) {

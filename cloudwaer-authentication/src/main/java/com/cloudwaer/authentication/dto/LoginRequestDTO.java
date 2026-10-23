@@ -58,4 +58,11 @@ public class LoginRequestDTO implements Serializable {
 	@Schema(description = "有效范围", required = true, example = "")
 	public String scope;
 
+	/**
+	 * 客户端标识：admin-管理后台 / blog-博客前台（Token 跨端不通用）
+	 */
+	@NotBlank(message = "clientId不能为空")
+	@Schema(description = "客户端标识", required = true, example = "admin")
+	private String clientId;
+
 }
