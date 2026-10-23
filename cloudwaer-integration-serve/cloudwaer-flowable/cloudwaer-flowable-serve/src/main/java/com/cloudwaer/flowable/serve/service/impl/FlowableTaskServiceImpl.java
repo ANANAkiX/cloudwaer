@@ -66,11 +66,17 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 		if (username == null || username.isBlank()) {
 			throw new BusinessException("user not authenticated");
 		}
-		TaskQuery query = taskService.createTaskQuery()
-			.taskCandidateOrAssigned(username)
-			.active() // 过滤已挂起(流程/任务被suspend)的待办
-			.orderByTaskCreateTime()
-			.desc();
+		TaskQuery query = taskService.createTaskQuery().active().or().taskCandidateOrAssigned(username);
+		// 候选组 = 角色ID：把当前用户角色并入 OR 条件
+		List<Long> roleIds = SecurityContextUtil.getCurrentRoleIds();
+		if (roleIds != null) {
+			for (Long roleId : roleIds) {
+				if (roleId != null) {
+					query = query.taskCandidateGroup(String.valueOf(roleId));
+				}
+			}
+		}
+		query = query.endOr().orderByTaskCreateTime().desc();
 		long total = query.count();
 		int offset = Math.toIntExact(pageDTO.getOffset());
 		int size = Math.toIntExact(pageDTO.getSize());
@@ -90,6 +96,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 			dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
 
 			dto.setAssignee(task.getAssignee());
+			dto.setStarter(resolveProcessStarter(task.getProcessInstanceId()));
 			dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
 			dto.setStatus("TODO");
 			records.add(dto);
@@ -126,6 +133,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 			dto.setPriority(resolveProcessPriority(task.getProcessInstanceId()));
 			dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
 			dto.setAssignee(task.getAssignee());
+			dto.setStarter(resolveProcessStarter(task.getProcessInstanceId()));
 			dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
 			dto.setEndTime(toLocalDateTime(task.getEndTime()));
 			dto.setStatus("DONE");
@@ -276,6 +284,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 			dto.setPriority(resolveProcessPriority(task.getProcessInstanceId()));
 			dto.setDueTime(resolveProcessDueTime(task.getProcessInstanceId()));
 			dto.setAssignee(task.getAssignee());
+			dto.setStarter(resolveProcessStarter(task.getProcessInstanceId()));
 			dto.setCreateTime(toLocalDateTime(task.getCreateTime()));
 			dto.setStatus("TODO");
 			return dto;
@@ -298,6 +307,7 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 		dto.setPriority(resolveProcessPriority(historic.getProcessInstanceId()));
 		dto.setDueTime(resolveProcessDueTime(historic.getProcessInstanceId()));
 		dto.setAssignee(historic.getAssignee());
+		dto.setStarter(resolveProcessStarter(historic.getProcessInstanceId()));
 		dto.setCreateTime(toLocalDateTime(historic.getCreateTime()));
 		dto.setEndTime(toLocalDateTime(historic.getEndTime()));
 		dto.setStatus("DONE");
@@ -327,6 +337,35 @@ public class FlowableTaskServiceImpl implements FlowableTaskService {
 			return null;
 		}
 		return LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault());
+	}
+
+	/**
+	 * 流程申请人：优先历史实例 startUserId，其次扩展表 createUser。
+	 */
+	private String resolveProcessStarter(String processInstanceId) {
+		if (processInstanceId == null || processInstanceId.isBlank()) {
+			return null;
+		}
+		try {
+			HistoricProcessInstance instance = historyService.createHistoricProcessInstanceQuery()
+				.processInstanceId(processInstanceId)
+				.singleResult();
+			if (instance != null && instance.getStartUserId() != null && !instance.getStartUserId().isBlank()) {
+				return instance.getStartUserId();
+			}
+		}
+		catch (Exception ignored) {
+		}
+		try {
+			WfProcessExt ext = processExtMapper.selectOne(
+					new LambdaQueryWrapper<WfProcessExt>().eq(WfProcessExt::getProcessInstanceId, processInstanceId));
+			if (ext != null && ext.getCreateUser() != null && !ext.getCreateUser().isBlank()) {
+				return ext.getCreateUser();
+			}
+		}
+		catch (Exception ignored) {
+		}
+		return null;
 	}
 
 	private String resolveProcessDefinitionKey(String processDefinitionId) {

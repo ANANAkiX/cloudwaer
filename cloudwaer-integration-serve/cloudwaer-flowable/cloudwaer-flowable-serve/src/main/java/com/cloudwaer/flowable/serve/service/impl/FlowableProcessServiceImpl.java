@@ -5,6 +5,7 @@ import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
+import com.cloudwaer.flowable.api.dto.FlowableProcessHistoryDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessInstanceDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessStartDTO;
 import com.cloudwaer.flowable.api.enums.ProcessStatusEnum;
@@ -633,51 +634,23 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 	}
 
 	@Override
-	public List<Map<String, Object>> getProcessHistory(String processInstanceId) {
-		List<Map<String, Object>> result = new ArrayList<>();
+	public List<FlowableProcessHistoryDTO> getProcessHistory(String processInstanceId) {
+		List<FlowableProcessHistoryDTO> timeline = new ArrayList<>();
 
 		HistoricProcessInstance processInstance = historyService.createHistoricProcessInstanceQuery()
 			.processInstanceId(processInstanceId)
 			.singleResult();
 		if (processInstance == null) {
-			return result;
+			return timeline;
 		}
 
 		String processDefinitionKey = processInstance.getProcessDefinitionKey();
 		if (processInstance.getStartTime() != null) {
-			result.add(buildHistoryItem(processInstance.getId() + "_start", "系统", "创建流程",
-					processInstance.getStartTime(), null, "start", "", ""));
+			timeline.add(historyItem(processInstance.getId() + "_start", "系统", "创建流程", "start",
+					processInstance.getStartTime(), null, null, null, null));
 		}
 
-		List<WfTaskHandleRecord> handleRecords = taskHandleRecordMapper
-			.selectList(new LambdaQueryWrapper<WfTaskHandleRecord>().eq(WfTaskHandleRecord::getProcessInstanceId,
-					processInstanceId));
-		Map<String, WfTaskHandleRecord> handleRecordMap = new HashMap<>();
-		for (WfTaskHandleRecord record : handleRecords) {
-			if (record.getTaskId() == null) {
-				continue;
-			}
-			String recordType = record.getRecordType();
-			boolean isComplete = "complete".equalsIgnoreCase(recordType);
-			boolean isReject = "reject".equalsIgnoreCase(recordType);
-			if (!isComplete && !isReject) {
-				continue;
-			}
-			WfTaskHandleRecord existing = handleRecordMap.get(record.getTaskId());
-			if (existing == null) {
-				handleRecordMap.put(record.getTaskId(), record);
-				continue;
-			}
-			if (existing.getCreateTime() == null && record.getCreateTime() != null) {
-				handleRecordMap.put(record.getTaskId(), record);
-				continue;
-			}
-			if (existing.getCreateTime() != null && record.getCreateTime() != null
-					&& record.getCreateTime().isAfter(existing.getCreateTime())) {
-				handleRecordMap.put(record.getTaskId(), record);
-			}
-		}
-
+		Map<String, WfTaskHandleRecord> handleRecordMap = loadLatestHandleRecords(processInstanceId);
 		List<HistoricVariableInstance> restartVariables = historyService.createHistoricVariableInstanceQuery()
 			.processInstanceId(processInstanceId)
 			.variableNameLike("restart:%")
@@ -697,67 +670,51 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 
 		for (HistoricVariableInstance restartVar : restartVariables) {
 			Date boundary = restartVar.getCreateTime();
-
 			while (taskIndex < historicTasks.size()) {
 				HistoricTaskInstance task = historicTasks.get(taskIndex);
-				Date taskStartTime = task.getStartTime();
-				if (taskStartTime == null) {
+				if (task.getStartTime() == null) {
 					taskIndex++;
 					continue;
 				}
-				if (cycleStart != null && taskStartTime.before(cycleStart)) {
+				if (cycleStart != null && task.getStartTime().before(cycleStart)) {
 					taskIndex++;
 					continue;
 				}
-				if (boundary != null && !taskStartTime.before(boundary)) {
+				if (boundary != null && !task.getStartTime().before(boundary)) {
 					break;
 				}
-
-				appendTaskHistoryItems(result, task, processDefinitionKey, handleRecordMap);
-				if (!endAdded && isTaskRejected(processInstanceId, task, handleRecordMap)) {
-					endAdded = true;
-				}
+				endAdded = appendTaskHistoryItems(timeline, task, processDefinitionKey, handleRecordMap) || endAdded;
 				taskIndex++;
 			}
 
 			String restartUser = restartVar.getValue() != null ? String.valueOf(restartVar.getValue()) : "system";
-			Date restartTime = restartVar.getCreateTime();
-			result.add(buildHistoryItem(processInstanceId + "_restart_" + restartVar.getId(), restartUser, "重新发起",
-					restartTime, restartTime, "restart", "", ""));
-
+			timeline.add(historyItem(processInstanceId + "_restart_" + restartVar.getId(), restartUser, "重新发起",
+					"restart", restartVar.getCreateTime(), restartVar.getCreateTime(), null, null, null));
 			cycleStart = boundary;
 		}
 
 		while (taskIndex < historicTasks.size()) {
 			HistoricTaskInstance task = historicTasks.get(taskIndex);
-			Date taskStartTime = task.getStartTime();
-			if (taskStartTime == null) {
+			if (task.getStartTime() == null) {
 				taskIndex++;
 				continue;
 			}
-			if (cycleStart != null && taskStartTime.before(cycleStart)) {
+			if (cycleStart != null && task.getStartTime().before(cycleStart)) {
 				taskIndex++;
 				continue;
 			}
-
-			appendTaskHistoryItems(result, task, processDefinitionKey, handleRecordMap);
-			if (!endAdded && isTaskRejected(processInstanceId, task, handleRecordMap)) {
-				endAdded = true;
-			}
+			endAdded = appendTaskHistoryItems(timeline, task, processDefinitionKey, handleRecordMap) || endAdded;
 			taskIndex++;
 		}
 
-		if (processInstance.getEndTime() != null) {
-			if (!endAdded) {
-				result.add(buildHistoryItem(processInstance.getId() + "_end", "系统", "结束流程",
-						processInstance.getEndTime(), processInstance.getEndTime(), "end", "", ""));
-			}
-
-			result.add(buildHistoryItem(processInstance.getId() + "_completed", "系统", "流程已完成",
-					processInstance.getEndTime(), processInstance.getEndTime(), "end", "", ""));
+		if (processInstance.getEndTime() != null && !endAdded) {
+			timeline.add(historyItem(processInstance.getId() + "_end", "系统", "流程结束", "end",
+					processInstance.getEndTime(), processInstance.getEndTime(), null, null, null));
 		}
 
-		return result;
+		timeline.sort(Comparator.comparing(FlowableProcessHistoryDTO::getTime,
+				Comparator.nullsLast(Comparator.naturalOrder())));
+		return timeline;
 	}
 
 	@Override
@@ -798,18 +755,51 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 		return result;
 	}
 
-	private Map<String, Object> buildHistoryItem(String id, String userName, String action, Date time, Date endTime,
-			String type, String comment, String duration) {
-		Map<String, Object> item = new HashMap<>();
-		item.put("id", id);
-		item.put("userName", userName);
-		item.put("action", action);
-		item.put("time", toLocalDateTime(time));
-		item.put("endTime", toLocalDateTime(endTime));
-		item.put("duration", duration != null ? duration : "");
-		item.put("comment", comment != null ? comment : "");
-		item.put("type", type);
+	private FlowableProcessHistoryDTO historyItem(String id, String userName, String action, String type, Date time,
+			Date endTime, String result, String comment, String duration) {
+		FlowableProcessHistoryDTO item = new FlowableProcessHistoryDTO();
+		item.setId(id);
+		item.setUserName(userName != null && !userName.isBlank() ? userName : "未知");
+		item.setAction(action);
+		item.setType(type);
+		item.setTime(toLocalDateTime(time));
+		item.setEndTime(toLocalDateTime(endTime));
+		item.setResult(result);
+		item.setComment(comment);
+		item.setDuration(duration);
 		return item;
+	}
+
+	private Map<String, WfTaskHandleRecord> loadLatestHandleRecords(String processInstanceId) {
+		List<WfTaskHandleRecord> handleRecords = taskHandleRecordMapper
+			.selectList(new LambdaQueryWrapper<WfTaskHandleRecord>().eq(WfTaskHandleRecord::getProcessInstanceId,
+					processInstanceId));
+		Map<String, WfTaskHandleRecord> handleRecordMap = new HashMap<>();
+		for (WfTaskHandleRecord record : handleRecords) {
+			if (record.getTaskId() == null) {
+				continue;
+			}
+			String recordType = record.getRecordType();
+			boolean isComplete = "complete".equalsIgnoreCase(recordType);
+			boolean isReject = "reject".equalsIgnoreCase(recordType);
+			if (!isComplete && !isReject) {
+				continue;
+			}
+			WfTaskHandleRecord existing = handleRecordMap.get(record.getTaskId());
+			if (existing == null) {
+				handleRecordMap.put(record.getTaskId(), record);
+				continue;
+			}
+			if (existing.getCreateTime() == null && record.getCreateTime() != null) {
+				handleRecordMap.put(record.getTaskId(), record);
+				continue;
+			}
+			if (existing.getCreateTime() != null && record.getCreateTime() != null
+					&& record.getCreateTime().isAfter(existing.getCreateTime())) {
+				handleRecordMap.put(record.getTaskId(), record);
+			}
+		}
+		return handleRecordMap;
 	}
 
 	private String resolveApprovalResult(String processInstanceId, Date taskEndTime) {
@@ -892,22 +882,6 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 		}
 		catch (Exception e) {
 			return null;
-		}
-	}
-
-	private String formatApprovalResult(String result) {
-		if (result == null || result.isBlank()) {
-			return "未填写";
-		}
-		switch (result) {
-			case "approve":
-			case "approved":
-				return "同意";
-			case "reject":
-			case "rejected":
-				return "拒绝";
-			default:
-				return result;
 		}
 	}
 
@@ -1094,29 +1068,7 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 		return index < names.length ? names[index] : "任务" + (index + 1);
 	}
 
-	private int historyOrder(String type) {
-		if (type == null) {
-			return 99;
-		}
-		switch (type) {
-			case "start":
-				return 1;
-			case "restart":
-				return 2;
-			case "wait":
-				return 3;
-			case "complete":
-				return 4;
-			case "reject":
-				return 5;
-			case "end":
-				return 6;
-			default:
-				return 99;
-		}
-	}
-
-	private void appendTaskHistoryItems(List<Map<String, Object>> result, HistoricTaskInstance task,
+	private boolean appendTaskHistoryItems(List<FlowableProcessHistoryDTO> timeline, HistoricTaskInstance task,
 			String processDefinitionKey, Map<String, WfTaskHandleRecord> handleRecordMap) {
 		String assignee = task.getAssignee();
 		if (assignee == null || assignee.isBlank()) {
@@ -1126,10 +1078,11 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 			assignee = "未知";
 		}
 
-		Date taskStartTime = task.getStartTime();
-		if (taskStartTime != null) {
-			result.add(buildHistoryItem(task.getId() + "_wait", "系统", "等待 " + assignee + " 处理", taskStartTime, null,
-					"wait", "", ""));
+		String taskName = task.getName() != null && !task.getName().isBlank() ? task.getName() : "任务";
+		String waitAction = "等待 " + assignee + " 处理「" + taskName + "」";
+		if (task.getStartTime() != null) {
+			timeline.add(historyItem(task.getId() + "_wait", "系统", waitAction, "wait", task.getStartTime(), null, null,
+					null, null));
 		}
 
 		WfTaskHandleRecord record = handleRecordMap.get(task.getId());
@@ -1138,45 +1091,57 @@ public class FlowableProcessServiceImpl implements FlowableProcessService {
 			taskEndTime = Date.from(record.getCreateTime().atZone(ZoneId.systemDefault()).toInstant());
 		}
 		if (taskEndTime == null) {
-			return;
+			return false;
 		}
 
 		String approvalResult = record != null ? record.getResult()
 				: resolveApprovalResult(task.getProcessInstanceId(), taskEndTime);
-		String resultText = formatApprovalResult(approvalResult);
+		String resultType = resolveResultType(approvalResult);
 		String comment = record != null ? record.getComment() : getLatestTaskComment(task.getId());
-		String action = "已处理 处理结果: " + resultText;
-		String commentText = comment == null || comment.isBlank() ? "" : "处理意见: " + comment;
-		String type = resolveResultType(approvalResult);
-		String durationText = "";
-		if (record != null && record.getDurationMs() != null) {
-			durationText = record.getDurationMs() + "ms";
-		}
-		else if (task.getDurationInMillis() != null) {
-			durationText = task.getDurationInMillis() + "ms";
-		}
+		String durationText = resolveDurationText(record, task);
 
-		result.add(buildHistoryItem(task.getId() + "_complete", assignee, action, taskEndTime, taskEndTime, type,
-				commentText, durationText));
+		boolean rejected = "reject".equalsIgnoreCase(resultType);
+		String action = rejected ? "驳回「" + taskName + "」" : "完成「" + taskName + "」";
+		timeline.add(historyItem(task.getId() + "_complete", assignee, action, resultType, taskEndTime, taskEndTime,
+				approvalResult, blankToNull(comment), durationText));
 
-		if ("reject".equalsIgnoreCase(String.valueOf(approvalResult))) {
-			result.add(buildHistoryItem(task.getId() + "_reject_end", "系统", "结束流程", taskEndTime, taskEndTime, "end", "",
-					""));
+		if (rejected) {
+			timeline.add(historyItem(task.getId() + "_reject_end", "系统", "流程被驳回并结束", "end", taskEndTime, taskEndTime,
+					"reject", null, null));
+			return true;
 		}
+		return false;
 	}
 
-	private boolean isTaskRejected(String processInstanceId, HistoricTaskInstance task,
-			Map<String, WfTaskHandleRecord> handleRecordMap) {
-		WfTaskHandleRecord record = handleRecordMap.get(task.getId());
-		String approvalResult = record != null ? record.getResult() : null;
-		if (approvalResult == null) {
-			Date taskEndTime = task.getEndTime();
-			if (taskEndTime != null) {
-				approvalResult = resolveApprovalResult(processInstanceId, taskEndTime);
-			}
+	private String blankToNull(String value) {
+		return value == null || value.isBlank() ? null : value;
+	}
+
+	private String resolveDurationText(WfTaskHandleRecord record, HistoricTaskInstance task) {
+		Long durationMs = null;
+		if (record != null && record.getDurationMs() != null) {
+			durationMs = record.getDurationMs();
 		}
-		return "reject".equalsIgnoreCase(String.valueOf(approvalResult))
-				|| "rejected".equalsIgnoreCase(String.valueOf(approvalResult));
+		else if (task.getDurationInMillis() != null) {
+			durationMs = task.getDurationInMillis();
+		}
+		if (durationMs == null) {
+			return null;
+		}
+		if (durationMs < 1000) {
+			return durationMs + "ms";
+		}
+		long seconds = durationMs / 1000;
+		if (seconds < 60) {
+			return seconds + "s";
+		}
+		long minutes = seconds / 60;
+		long remainSeconds = seconds % 60;
+		if (minutes < 60) {
+			return minutes + "m " + remainSeconds + "s";
+		}
+		long hours = minutes / 60;
+		return hours + "h " + (minutes % 60) + "m";
 	}
 
 }

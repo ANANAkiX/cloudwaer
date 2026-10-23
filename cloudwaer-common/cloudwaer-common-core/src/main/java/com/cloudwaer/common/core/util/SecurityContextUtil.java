@@ -172,15 +172,48 @@ public class SecurityContextUtil {
 
 	/**
 	 * 获取当前用户角色ID列表
+	 * <p>
+	 * JWT Claims 反序列化后角色ID常为 Integer/Number，需逐项转为 Long，禁止直接强转 List。
 	 * @return 角色ID列表
 	 */
-	@SuppressWarnings("unchecked")
 	public static List<Long> getCurrentRoleIds() {
 		Claims claims = getCurrentClaims();
-		if (claims != null) {
-			Object roleIds = claims.get("roleIds");
-			if (roleIds instanceof List) {
-				return (List<Long>) roleIds;
+		if (claims == null) {
+			return null;
+		}
+		Object roleIds = claims.get("roleIds");
+		if (!(roleIds instanceof List<?> list) || list.isEmpty()) {
+			return null;
+		}
+		List<Long> result = new java.util.ArrayList<>(list.size());
+		for (Object item : list) {
+			Long id = toLong(item);
+			if (id != null) {
+				result.add(id);
+			}
+		}
+		return result;
+	}
+
+	private static Long toLong(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof Long) {
+			return (Long) value;
+		}
+		if (value instanceof Integer) {
+			return ((Integer) value).longValue();
+		}
+		if (value instanceof Number) {
+			return ((Number) value).longValue();
+		}
+		if (value instanceof String s && !s.isBlank()) {
+			try {
+				return Long.parseLong(s.trim());
+			}
+			catch (NumberFormatException e) {
+				return null;
 			}
 		}
 		return null;

@@ -189,4 +189,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		return userDTO;
 	}
 
+	@Override
+	public List<String> getUsernamesByRoleIds(List<Long> roleIds) {
+		if (roleIds == null || roleIds.isEmpty()) {
+			return List.of();
+		}
+		java.util.Set<Long> userIds = new java.util.LinkedHashSet<>();
+		for (Long roleId : roleIds) {
+			if (roleId == null) {
+				continue;
+			}
+			List<Long> ids = userRoleMapper.selectUserIdsByRoleId(roleId);
+			if (ids != null) {
+				userIds.addAll(ids);
+			}
+		}
+		if (userIds.isEmpty()) {
+			return List.of();
+		}
+		return this.listByIds(userIds)
+			.stream()
+			.map(User::getUsername)
+			.filter(u -> u != null && !u.isBlank())
+			.distinct()
+			.toList();
+	}
+
 }

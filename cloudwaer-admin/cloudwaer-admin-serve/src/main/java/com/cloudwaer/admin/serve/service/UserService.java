@@ -78,4 +78,11 @@ public interface UserService extends IService<User> {
 	 */
 	Boolean assignRoles(Long userId, List<Long> roleIds);
 
+	/**
+	 * 根据角色ID批量查询用户名（用于流程候选组运行时展开）
+	 * @param roleIds 角色ID列表
+	 * @return 用户名列表
+	 */
+	List<String> getUsernamesByRoleIds(List<Long> roleIds);
+
 }

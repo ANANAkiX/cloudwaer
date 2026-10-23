@@ -18,8 +18,16 @@ spring:
           - data-id: application-common.yml
             group: DEFAULT_GROUP
             refresh: true
-          # 加载服务特定配置文件
           - data-id: application-cloudwaer-flowable-serve-dev.yml
             group: DEFAULT_GROUP
             refresh: true
 
+management:
+  metrics:
+    export:
+      simple:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info

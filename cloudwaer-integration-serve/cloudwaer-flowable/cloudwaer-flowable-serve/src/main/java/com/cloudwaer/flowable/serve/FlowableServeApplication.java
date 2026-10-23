@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication(scanBasePackages = "com.cloudwaer")
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.cloudwaer")
+@EnableFeignClients(basePackages = "com.cloudwaer.admin.api.feign")
 public class FlowableServeApplication {
 
 	public static void main(String[] args) {

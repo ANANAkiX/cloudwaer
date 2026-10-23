@@ -36,6 +36,11 @@ public class FlowableTaskDTO implements Serializable {
 
 	private String assignee;
 
+	/**
+	 * 流程申请人（发起人）
+	 */
+	private String starter;
+
 	private LocalDateTime createTime;
 
 	private LocalDateTime endTime;

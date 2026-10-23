@@ -5,6 +5,7 @@ import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.flowable.api.dto.FlowableProcessDeleteDTO;
+import com.cloudwaer.flowable.api.dto.FlowableProcessHistoryDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessInstanceDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessStartDTO;
 import com.cloudwaer.flowable.serve.service.FlowableProcessService;
@@ -103,8 +104,8 @@ public class FlowableProcessController {
 
 	@GetMapping("/history")
 	@PermissionCode("flowable:process:history")
-	@Operation(summary = "Get process history")
-	public Result<List<Map<String, Object>>> getHistory(@RequestParam String processInstanceId) {
+	@Operation(summary = "Get process operation history timeline")
+	public Result<List<FlowableProcessHistoryDTO>> getHistory(@RequestParam String processInstanceId) {
 		return Result.success(processService.getProcessHistory(processInstanceId));
 	}
 

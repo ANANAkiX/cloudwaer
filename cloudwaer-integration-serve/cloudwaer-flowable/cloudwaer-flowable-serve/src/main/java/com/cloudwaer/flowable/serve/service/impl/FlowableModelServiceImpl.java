@@ -57,19 +57,13 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		}
 
 		if (dto.getId() == null) {
-			long count = this.count(new LambdaQueryWrapper<WfModel>().eq(WfModel::getModelKey, dto.getModelKey())
-				.eq(WfModel::getModelStatus, FlowableConstants.MODEL_STATUS_RELEASED));
-			if (count > 0) {
-				throw new BusinessException("modelKey already exists");
-			}
-
 			WfModel model = new WfModel();
 			model.setModelKey(dto.getModelKey());
 			model.setModelName(dto.getModelName());
 			model.setCategory(dto.getCategory());
 			model.setRemark(dto.getRemark());
 			model.setFormJson(dto.getFormJson());
-			model.setVersion(1);
+			model.setVersion(resolveNextVersion(dto.getModelKey()));
 			model.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
 			model.setBpmnXml(ensureExecutableXml(dto.getBpmnXml()));
 			model.setEndTime(dto.getEndTime());
@@ -80,12 +74,52 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 			return model.getId();
 		}
 
-		// 更新/保存草稿
+		// 更新草稿 / 已更新 / 已回滚
 		WfModel model = this.getById(dto.getId());
 		if (model == null) {
 			throw new BusinessException("model not found");
 		}
+		if (model.getModelStatus() != null && model.getModelStatus() == FlowableConstants.MODEL_STATUS_ARCHIVED) {
+			throw new BusinessException("历史归档版本不可直接编辑，请回退后再修改");
+		}
 
+		// 编辑「已发布」版本：若已有工作副本则就地更新，否则新建一条「已更新未发布」
+		if (model.getModelStatus() != null && model.getModelStatus() == FlowableConstants.MODEL_STATUS_RELEASED) {
+			WfModel working = findWorkingCopy(model.getModelKey());
+			if (working != null) {
+				applyModelContent(working, dto);
+				working.setModelStatus(FlowableConstants.MODEL_STATUS_UPDATED);
+				this.updateById(working);
+				saveNodeActions(working, dto.getNodeActions());
+				return working.getId();
+			}
+			WfModel next = new WfModel();
+			next.setModelKey(model.getModelKey());
+			applyModelContent(next, dto);
+			next.setVersion(resolveNextVersion(model.getModelKey()));
+			next.setModelStatus(FlowableConstants.MODEL_STATUS_UPDATED);
+			this.save(next);
+			saveNodeActions(next, dto.getNodeActions());
+			return next.getId();
+		}
+
+		applyModelContent(model, dto);
+		Integer status = model.getModelStatus();
+		if (status == null || status == FlowableConstants.MODEL_STATUS_DRAFT) {
+			model.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
+		}
+		else {
+			// 已更新 / 已回滚 后续编辑仍在同一条工作副本上
+			model.setModelStatus(FlowableConstants.MODEL_STATUS_UPDATED);
+		}
+		this.updateById(model);
+
+		saveNodeActions(model, dto.getNodeActions());
+		return model.getId();
+	}
+
+	private void applyModelContent(WfModel model, FlowableModelSaveDTO dto) {
+		model.setModelKey(dto.getModelKey() != null ? dto.getModelKey() : model.getModelKey());
 		model.setModelName(dto.getModelName());
 		model.setCategory(dto.getCategory());
 		model.setRemark(dto.getRemark());
@@ -93,10 +127,21 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		model.setBpmnXml(ensureExecutableXml(dto.getBpmnXml()));
 		model.setEndTime(dto.getEndTime());
 		model.setNodeActionsJson(toJson(dto.getNodeActions()));
-		this.updateById(model);
+	}
 
-		saveNodeActions(model, dto.getNodeActions());
-		return model.getId();
+	/**
+	 * 查找同 Key 下唯一工作副本（草稿/已更新未发布/已回滚未发布，非归档、非已发布）。
+	 */
+	private WfModel findWorkingCopy(String modelKey) {
+		if (modelKey == null || modelKey.isBlank()) {
+			return null;
+		}
+		List<WfModel> list = this.list(new LambdaQueryWrapper<WfModel>().eq(WfModel::getModelKey, modelKey)
+			.in(WfModel::getModelStatus, FlowableConstants.MODEL_STATUS_DRAFT, FlowableConstants.MODEL_STATUS_UPDATED,
+					FlowableConstants.MODEL_STATUS_ROLLED_BACK)
+			.orderByDesc(WfModel::getVersion)
+			.last("LIMIT 1"));
+		return list == null || list.isEmpty() ? null : list.get(0);
 	}
 
 	@Override
@@ -119,6 +164,8 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		Page<WfModel> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
 
 		LambdaQueryWrapper<WfModel> wrapper = new LambdaQueryWrapper<>();
+		// 模型列表不显示已归档（历史版本只在版本历史中查看）
+		wrapper.ne(WfModel::getModelStatus, FlowableConstants.MODEL_STATUS_ARCHIVED);
 		String keyword = pageDTO.getKeywordTrimmed();
 		if (keyword != null) {
 			wrapper.and(w -> w.like(WfModel::getModelKey, keyword).or().like(WfModel::getModelName, keyword));
@@ -163,7 +210,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 			throw new BusinessException("bpmnXml is required");
 		}
 
-		// 将其它已发布版本标记为已更新
+		// 归档同 Key 下其它「已发布」版本到历史
 		this.update(new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<WfModel>()
 			.set(WfModel::getModelStatus, FlowableConstants.MODEL_STATUS_ARCHIVED)
 			.eq(WfModel::getModelKey, model.getModelKey())
@@ -209,6 +256,31 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		model.setModelStatus(FlowableConstants.MODEL_STATUS_RELEASED);
 		this.updateById(model);
 		return true;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public boolean offline(Long id) {
+		if (id == null) {
+			throw new BusinessException("id is required");
+		}
+		WfModel model = this.getById(id);
+		if (model == null) {
+			throw new BusinessException("model not found");
+		}
+		if (model.getModelStatus() == null || model.getModelStatus() != FlowableConstants.MODEL_STATUS_RELEASED) {
+			throw new BusinessException("仅已发布模型可关闭发布");
+		}
+
+		// 归档该模型相关部署（下线，不可再启动新实例）
+		deploymentMapper.update(null,
+				new com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper<WfDeployment>()
+					.set(WfDeployment::getDeployStatus, FlowableConstants.DEPLOY_STATUS_ARCHIVED)
+					.eq(WfDeployment::getModelId, model.getId())
+					.eq(WfDeployment::getDeployStatus, FlowableConstants.DEPLOY_STATUS_ACTIVE));
+
+		model.setModelStatus(FlowableConstants.MODEL_STATUS_CLOSED);
+		return this.updateById(model);
 	}
 
 	@Override
@@ -270,6 +342,25 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		if (model == null) {
 			throw new BusinessException("target model not found");
 		}
+
+		// 回滚到工作副本：有则覆盖内容，无则新建一条「已回滚未发布」
+		WfModel working = findWorkingCopy(dto.getModelKey());
+		if (working != null) {
+			working.setModelName(model.getModelName());
+			working.setCategory(model.getCategory());
+			working.setRemark(model.getRemark());
+			working.setFormJson(model.getFormJson());
+			working.setBpmnXml(model.getBpmnXml());
+			working.setNodeActionsJson(model.getNodeActionsJson());
+			working.setEndTime(model.getEndTime());
+			working.setModelStatus(FlowableConstants.MODEL_STATUS_ROLLED_BACK);
+			this.updateById(working);
+			nodeActionMapper
+				.delete(new LambdaQueryWrapper<WfNodeAction>().eq(WfNodeAction::getModelId, working.getId()));
+			copyNodeActions(model.getId(), working);
+			return true;
+		}
+
 		WfModel newModel = new WfModel();
 		newModel.setModelKey(model.getModelKey());
 		newModel.setModelName(model.getModelName());
@@ -277,7 +368,7 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		newModel.setRemark(model.getRemark());
 		newModel.setFormJson(model.getFormJson());
 		newModel.setVersion(resolveNextVersion(model.getModelKey()));
-		newModel.setModelStatus(FlowableConstants.MODEL_STATUS_DRAFT);
+		newModel.setModelStatus(FlowableConstants.MODEL_STATUS_ROLLED_BACK);
 		newModel.setBpmnXml(model.getBpmnXml());
 		newModel.setNodeActionsJson(model.getNodeActionsJson());
 		newModel.setEndTime(model.getEndTime());
@@ -301,6 +392,10 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 		WfModel model = this.getById(id);
 		if (model == null) {
 			throw new BusinessException("model not found");
+		}
+		// 仅禁止删除「当前已发布」；已关闭/草稿/未发布/归档历史可删
+		if (model.getModelStatus() != null && model.getModelStatus() == FlowableConstants.MODEL_STATUS_RELEASED) {
+			throw new BusinessException("当前已发布版本不可删除，请先关闭发布");
 		}
 		List<WfDeployment> deployments = deploymentMapper
 			.selectList(new LambdaQueryWrapper<WfDeployment>().eq(WfDeployment::getModelId, id));
@@ -375,13 +470,31 @@ public class FlowableModelServiceImpl extends ServiceImpl<WfModelMapper, WfModel
 	}
 
 	private int resolveNextVersion(String modelKey) {
-		WfModel latest = this.getOne(new LambdaQueryWrapper<WfModel>().eq(WfModel::getModelKey, modelKey)
-			.orderByDesc(WfModel::getVersion)
-			.last("limit 1"));
-		if (latest == null || latest.getVersion() == null) {
-			return 1;
+		// 逻辑删除的行仍占用 uk(model_key, version)，必须用含删除的 MAX(version)+1
+		int max = 0;
+		if (this.baseMapper != null) {
+			Integer dbMax = this.baseMapper.selectMaxVersionIncludingDeleted(modelKey);
+			if (dbMax != null) {
+				max = dbMax;
+			}
 		}
-		return latest.getVersion() + 1;
+		if (max <= 0) {
+			List<WfModel> all = this
+				.list(new LambdaQueryWrapper<WfModel>().eq(WfModel::getModelKey, modelKey).select(WfModel::getVersion));
+			if (all != null) {
+				max = all.stream()
+					.map(WfModel::getVersion)
+					.filter(java.util.Objects::nonNull)
+					.mapToInt(Integer::intValue)
+					.max()
+					.orElse(0);
+			}
+		}
+		int next = max + 1;
+		while (this.baseMapper != null && this.baseMapper.countVersionIncludingDeleted(modelKey, next) > 0) {
+			next++;
+		}
+		return next;
 	}
 
 	private void copyNodeActions(Long sourceId, WfModel target) {

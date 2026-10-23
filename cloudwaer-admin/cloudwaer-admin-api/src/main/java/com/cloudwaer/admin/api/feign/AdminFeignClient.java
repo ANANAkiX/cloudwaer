@@ -53,4 +53,10 @@ public interface AdminFeignClient {
 	@GetMapping("/user/email")
 	Result<UserDTO> getUserByEmail(@RequestParam("email") String email);
 
+	/**
+	 * 根据角色ID查询用户名列表（流程候选组展开）
+	 */
+	@GetMapping("/user/by-role-ids")
+	Result<List<String>> getUsernamesByRoleIds(@RequestParam("roleIds") List<Long> roleIds);
+
 }

@@ -13,7 +13,9 @@ import org.flowable.common.engine.api.delegate.event.FlowableEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEventListener;
 import org.flowable.common.engine.api.delegate.event.FlowableEntityEvent;
 import org.flowable.common.engine.api.delegate.event.FlowableEngineEvent;
+import org.flowable.engine.TaskService;
 import org.flowable.task.api.Task;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,9 +34,16 @@ public class FlowableActionEventListener implements FlowableEventListener {
 	@Autowired
 	private WfDeploymentMapper deploymentMapper;
 
+	@Autowired
+	private TaskService taskService;
+
+	@Autowired(required = false)
+	private ObjectProvider<CandidateExpandTaskListener> candidateExpandTaskListenerProvider;
+
 	@Override
 	public void onEvent(FlowableEvent event) {
 		if (event.getType() == FlowableEngineEventType.TASK_CREATED) {
+			expandCandidateGroupsSafely(event);
 			handleTaskEvent(event, FlowableConstants.EVENT_TASK_CREATE);
 		}
 		else if (event.getType() == FlowableEngineEventType.TASK_COMPLETED) {
@@ -45,6 +54,48 @@ public class FlowableActionEventListener implements FlowableEventListener {
 		}
 		else if (event.getType() == FlowableEngineEventType.PROCESS_COMPLETED) {
 			handleProcessEvent(event, FlowableConstants.EVENT_PROCESS_END);
+		}
+	}
+
+	/**
+	 * 任务创建时，将候选组（角色ID）展开为候选用户，保证待办可被 role 查到。
+	 */
+	private void expandCandidateGroupsSafely(FlowableEvent event) {
+		CandidateExpandTaskListener candidateExpandTaskListener = candidateExpandTaskListenerProvider != null
+				? candidateExpandTaskListenerProvider.getIfAvailable() : null;
+		if (candidateExpandTaskListener == null || !(event instanceof FlowableEntityEvent)) {
+			return;
+		}
+		Object entity = ((FlowableEntityEvent) event).getEntity();
+		if (!(entity instanceof Task)) {
+			return;
+		}
+		Task task = (Task) entity;
+		try {
+			java.util.List<org.flowable.identitylink.api.IdentityLink> links = taskService
+				.getIdentityLinksForTask(task.getId());
+			java.util.List<String> groups = new java.util.ArrayList<>();
+			if (links != null) {
+				for (org.flowable.identitylink.api.IdentityLink link : links) {
+					if (org.flowable.identitylink.api.IdentityLinkType.CANDIDATE.equals(link.getType())
+							&& link.getGroupId() != null && !link.getGroupId().isBlank()) {
+						groups.add(link.getGroupId().trim());
+					}
+				}
+			}
+			if (groups.isEmpty()) {
+				return;
+			}
+			List<String> usernames = candidateExpandTaskListener.expandRoleIdsToUsernames(groups);
+			for (String username : usernames) {
+				taskService.addCandidateUser(task.getId(), username);
+			}
+			if (!usernames.isEmpty()) {
+				log.info("任务候选组已展开: taskId={}, groups={}, users={}", task.getId(), groups, usernames);
+			}
+		}
+		catch (Exception e) {
+			log.warn("任务候选组展开失败: taskId={}, err={}", task.getId(), e.getMessage());
 		}
 	}
 

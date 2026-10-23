@@ -21,6 +21,11 @@ public interface FlowableModelService {
 
 	boolean publish(Long id);
 
+	/**
+	 * 关闭已发布模型（下线），关闭后允许删除
+	 */
+	boolean offline(Long id);
+
 	boolean copy(FlowableModelCopyDTO dto);
 
 	boolean rollback(FlowableModelRollbackDTO dto);

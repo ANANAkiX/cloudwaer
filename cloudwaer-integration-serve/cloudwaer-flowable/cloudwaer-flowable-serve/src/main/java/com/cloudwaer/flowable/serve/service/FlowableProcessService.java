@@ -2,6 +2,7 @@ package com.cloudwaer.flowable.serve.service;
 
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
+import com.cloudwaer.flowable.api.dto.FlowableProcessHistoryDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessInstanceDTO;
 import com.cloudwaer.flowable.api.dto.FlowableProcessStartDTO;
 
@@ -35,7 +36,10 @@ public interface FlowableProcessService {
 
 	List<Map<String, Object>> getProcessVariables(String processInstanceId);
 
-	List<Map<String, Object>> getProcessHistory(String processInstanceId);
+	/**
+	 * 获取操作历史时间线（按时间升序）
+	 */
+	List<FlowableProcessHistoryDTO> getProcessHistory(String processInstanceId);
 
 	/**
 	 * 获取流程图高亮信息（已走过节点、已走过连线、当前节点）

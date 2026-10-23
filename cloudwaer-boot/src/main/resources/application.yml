@@ -46,6 +46,10 @@ spring:
 # (deprecated) left intentionally blank; use spring.cloud.openfeign.client.config
 
 management:
+  metrics:
+    export:
+      simple:
+        enabled: false
   endpoints:
     web:
       exposure:

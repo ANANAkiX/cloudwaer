@@ -61,6 +61,13 @@ public class FlowableModelController {
 		return Result.success(modelService.publish(dto.getId()));
 	}
 
+	@PostMapping("/offline")
+	@PermissionCode("flowable:model:publish")
+	@Operation(summary = "Offline published model")
+	public Result<Boolean> offline(@RequestBody FlowableIdDTO dto) {
+		return Result.success(modelService.offline(dto.getId()));
+	}
+
 	@PostMapping("/copy")
 	@PermissionCode("flowable:model:copy")
 	@Operation(summary = "Copy model")

@@ -69,6 +69,16 @@ public class UserController {
 	}
 
 	/**
+	 * 根据角色ID查询用户名列表（流程候选组运行时展开用）
+	 */
+	@GetMapping("/by-role-ids")
+	@PermissionCode(value = "admin:user:view", enable = false)
+	@Operation(summary = "根据角色ID查询用户名", description = "供内部服务展开流程候选角色")
+	public Result<List<String>> getUsernamesByRoleIds(@RequestParam("roleIds") List<Long> roleIds) {
+		return Result.success(userService.getUsernamesByRoleIds(roleIds));
+	}
+
+	/**
 	 * 新增用户
 	 */
 	@PostMapping("/save")
