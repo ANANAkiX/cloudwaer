@@ -312,6 +312,9 @@ INSERT INTO `sys_permission` VALUES (2100000000000000150, 'blog:author', '博客
 INSERT INTO `sys_permission` VALUES (2100000000000000151, 'blog:author:view', '查看申请', 3, '', 2100000000000000150, 1, '', '申请分页（GET /blog/author/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000152, 'blog:author:handle', '处理申请', 3, '', 2100000000000000150, 2, '', '通过/拒绝申请（POST /blog/author/handle）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000153, 'blog:author:apply', '申请博客主', 3, '', 2100000000000000150, 3, '', '自助申请（POST /blog/author/apply）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000160, 'blog:setting', '网站设置', 2, '/blog/sitesetting', 2100000000000000101, 6, 'Setting', '博客站点设置页（GET /blog/setting）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000161, 'blog:setting:view', '查看设置', 3, '', 2100000000000000160, 1, '', '站点设置读取（GET /blog/setting；公开 GET /blog/open/setting）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000162, 'blog:setting:edit', '保存设置', 3, '', 2100000000000000160, 2, '', '保存站点设置（POST /blog/setting/save）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -391,6 +394,9 @@ INSERT INTO `sys_role_permission` VALUES (2100000000000000202, 1, 21000000000000
 INSERT INTO `sys_role_permission` VALUES (2100000000000000203, 1, 2100000000000000152, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000204, 1, 2100000000000000153, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000205, 3, 2100000000000000153, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000211, 1, 2100000000000000160, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000212, 1, 2100000000000000161, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000213, 1, 2100000000000000162, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2113774311422763009, 1, 1001, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2113774311422763010, 1, 1002, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2113774311422763011, 1, 1003, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);

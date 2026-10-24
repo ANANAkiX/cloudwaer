@@ -197,4 +197,37 @@ INSERT INTO `blog_tag` VALUES (2100000000000000012, 'Vue', 'vue', '2026-10-24 00
 INSERT INTO `blog_tag` VALUES (2100000000000000013, 'Spring', 'spring', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `blog_tag` VALUES (2100000000000000014, 'Docker', 'docker', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 
+-- ----------------------------
+-- Table structure for blog_site_setting
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_site_setting`;
+CREATE TABLE `blog_site_setting`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `setting_key` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置键',
+  `setting_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '配置值（简单项存字面量，复杂项存 JSON 字符串）',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '备注',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_setting_key`(`setting_key` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '博客站点设置表（key-value）' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Records of blog_site_setting
+-- ----------------------------
+INSERT INTO `blog_site_setting` VALUES (2100000000000000051, 'siteTitle', 'CloudWaer 博客', '站点标题', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000052, 'siteDescription', '', '站点副标题/描述', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000053, 'favicon', '', '站点图标 URL（favicon/icon）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000054, 'enableSearch', '1', '是否开启搜索：0-关闭，1-开启', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000055, 'layout', 'default', '网站布局：default / compact / magazine', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000056, 'footerText', '', '页脚文案', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000057, 'nav', '[{"key":"home","label":"首页","path":"/","visible":true,"order":1},{"key":"forum","label":"微论坛","path":"/forum","visible":true,"order":2},{"key":"archive","label":"归档","path":"/archive","visible":true,"order":3},{"key":"about","label":"关于","path":"/about","visible":true,"order":4},{"key":"write","label":"写文章","path":"/write","visible":true,"order":5}]', '导航菜单 JSON 数组（key/label/path/visible/order）', '2026-10-26 00:00:00', 'system', '2026-10-26 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000058, 'pages', '{"about":{"title":"关于云记","content":"云记博客是基于 cloudwaer-blog 的多作者技术写作与轻论坛平台，记录工程实践、踩坑与思考。"}}', '独立页面文案 JSON（如 about.title/about.content）', '2026-10-26 00:00:00', 'system', '2026-10-26 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000059, 'articleLayout', '{"tocPosition":"right"}', '文章详情布局 JSON（tocPosition: left/right/off）', '2026-10-26 00:00:00', 'system', '2026-10-26 00:00:00', 'system', 1);
+INSERT INTO `blog_site_setting` VALUES (2100000000000000060, 'homeLayout', '{"showFeatured":true,"showTagCloud":true,"showHot":true}', '首页模块开关 JSON（showFeatured/showTagCloud/showHot）', '2026-10-26 00:00:00', 'system', '2026-10-26 00:00:00', 'system', 1);
+
 SET FOREIGN_KEY_CHECKS = 1;

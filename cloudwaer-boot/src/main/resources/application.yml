@@ -8,6 +8,12 @@ spring:
     web-application-type: servlet
     allow-bean-definition-overriding: true
 
+  # 文章导入等文件上传
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+
   # 多数据源：各模块沿用微服务时期的原库（集成模块各一库：admin/flowable/codegen/blog）
   # primary=flowable：保证 Flowable 引擎（无 ThreadLocal 时）绝不落到 admin 库
   # admin/codegen/blog 由请求过滤器 / 包路径切面显式切换

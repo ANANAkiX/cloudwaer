@@ -96,8 +96,8 @@ public class BlogTaxonomyController {
 	 */
 	@PostMapping("/tag/save")
 	@PermissionCode("blog:tag:add")
-	@Operation(summary = "保存标签", description = "id 为空新增，否则更新")
-	public Result<Boolean> saveTag(@RequestBody @Validated TagSaveDTO dto) {
+	@Operation(summary = "保存标签", description = "id 为空新增，否则更新；返回标签 ID")
+	public Result<Long> saveTag(@RequestBody @Validated TagSaveDTO dto) {
 		return Result.success(blogTaxonomyService.saveTag(dto));
 	}
 
@@ -107,7 +107,7 @@ public class BlogTaxonomyController {
 	@PutMapping("/tag/update")
 	@PermissionCode("blog:tag:edit")
 	@Operation(summary = "更新标签", description = "更新已有标签")
-	public Result<Boolean> updateTag(@RequestBody @Validated TagSaveDTO dto) {
+	public Result<Long> updateTag(@RequestBody @Validated TagSaveDTO dto) {
 		return Result.success(blogTaxonomyService.saveTag(dto));
 	}
 

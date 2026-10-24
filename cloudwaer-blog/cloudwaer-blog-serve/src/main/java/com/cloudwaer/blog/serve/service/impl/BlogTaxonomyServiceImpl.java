@@ -129,13 +129,13 @@ public class BlogTaxonomyServiceImpl implements BlogTaxonomyService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Boolean saveTag(TagSaveDTO dto) {
+	public Long saveTag(TagSaveDTO dto) {
 		assertNameUnique(BlogTag.class, dto.getName(), dto.getId());
 		if (dto.getId() == null) {
 			BlogTag entity = new BlogTag();
 			BeanUtils.copyProperties(dto, entity);
 			tagMapper.insert(entity);
-			return Boolean.TRUE;
+			return entity.getId();
 		}
 		BlogTag existing = tagMapper.selectById(dto.getId());
 		if (existing == null) {
@@ -144,7 +144,7 @@ public class BlogTaxonomyServiceImpl implements BlogTaxonomyService {
 		existing.setName(dto.getName());
 		existing.setSlug(dto.getSlug());
 		tagMapper.updateById(existing);
-		return Boolean.TRUE;
+		return existing.getId();
 	}
 
 	@Override

@@ -1,10 +1,13 @@
 package com.cloudwaer.blog.serve.controller;
 
 import com.cloudwaer.blog.api.dto.ArticleDTO;
+import com.cloudwaer.blog.api.dto.ArticleImportDTO;
 import com.cloudwaer.blog.api.dto.ArticleSaveDTO;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
+import com.cloudwaer.blog.serve.util.ArticleFileParser;
 import com.cloudwaer.common.core.annotation.PermissionCode;
 import com.cloudwaer.common.core.dto.PageResult;
+import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 博客文章控制器（管理端）
@@ -79,6 +83,35 @@ public class BlogArticleController {
 	@Operation(summary = "更新文章", description = "更新文章内容、标签与发布状态")
 	public Result<Boolean> update(@RequestBody @Validated ArticleSaveDTO saveDTO) {
 		return Result.success(blogArticleService.updateArticle(saveDTO));
+	}
+
+	/**
+	 * 导入文章文件（MD / TXT / PDF / DOCX），解析为 Markdown 后由前端填入表单
+	 */
+	@PostMapping("/import")
+	@PermissionCode("blog:article:add")
+	@Operation(summary = "导入文章文件", description = "上传 md/txt/pdf/docx；标题默认文件名（去扩展名），正文解析为 Markdown；不落库，由前端新建/保存")
+	public Result<ArticleImportDTO> importFile(@RequestParam("file") MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new BusinessException("请选择要导入的文件");
+		}
+		String original = file.getOriginalFilename() == null ? "未命名" : file.getOriginalFilename();
+		try {
+			ArticleFileParser.ParsedArticle parsed = ArticleFileParser.parse(original, file.getBytes());
+			ArticleImportDTO dto = new ArticleImportDTO();
+			dto.setTitle(parsed.title());
+			dto.setContent(parsed.content());
+			dto.setFilename(original);
+			dto.setTextLength(parsed.content().length());
+			return Result.success(dto);
+		}
+		catch (BusinessException e) {
+			throw e;
+		}
+		catch (Exception e) {
+			log.warn("文章导入失败: {}", original, e);
+			throw new BusinessException("文章导入失败：" + e.getMessage());
+		}
 	}
 
 	/**

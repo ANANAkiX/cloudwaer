@@ -2,8 +2,10 @@ package com.cloudwaer.blog.serve.controller;
 
 import com.cloudwaer.blog.api.dto.ArticleDTO;
 import com.cloudwaer.blog.api.dto.CategoryDTO;
+import com.cloudwaer.blog.api.dto.SiteSettingDTO;
 import com.cloudwaer.blog.api.dto.TagDTO;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
+import com.cloudwaer.blog.serve.service.BlogSettingService;
 import com.cloudwaer.blog.serve.service.BlogTaxonomyService;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
@@ -34,6 +36,9 @@ public class BlogOpenController {
 
 	@Autowired
 	private BlogTaxonomyService blogTaxonomyService;
+
+	@Autowired
+	private BlogSettingService blogSettingService;
 
 	/**
 	 * 已发布文章分页列表
@@ -91,6 +96,15 @@ public class BlogOpenController {
 	@Operation(summary = "标签列表", description = "全部启用标签")
 	public Result<List<TagDTO>> tags() {
 		return Result.success(blogTaxonomyService.listTags());
+	}
+
+	/**
+	 * 站点设置（匿名）
+	 */
+	@GetMapping("/setting")
+	@Operation(summary = "站点设置", description = "前台标题/图标/布局等配置，匿名可读")
+	public Result<SiteSettingDTO> setting() {
+		return Result.success(blogSettingService.getSettings());
 	}
 
 }

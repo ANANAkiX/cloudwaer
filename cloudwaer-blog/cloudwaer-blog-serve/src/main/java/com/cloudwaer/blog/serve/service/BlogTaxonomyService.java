@@ -57,7 +57,10 @@ public interface BlogTaxonomyService {
 	 * @param dto 保存DTO
 	 * @return 是否成功
 	 */
-	Boolean saveTag(TagSaveDTO dto);
+	/**
+	 * 保存标签（新增/更新），返回标签 ID
+	 */
+	Long saveTag(TagSaveDTO dto);
 
 	/**
 	 * 删除标签（若仍被文章关联则拒绝）
