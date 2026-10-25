@@ -6,11 +6,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloudwaer.blog.api.dto.ArticleDTO;
 import com.cloudwaer.blog.api.dto.ArticleSaveDTO;
 import com.cloudwaer.blog.api.dto.ArticleTagRefDTO;
+import com.cloudwaer.blog.api.dto.CollectionDTO;
 import com.cloudwaer.blog.serve.entity.BlogArticle;
 import com.cloudwaer.blog.serve.entity.BlogArticleTag;
+import com.cloudwaer.blog.serve.entity.BlogCollection;
 import com.cloudwaer.blog.serve.entity.BlogTag;
 import com.cloudwaer.blog.serve.mapper.BlogArticleMapper;
 import com.cloudwaer.blog.serve.mapper.BlogArticleTagMapper;
+import com.cloudwaer.blog.serve.mapper.BlogCollectionMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTagMapper;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
 import com.cloudwaer.common.core.dto.PageResult;
@@ -54,6 +57,9 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 	@Autowired
 	private BlogTagMapper tagMapper;
 
+	@Autowired
+	private BlogCollectionMapper collectionMapper;
+
 	@Override
 	public PageResult<ArticleDTO> page(Long current, Long size, String keyword, Integer publishStatus, Long authorId,
 			Long categoryId, Long tagId) {
@@ -91,6 +97,27 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 	}
 
 	@Override
+	public PageResult<ArticleDTO> myPage(Long current, Long size, String keyword, Integer publishStatus) {
+		Page<BlogArticle> page = new Page<>(current, size);
+		LambdaQueryWrapper<BlogArticle> wrapper = new LambdaQueryWrapper<>();
+		if (StringUtils.hasText(keyword)) {
+			wrapper.like(BlogArticle::getTitle, keyword);
+		}
+		if (publishStatus != null) {
+			wrapper.eq(BlogArticle::getPublishStatus, publishStatus);
+		}
+		// 创作中心强制仅本人
+		wrapper.eq(BlogArticle::getAuthorId, currentUserId());
+		wrapper.orderByDesc(BlogArticle::getIsTop).orderByDesc(BlogArticle::getCreateTime);
+
+		IPage<BlogArticle> pr = blogArticleMapper.selectPage(page, wrapper);
+		List<ArticleDTO> list = pr.getRecords().stream().map(this::toDto).collect(Collectors.toList());
+		list.forEach(a -> a.setContent(null));
+		fillTags(list);
+		return new PageResult<>(list, pr.getTotal(), pr.getCurrent(), pr.getSize());
+	}
+
+	@Override
 	public ArticleDTO detail(Long id) {
 		BlogArticle article = requireOwnedArticle(id);
 		ArticleDTO dto = toDto(article);
@@ -106,15 +133,31 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		article.setId(null);
 		Long userId = currentUserId();
 		article.setAuthorId(userId);
-		article.setAuthorName(SecurityContextUtil.getCurrentUsername());
+		java.util.Map<String, Object> tokenData = SecurityContextUtil.getCurrentTokenData();
+		String display = SecurityContextUtil.getCurrentUsername();
+		String avatar = null;
+		if (tokenData != null) {
+			Object nick = tokenData.get("nickname");
+			if (nick != null && StringUtils.hasText(String.valueOf(nick))) {
+				display = String.valueOf(nick);
+			}
+			Object av = tokenData.get("avatar");
+			if (av != null && StringUtils.hasText(String.valueOf(av))) {
+				avatar = String.valueOf(av);
+			}
+		}
+		article.setAuthorName(display);
+		article.setAuthorAvatar(avatar);
 		if (article.getPublishStatus() == null) {
 			article.setPublishStatus(0);
 		}
 		if (article.getPublishStatus() == 1) {
 			article.setPublishTime(LocalDateTime.now());
 		}
+		normalizeCollectionBinding(article, saveDTO);
 		blogArticleMapper.insert(article);
 		replaceTags(article.getId(), saveDTO.getTagIds());
+		refreshCollectionCount(article.getCollectionId());
 		return Boolean.TRUE;
 	}
 
@@ -143,9 +186,17 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		if (saveDTO.getIsRecommend() != null) {
 			existing.setIsRecommend(saveDTO.getIsRecommend());
 		}
+		Long oldCollectionId = existing.getCollectionId();
+		normalizeCollectionBinding(existing, saveDTO);
 
 		blogArticleMapper.updateById(existing);
+		if (existing.getCollectionId() == null) {
+			// updateById 忽略 null 字段，需显式清空合集
+			blogArticleMapper.unsetCollection(existing.getId());
+		}
 		replaceTags(existing.getId(), saveDTO.getTagIds());
+		refreshCollectionCount(oldCollectionId);
+		refreshCollectionCount(existing.getCollectionId());
 		return Boolean.TRUE;
 	}
 
@@ -222,7 +273,72 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		blogArticleMapper.refreshHeat(id);
 		ArticleDTO dto = toDto(article);
 		fillTags(Collections.singletonList(dto));
+		fillCollection(dto, id);
 		return dto;
+	}
+
+	/**
+	 * 详情填充合集摘要与合集内其它文章
+	 */
+	private void fillCollection(ArticleDTO dto, Long articleId) {
+		if (dto.getCollectionId() == null) {
+			return;
+		}
+		BlogCollection collection = collectionMapper.selectById(dto.getCollectionId());
+		if (collection == null) {
+			return;
+		}
+		CollectionDTO c = new CollectionDTO();
+		BeanUtils.copyProperties(collection, c);
+		dto.setCollection(c);
+		// 合集列表含当前文章，便于侧栏选中与就地切换
+		dto.setCollectionArticles(loadCollectionSiblings(collection.getId(), null));
+	}
+
+	/**
+	 * 合集内已发布文章（手动排序优先，否则发布时间倒序）；excludeArticleId 传 null 表示含全部
+	 */
+	private List<ArticleDTO> loadCollectionSiblings(Long collectionId, Long excludeArticleId) {
+		LambdaQueryWrapper<BlogArticle> wrapper = new LambdaQueryWrapper<>();
+		wrapper.eq(BlogArticle::getCollectionId, collectionId)
+			.eq(BlogArticle::getPublishStatus, 1)
+			.ne(excludeArticleId != null, BlogArticle::getId, excludeArticleId)
+			.last("ORDER BY ISNULL(collection_sort) ASC, collection_sort ASC, publish_time DESC LIMIT 50");
+		List<ArticleDTO> siblings = blogArticleMapper.selectList(wrapper).stream().map(a -> {
+			ArticleDTO item = toDto(a);
+			item.setContent(null);
+			return item;
+		}).collect(Collectors.toList());
+		fillTags(siblings);
+		return siblings;
+	}
+
+	/**
+	 * 规范化合集绑定：校验归属；0/空字符串语义由前端传 null 表示移出
+	 */
+	private void normalizeCollectionBinding(BlogArticle article, ArticleSaveDTO saveDTO) {
+		Long collectionId = saveDTO.getCollectionId();
+		if (collectionId == null || collectionId == 0L) {
+			article.setCollectionId(null);
+			article.setCollectionSort(null);
+			return;
+		}
+		BlogCollection collection = collectionMapper.selectById(collectionId);
+		if (collection == null) {
+			throw new BusinessException("合集不存在");
+		}
+		if (!isAdmin() && !Objects.equals(collection.getAuthorId(), article.getAuthorId())) {
+			throw new BusinessException("不能将文章放入他人合集");
+		}
+		article.setCollectionId(collectionId);
+		article.setCollectionSort(saveDTO.getCollectionSort());
+	}
+
+	private void refreshCollectionCount(Long collectionId) {
+		if (collectionId == null) {
+			return;
+		}
+		collectionMapper.refreshArticleCount(collectionId);
 	}
 
 	@Override

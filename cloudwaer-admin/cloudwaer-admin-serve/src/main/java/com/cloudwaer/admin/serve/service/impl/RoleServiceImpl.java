@@ -12,6 +12,7 @@ import com.cloudwaer.admin.serve.mapper.RolePermissionMapper;
 import com.cloudwaer.admin.serve.mapper.UserRoleMapper;
 import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.admin.serve.service.RoleService;
+import com.cloudwaer.admin.serve.util.PermissionCacheSupport;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.service.TokenService;
@@ -44,6 +45,9 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
 	@Autowired(required = false)
 	private PermissionService permissionService;
+
+	@Autowired(required = false)
+	private PermissionCacheSupport permissionCacheSupport;
 
 	@Override
 	public List<RoleDTO> getAllRoles() {
@@ -157,6 +161,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
 						// 更新Token中的权限信息（不删除Token，只更新权限）
 						int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
+						// 同步清理 @RedisCache 权限结果缓存
+						if (permissionCacheSupport != null) {
+							permissionCacheSupport.evict(userId);
+						}
 						log.info("更新用户Token权限: userId={}, tokenCount={}, permissions={}", userId, updateCount,
 								latestPermissions);
 					}

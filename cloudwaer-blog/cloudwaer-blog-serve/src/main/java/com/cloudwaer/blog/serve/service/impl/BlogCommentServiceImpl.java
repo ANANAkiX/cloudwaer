@@ -50,6 +50,11 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 	 */
 	private static final int AUDIT_REJECTED = 2;
 
+	/**
+	 * ADMIN 角色ID（种子 sys_role.id=1）
+	 */
+	private static final Long ADMIN_ROLE_ID = 1L;
+
 	@Autowired
 	private BlogCommentMapper commentMapper;
 
@@ -146,6 +151,7 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 
 	@Override
 	public PageResult<CommentDTO> page(Long current, Long size, Long articleId, Integer auditStatus, String keyword) {
+		requireAdmin();
 		Page<BlogComment> page = new Page<>(current, size);
 		LambdaQueryWrapper<BlogComment> wrapper = new LambdaQueryWrapper<>();
 		if (articleId != null) {
@@ -168,6 +174,7 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Boolean audit(Long id, Integer auditStatus) {
+		requireAdmin();
 		if (auditStatus == null || (auditStatus != AUDIT_APPROVED && auditStatus != AUDIT_REJECTED)) {
 			throw new BusinessException("非法审核结果");
 		}
@@ -195,6 +202,13 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		if (existing == null) {
 			throw new BusinessException("评论不存在");
 		}
+		// 本人或管理员
+		if (!isAdmin()) {
+			Long userId = SecurityContextUtil.getCurrentUserId();
+			if (userId == null || !userId.equals(existing.getUserId())) {
+				throw new BusinessException("无权删除该评论");
+			}
+		}
 		commentMapper.deleteById(id);
 		if (existing.getAuditStatus() != null && existing.getAuditStatus() == AUDIT_APPROVED) {
 			articleMapper.decrementComment(existing.getArticleId());
@@ -211,6 +225,17 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 			}
 		}
 		return Boolean.TRUE;
+	}
+
+	private void requireAdmin() {
+		if (!isAdmin()) {
+			throw new BusinessException("仅管理员可操作");
+		}
+	}
+
+	private boolean isAdmin() {
+		List<Long> roleIds = SecurityContextUtil.getCurrentRoleIds();
+		return roleIds != null && roleIds.contains(ADMIN_ROLE_ID);
 	}
 
 	private void fillArticleTitles(List<CommentDTO> list) {

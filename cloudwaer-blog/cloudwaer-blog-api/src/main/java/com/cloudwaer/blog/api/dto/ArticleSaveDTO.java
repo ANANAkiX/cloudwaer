@@ -49,6 +49,16 @@ public class ArticleSaveDTO implements Serializable {
 	private Long categoryId;
 
 	/**
+	 * 合集ID（可空；传 null 或 0 表示移出合集）
+	 */
+	private Long collectionId;
+
+	/**
+	 * 合集内排序（可空，空则按发布时间）
+	 */
+	private Integer collectionSort;
+
+	/**
 	 * 标签ID列表
 	 */
 	private List<Long> tagIds;

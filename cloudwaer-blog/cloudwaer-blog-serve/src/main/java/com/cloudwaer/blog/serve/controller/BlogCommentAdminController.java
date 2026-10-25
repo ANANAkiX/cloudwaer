@@ -3,7 +3,7 @@ package com.cloudwaer.blog.serve.controller;
 import com.cloudwaer.blog.api.dto.CommentAuditDTO;
 import com.cloudwaer.blog.api.dto.CommentDTO;
 import com.cloudwaer.blog.serve.service.BlogCommentService;
-import com.cloudwaer.common.core.annotation.PermissionCode;
+import com.cloudwaer.common.core.annotation.RequireLogin;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.result.Result;
 import io.swagger.v3.oas.annotations.Operation;
@@ -34,11 +34,11 @@ public class BlogCommentAdminController {
 	private BlogCommentService blogCommentService;
 
 	/**
-	 * 评论分页
+	 * 评论分页（过渡：登录 + 服务端 ADMIN；正式并入审核中心后调整）
 	 */
 	@GetMapping("/page")
-	@PermissionCode("blog:comment:view")
-	@Operation(summary = "评论分页", description = "支持按文章、审核状态、关键字筛选")
+	@RequireLogin
+	@Operation(summary = "评论分页", description = "过渡接口：仅 ADMIN；后续并入审核中心")
 	public Result<PageResult<CommentDTO>> page(@RequestParam(value = "current", defaultValue = "1") Long current,
 			@RequestParam(value = "size", defaultValue = "10") Long size,
 			@RequestParam(value = "articleId", required = false) Long articleId,
@@ -48,21 +48,21 @@ public class BlogCommentAdminController {
 	}
 
 	/**
-	 * 审核评论
+	 * 审核评论（过渡：登录 + 服务端 ADMIN）
 	 */
 	@PostMapping("/audit")
-	@PermissionCode("blog:comment:audit")
-	@Operation(summary = "审核评论", description = "1-通过，2-拒绝；仅待审核可操作")
+	@RequireLogin
+	@Operation(summary = "审核评论", description = "1-通过，2-拒绝；过渡接口，后续并入审核中心")
 	public Result<Boolean> audit(@RequestBody @Validated CommentAuditDTO dto) {
 		return Result.success(blogCommentService.audit(dto.getId(), dto.getAuditStatus()));
 	}
 
 	/**
-	 * 删除评论
+	 * 删除评论：本人或 ADMIN
 	 */
 	@DeleteMapping("/delete")
-	@PermissionCode("blog:comment:delete")
-	@Operation(summary = "删除评论", description = "逻辑删除，连带删除同根楼中楼")
+	@RequireLogin
+	@Operation(summary = "删除评论", description = "本人或管理员；逻辑删除并处理同根楼中楼")
 	public Result<Boolean> delete(@RequestParam("id") Long id) {
 		return Result.success(blogCommentService.deleteComment(id));
 	}

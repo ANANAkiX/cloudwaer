@@ -6,6 +6,7 @@ import com.cloudwaer.blog.api.dto.ArticleSaveDTO;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
 import com.cloudwaer.blog.serve.util.ArticleFileParser;
 import com.cloudwaer.common.core.annotation.PermissionCode;
+import com.cloudwaer.common.core.annotation.RequireLogin;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.result.Result;
@@ -121,6 +122,61 @@ public class BlogArticleController {
 	@PermissionCode("blog:article:delete")
 	@Operation(summary = "删除文章", description = "逻辑删除文章并清理标签关联")
 	public Result<Boolean> delete(@RequestParam("id") Long id) {
+		return Result.success(blogArticleService.deleteArticle(id));
+	}
+
+	// ===== 创作中心：仅本人（登录即可） =====
+
+	/**
+	 * 我的文章分页（创作中心）
+	 */
+	@GetMapping("/my/page")
+	@RequireLogin
+	@Operation(summary = "我的文章分页", description = "创作中心：仅本人")
+	public Result<PageResult<ArticleDTO>> myPage(@RequestParam(value = "current", defaultValue = "1") Long current,
+			@RequestParam(value = "size", defaultValue = "10") Long size,
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "publishStatus", required = false) Integer publishStatus) {
+		return Result.success(blogArticleService.myPage(current, size, keyword, publishStatus));
+	}
+
+	/**
+	 * 我的文章详情（创作中心）
+	 */
+	@GetMapping("/my/detail")
+	@RequireLogin
+	@Operation(summary = "我的文章详情", description = "创作中心：仅本人")
+	public Result<ArticleDTO> myDetail(@RequestParam("id") Long id) {
+		return Result.success(blogArticleService.detail(id));
+	}
+
+	/**
+	 * 我的文章保存（创作中心，作者为当前登录用户）
+	 */
+	@PostMapping("/my/save")
+	@RequireLogin
+	@Operation(summary = "我的文章保存", description = "创作中心：仅本人新建")
+	public Result<Boolean> mySave(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+		return Result.success(blogArticleService.saveArticle(saveDTO));
+	}
+
+	/**
+	 * 我的文章更新（创作中心）
+	 */
+	@PutMapping("/my/update")
+	@RequireLogin
+	@Operation(summary = "我的文章更新", description = "创作中心：仅本人")
+	public Result<Boolean> myUpdate(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+		return Result.success(blogArticleService.updateArticle(saveDTO));
+	}
+
+	/**
+	 * 我的文章删除（创作中心）
+	 */
+	@DeleteMapping("/my/delete")
+	@RequireLogin
+	@Operation(summary = "我的文章删除", description = "创作中心：仅本人")
+	public Result<Boolean> myDelete(@RequestParam("id") Long id) {
 		return Result.success(blogArticleService.deleteArticle(id));
 	}
 

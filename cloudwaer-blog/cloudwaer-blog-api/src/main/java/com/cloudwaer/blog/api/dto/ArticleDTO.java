@@ -47,6 +47,26 @@ public class ArticleDTO implements Serializable {
 	private Long categoryId;
 
 	/**
+	 * 合集ID（可空）
+	 */
+	private Long collectionId;
+
+	/**
+	 * 合集内排序（可空，空则按发布时间）
+	 */
+	private Integer collectionSort;
+
+	/**
+	 * 所属合集摘要（详情/列表填充，无合集为空）
+	 */
+	private CollectionDTO collection;
+
+	/**
+	 * 合集内其它文章（仅公开详情返回；无合集为空）
+	 */
+	private List<ArticleDTO> collectionArticles;
+
+	/**
 	 * 作者ID
 	 */
 	private Long authorId;
@@ -55,6 +75,11 @@ public class ArticleDTO implements Serializable {
 	 * 作者昵称
 	 */
 	private String authorName;
+
+	/**
+	 * author avatar
+	 */
+	private String authorAvatar;
 
 	/**
 	 * 发布状态：0-草稿，1-已发布，2-已下线

@@ -59,4 +59,16 @@ public interface BlogArticleMapper extends BaseMapper<BlogArticle> {
 			+ "* EXP(-DATEDIFF(NOW(), COALESCE(publish_time, create_time)) / 30.0) WHERE id = #{id}")
 	int refreshHeat(@Param("id") Long id);
 
+	/**
+	 * 解除单篇文章的合集绑定
+	 */
+	@Update("UPDATE blog_article SET collection_id = NULL, collection_sort = NULL WHERE id = #{id}")
+	int unsetCollection(@Param("id") Long id);
+
+	/**
+	 * 解除合集下全部文章绑定
+	 */
+	@Update("UPDATE blog_article SET collection_id = NULL, collection_sort = NULL WHERE collection_id = #{collectionId}")
+	int unsetCollectionByCollectionId(@Param("collectionId") Long collectionId);
+
 }

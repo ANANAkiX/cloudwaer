@@ -14,6 +14,7 @@ import com.cloudwaer.admin.serve.mapper.UserMapper;
 import com.cloudwaer.admin.serve.mapper.UserRoleMapper;
 import com.cloudwaer.admin.serve.service.PermissionService;
 import com.cloudwaer.admin.serve.service.UserService;
+import com.cloudwaer.admin.serve.util.PermissionCacheSupport;
 import com.cloudwaer.common.core.dto.PageDTO;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
@@ -51,6 +52,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
 	@Autowired(required = false)
 	private PermissionService permissionService;
+
+	@Autowired(required = false)
+	private PermissionCacheSupport permissionCacheSupport;
 
 	@Override
 	public UserDTO getUserByUsername(String username) {
@@ -231,6 +235,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		try {
 			List<String> latestPermissions = permissionService.getPermissionCodesByUserId(userId);
 			int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
+			if (permissionCacheSupport != null) {
+				permissionCacheSupport.evict(userId);
+			}
 			log.info("分配角色后刷新Token权限: userId={}, tokenCount={}, permissions={}", userId, updateCount,
 					latestPermissions);
 		}

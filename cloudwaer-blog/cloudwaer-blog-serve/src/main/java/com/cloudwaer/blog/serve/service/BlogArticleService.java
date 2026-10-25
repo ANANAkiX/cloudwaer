@@ -22,6 +22,11 @@ public interface BlogArticleService {
 			Long categoryId, Long tagId);
 
 	/**
+	 * 创作中心：仅当前用户文章（强制 author_id = 当前登录用户）
+	 */
+	PageResult<ArticleDTO> myPage(Long current, Long size, String keyword, Integer publishStatus);
+
+	/**
 	 * 文章详情（含正文与标签）
 	 * @param id 文章ID
 	 * @return 文章DTO

@@ -93,6 +93,17 @@ cloudwaer:
     enabled: false
   api-scanner:
     serviceId: cloudwaer-boot
+  # 本地文件兜底目录（sys_oss_config.provider=LOCAL 时）
+  file:
+    local-dir: ./uploads
+  # 阿里云 OSS 兜底（后台「文件管理·OSS 配置」优先；此处为 yml 默认）
+  # 正式环境建议改 Nacos 共享配置，勿把密钥提交 git
+  oss:
+    aliyun:
+      endpoint: oss-cn-hangzhou.aliyuncs.com
+      access-key-id: ""
+      access-key-secret: ""
+      bucket: ""
 
 
 mybatis-plus:

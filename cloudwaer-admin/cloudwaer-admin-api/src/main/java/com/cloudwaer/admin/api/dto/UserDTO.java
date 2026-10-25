@@ -47,6 +47,8 @@ public class UserDTO implements Serializable {
 	 */
 	private String phone;
 
+	private String avatar;
+
 	/**
 	 * 角色ID列表
 	 */

@@ -43,6 +43,16 @@ public class BlogArticle extends BaseEntity {
 	private Long categoryId;
 
 	/**
+	 * 合集ID（blog_collection.id）
+	 */
+	private Long collectionId;
+
+	/**
+	 * 合集内排序，NULL=按发布时间
+	 */
+	private Integer collectionSort;
+
+	/**
 	 * 作者ID（sys_user.id）
 	 */
 	private Long authorId;
@@ -51,6 +61,11 @@ public class BlogArticle extends BaseEntity {
 	 * 作者昵称（冗余）
 	 */
 	private String authorName;
+
+	/**
+	 * author avatar
+	 */
+	private String authorAvatar;
 
 	/**
 	 * 发布状态：0-草稿，1-已发布，2-已下线

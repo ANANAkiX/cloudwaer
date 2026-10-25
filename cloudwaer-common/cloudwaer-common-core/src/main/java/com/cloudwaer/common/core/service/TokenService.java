@@ -47,6 +47,18 @@ public class TokenService {
 	 */
 	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions,
 			String clientId) {
+		return generateAndStoreToken(userId, username, roleIds, permissions, clientId, null, null);
+	}
+
+	/**
+	 * 生成并存储 Token
+	 * @param clientId 客户端标识（admin/blog），Token 跨端不通用
+	 * @param nickname 展示昵称（可空）
+	 * @param avatar 头像 URL（可空）
+	 * @return Token UUID
+	 */
+	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions,
+			String clientId, String nickname, String avatar) {
 		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法存储Token");
 			return null;
@@ -63,6 +75,9 @@ public class TokenService {
 		claims.put("userId", userId);
 		claims.put("tokenUuid", tokenUuid);
 		claims.put("clientId", boundClient);
+		if (StringUtils.hasText(nickname)) {
+			claims.put("nickname", nickname);
+		}
 		if (roleIds != null && !roleIds.isEmpty()) {
 			claims.put("roleIds", roleIds);
 			claims.put("roleId", roleIds.get(0)); // 兼容旧代码
@@ -82,6 +97,12 @@ public class TokenService {
 		tokenData.put("roleIds", roleIds);
 		tokenData.put("permissions", permissions);
 		tokenData.put("clientId", boundClient);
+		if (StringUtils.hasText(nickname)) {
+			tokenData.put("nickname", nickname);
+		}
+		if (StringUtils.hasText(avatar)) {
+			tokenData.put("avatar", avatar);
+		}
 		tokenData.put("createTime", System.currentTimeMillis());
 
 		try {

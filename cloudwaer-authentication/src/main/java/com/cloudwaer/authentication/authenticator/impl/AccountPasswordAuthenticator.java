@@ -58,7 +58,7 @@ public class AccountPasswordAuthenticator implements LoginAuthenticator {
 			List<String> permissionCodes = tryGetPermissionCodes(user.getId());
 			String clientId = loginRequestDTO.getClientId();
 			String tokenUuid = tokenService.generateAndStoreToken(user.getId(), user.getUsername(), user.getRoleIds(),
-					permissionCodes, clientId);
+					permissionCodes, clientId, user.getNickname(), user.getAvatar());
 			if (tokenUuid == null) {
 				log.error("Token生成失败: username={}", username);
 				throw new BusinessException(ResultCode.FAIL);
