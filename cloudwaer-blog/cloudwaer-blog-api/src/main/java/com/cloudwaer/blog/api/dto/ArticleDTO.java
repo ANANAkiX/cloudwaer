@@ -82,9 +82,14 @@ public class ArticleDTO implements Serializable {
 	private String authorAvatar;
 
 	/**
-	 * 发布状态：0-草稿，1-已发布，2-已下线
+	 * 发布状态：0-草稿，1-已发布，2-已下线，3-待审核
 	 */
 	private Integer publishStatus;
+
+	/**
+	 * 审核意见（拒绝原因；通过时为空）
+	 */
+	private String auditRemark;
 
 	/**
 	 * 是否置顶：0-否，1-是

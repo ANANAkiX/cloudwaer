@@ -34,8 +34,8 @@ public class BlogSettingServiceImpl implements BlogSettingService {
 	/**
 	 * 已知配置键顺序（读取/写入均按此序）
 	 */
-	private static final String[] KEYS = { "siteTitle", "siteDescription", "favicon", "enableSearch", "layout",
-			"footerText", "nav", "pages", "articleLayout", "homeLayout" };
+	private static final String[] KEYS = { "siteTitle", "siteDescription", "favicon", "enableSearch",
+			"requireArticleAudit", "layout", "footerText", "nav", "pages", "articleLayout", "homeLayout" };
 
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -50,6 +50,7 @@ public class BlogSettingServiceImpl implements BlogSettingService {
 		dto.setSiteDescription(nullToEmpty(map.get("siteDescription")));
 		dto.setFavicon(nullToEmpty(map.get("favicon")));
 		dto.setEnableSearch(parseEnableSearch(map.get("enableSearch")));
+		dto.setRequireArticleAudit(parseRequireArticleAudit(map.get("requireArticleAudit")));
 		dto.setLayout(defaultIfBlank(map.get("layout"), "default"));
 		dto.setFooterText(nullToEmpty(map.get("footerText")));
 		dto.setNav(parseNav(map.get("nav")));
@@ -110,6 +111,8 @@ public class BlogSettingServiceImpl implements BlogSettingService {
 		values.put("siteDescription", nullToEmpty(dto.getSiteDescription()));
 		values.put("favicon", nullToEmpty(dto.getFavicon()));
 		values.put("enableSearch", dto.getEnableSearch() != null && dto.getEnableSearch() == 1 ? "1" : "0");
+		values.put("requireArticleAudit",
+				dto.getRequireArticleAudit() != null && dto.getRequireArticleAudit() == 0 ? "0" : "1");
 		values.put("layout", defaultIfBlank(dto.getLayout(), "default"));
 		values.put("footerText", nullToEmpty(dto.getFooterText()));
 		values.put("nav", toJson(dto.getNav() != null ? dto.getNav() : defaultNav()));
@@ -125,6 +128,16 @@ public class BlogSettingServiceImpl implements BlogSettingService {
 			return 1;
 		}
 		return "1".equals(raw.trim()) ? 1 : 0;
+	}
+
+	/**
+	 * 文章审核开关，缺省为开（1）
+	 */
+	private Integer parseRequireArticleAudit(String raw) {
+		if (!StringUtils.hasText(raw)) {
+			return 1;
+		}
+		return "0".equals(raw.trim()) ? 0 : 1;
 	}
 
 	private String nullToEmpty(String raw) {
@@ -263,6 +276,7 @@ public class BlogSettingServiceImpl implements BlogSettingService {
 			case "siteDescription" -> "站点副标题/描述";
 			case "favicon" -> "站点图标 URL（favicon/icon）";
 			case "enableSearch" -> "是否开启搜索：0-关闭，1-开启";
+			case "requireArticleAudit" -> "非管理员发布文章是否需审核：0-免审，1-需审核";
 			case "layout" -> "网站布局：default / compact / magazine";
 			case "footerText" -> "页脚文案";
 			case "nav" -> "导航菜单 JSON 数组（key/label/path/visible/order）";

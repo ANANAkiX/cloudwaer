@@ -68,7 +68,7 @@ public class BlogArticle extends BaseEntity {
 	private String authorAvatar;
 
 	/**
-	 * 发布状态：0-草稿，1-已发布，2-已下线
+	 * 发布状态：0-草稿，1-已发布，2-已下线，3-待审核
 	 */
 	private Integer publishStatus;
 
@@ -106,5 +106,10 @@ public class BlogArticle extends BaseEntity {
 	 * 发布时间
 	 */
 	private LocalDateTime publishTime;
+
+	/**
+	 * 审核意见（拒绝原因；通过时清空）
+	 */
+	private String auditRemark;
 
 }

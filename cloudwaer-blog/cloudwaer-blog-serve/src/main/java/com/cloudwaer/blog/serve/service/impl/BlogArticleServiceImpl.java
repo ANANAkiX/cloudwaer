@@ -16,6 +16,7 @@ import com.cloudwaer.blog.serve.mapper.BlogArticleTagMapper;
 import com.cloudwaer.blog.serve.mapper.BlogCollectionMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTagMapper;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
+import com.cloudwaer.blog.serve.service.BlogSettingService;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
@@ -48,8 +49,41 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 	 */
 	private static final Long ADMIN_ROLE_ID = 1L;
 
+	/**
+	 * 发布状态：草稿
+	 */
+	private static final int PUBLISH_DRAFT = 0;
+
+	/**
+	 * 发布状态：已发布（前台唯一可见态）
+	 */
+	private static final int PUBLISH_ONLINE = 1;
+
+	/**
+	 * 发布状态：已下线
+	 */
+	private static final int PUBLISH_OFFLINE = 2;
+
+	/**
+	 * 发布状态：待审核（发布中间态，前台不可见）
+	 */
+	private static final int PUBLISH_PENDING = 3;
+
+	/**
+	 * 审核结果：通过
+	 */
+	private static final int AUDIT_APPROVED = 1;
+
+	/**
+	 * 审核结果：拒绝
+	 */
+	private static final int AUDIT_REJECTED = 2;
+
 	@Autowired
 	private BlogArticleMapper blogArticleMapper;
+
+	@Autowired
+	private BlogSettingService blogSettingService;
 
 	@Autowired
 	private BlogArticleTagMapper articleTagMapper;
@@ -127,7 +161,7 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Boolean saveArticle(ArticleSaveDTO saveDTO) {
+	public Integer saveArticle(ArticleSaveDTO saveDTO) {
 		BlogArticle article = new BlogArticle();
 		BeanUtils.copyProperties(saveDTO, article);
 		article.setId(null);
@@ -149,21 +183,22 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		article.setAuthorName(display);
 		article.setAuthorAvatar(avatar);
 		if (article.getPublishStatus() == null) {
-			article.setPublishStatus(0);
+			article.setPublishStatus(PUBLISH_DRAFT);
 		}
-		if (article.getPublishStatus() == 1) {
+		article.setPublishStatus(resolvePublishTarget(article.getPublishStatus(), PUBLISH_DRAFT));
+		if (article.getPublishStatus() == PUBLISH_ONLINE) {
 			article.setPublishTime(LocalDateTime.now());
 		}
 		normalizeCollectionBinding(article, saveDTO);
 		blogArticleMapper.insert(article);
 		replaceTags(article.getId(), saveDTO.getTagIds());
 		refreshCollectionCount(article.getCollectionId());
-		return Boolean.TRUE;
+		return article.getPublishStatus();
 	}
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
-	public Boolean updateArticle(ArticleSaveDTO saveDTO) {
+	public Integer updateArticle(ArticleSaveDTO saveDTO) {
 		if (saveDTO.getId() == null) {
 			throw new BusinessException("文章ID不能为空");
 		}
@@ -175,8 +210,14 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		existing.setCoverUrl(saveDTO.getCoverUrl());
 		existing.setCategoryId(saveDTO.getCategoryId());
 		if (saveDTO.getPublishStatus() != null) {
-			existing.setPublishStatus(saveDTO.getPublishStatus());
-			if (saveDTO.getPublishStatus() == 1 && existing.getPublishTime() == null) {
+			int current = existing.getPublishStatus() == null ? PUBLISH_DRAFT : existing.getPublishStatus();
+			int target = resolvePublishTarget(saveDTO.getPublishStatus(), current);
+			// 重新提交发布时清掉上次拒绝意见；内容编辑不改变已有审核结论
+			if (target == PUBLISH_PENDING && current != PUBLISH_PENDING) {
+				existing.setAuditRemark(null);
+			}
+			existing.setPublishStatus(target);
+			if (target == PUBLISH_ONLINE && existing.getPublishTime() == null) {
 				existing.setPublishTime(LocalDateTime.now());
 			}
 		}
@@ -197,7 +238,7 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		replaceTags(existing.getId(), saveDTO.getTagIds());
 		refreshCollectionCount(oldCollectionId);
 		refreshCollectionCount(existing.getCollectionId());
-		return Boolean.TRUE;
+		return existing.getPublishStatus();
 	}
 
 	@Override
@@ -207,6 +248,79 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		blogArticleMapper.deleteById(id);
 		articleTagMapper.physicalDeleteByArticleId(id);
 		return Boolean.TRUE;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Boolean auditArticle(Long id, Integer auditStatus, String remark) {
+		if (!isAdmin()) {
+			throw new BusinessException("仅管理员可审核文章");
+		}
+		if (auditStatus == null || (auditStatus != AUDIT_APPROVED && auditStatus != AUDIT_REJECTED)) {
+			throw new BusinessException("非法审核结果");
+		}
+		BlogArticle article = blogArticleMapper.selectById(id);
+		if (article == null) {
+			throw new BusinessException("文章不存在");
+		}
+		int current = article.getPublishStatus() == null ? PUBLISH_DRAFT : article.getPublishStatus();
+		if (current != PUBLISH_PENDING) {
+			throw new BusinessException("仅待审核文章可审核");
+		}
+		if (auditStatus == AUDIT_APPROVED) {
+			article.setPublishStatus(PUBLISH_ONLINE);
+			article.setAuditRemark(null);
+			if (article.getPublishTime() == null) {
+				article.setPublishTime(LocalDateTime.now());
+			}
+		}
+		else {
+			article.setPublishStatus(PUBLISH_DRAFT);
+			article.setAuditRemark(StringUtils.hasText(remark) ? remark : "未通过审核");
+		}
+		blogArticleMapper.updateById(article);
+		if (auditStatus == AUDIT_APPROVED) {
+			blogArticleMapper.refreshHeat(id);
+		}
+		log.info("文章审核完成: id={}, result={}, authorId={}", id, auditStatus, article.getAuthorId());
+		return Boolean.TRUE;
+	}
+
+	/**
+	 * 计算落库发布状态。
+	 *
+	 * <p>
+	 * 仅当「请求上线」且非 ADMIN 且站点开关开启时进入待审核(3)；已发布文章再次编辑保持已发布不重审。
+	 * </p>
+	 * @param requested 请求的发布状态
+	 * @param current 当前库内状态（新建文章传草稿）
+	 * @return 目标发布状态
+	 */
+	private int resolvePublishTarget(int requested, int current) {
+		if (requested != PUBLISH_ONLINE && requested != PUBLISH_PENDING) {
+			return requested;
+		}
+		if (current == PUBLISH_PENDING) {
+			// 仍在队列中，编辑内容不改变审核状态
+			return PUBLISH_PENDING;
+		}
+		if (current == PUBLISH_ONLINE) {
+			// 已通过：编辑直接生效，不重审
+			return PUBLISH_ONLINE;
+		}
+		// 草稿 / 已下线 → 发布动作
+		if (isAdmin() || !isArticleAuditRequired()) {
+			return PUBLISH_ONLINE;
+		}
+		return PUBLISH_PENDING;
+	}
+
+	/**
+	 * 站点开关：非管理员发布是否需审核（缺省开）
+	 */
+	private boolean isArticleAuditRequired() {
+		Integer flag = blogSettingService.getSettings().getRequireArticleAudit();
+		return flag == null || flag != 0;
 	}
 
 	@Override

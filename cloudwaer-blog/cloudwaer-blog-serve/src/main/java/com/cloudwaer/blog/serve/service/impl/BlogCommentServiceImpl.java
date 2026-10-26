@@ -13,6 +13,8 @@ import com.cloudwaer.blog.serve.service.BlogCommentService;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,9 +23,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +58,36 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 	 * ADMIN 角色ID（种子 sys_role.id=1）
 	 */
 	private static final Long ADMIN_ROLE_ID = 1L;
+
+	/**
+	 * 前台默认顶级评论页大小
+	 */
+	private static final long DEFAULT_TOP_SIZE = 5L;
+
+	/**
+	 * 前台默认每条附带子评论数
+	 */
+	private static final long DEFAULT_CHILD_SIZE = 3L;
+
+	/**
+	 * 前台展开回复默认每次加载条数
+	 */
+	private static final long DEFAULT_REPLY_PAGE = 10L;
+
+	/**
+	 * 评论附图最大张数
+	 */
+	private static final int MAX_IMAGES = 3;
+
+	/**
+	 * 附图路径白名单：仅本站上传目录
+	 */
+	private static final Pattern IMAGE_PATH = Pattern.compile("^/blog/uploads/[A-Za-z0-9._-]+$");
+
+	/**
+	 * 评论附图JSON序列化
+	 */
+	private static final ObjectMapper IMAGE_MAPPER = new ObjectMapper();
 
 	@Autowired
 	private BlogCommentMapper commentMapper;
@@ -107,8 +141,24 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		comment.setParentId(parentId);
 		comment.setRootId(rootId);
 		comment.setUserId(userId);
-		comment.setNickname(username);
+		// 展示昵称优先（不落账号名）；历史Token无 nickname 时兜底 username
+		String display = username;
+		String avatar = null;
+		Map<String, Object> tokenData = SecurityContextUtil.getCurrentTokenData();
+		if (tokenData != null) {
+			Object nick = tokenData.get("nickname");
+			if (nick != null && StringUtils.hasText(String.valueOf(nick))) {
+				display = String.valueOf(nick);
+			}
+			Object av = tokenData.get("avatar");
+			if (av != null && StringUtils.hasText(String.valueOf(av))) {
+				avatar = String.valueOf(av);
+			}
+		}
+		comment.setNickname(display);
+		comment.setAvatar(avatar);
 		comment.setContent(dto.getContent());
+		comment.setImages(serializeImages(dto.getImages()));
 		comment.setLikeCount(0);
 		comment.setAuditStatus(AUDIT_PENDING);
 		if (StringUtils.hasText(clientIp)) {
@@ -147,6 +197,60 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 			}
 		}
 		return new ArrayList<>(topMap.values());
+	}
+
+	@Override
+	public PageResult<CommentDTO> listPage(Long articleId, Long current, Long size, Long childSize) {
+		long cur = current == null || current < 1 ? 1L : current;
+		long pageSize = size == null || size < 1 ? DEFAULT_TOP_SIZE : size;
+		long child = childSize == null || childSize < 1 ? DEFAULT_CHILD_SIZE : childSize;
+
+		Page<BlogComment> page = new Page<>(cur, pageSize);
+		// 排序集中在此处：后续可替换为热度/质量算法排序
+		IPage<BlogComment> pr = commentMapper.selectPage(page,
+				new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getArticleId, articleId)
+					.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
+					.eq(BlogComment::getParentId, 0L)
+					.orderByAsc(BlogComment::getCreateTime));
+
+		List<CommentDTO> tops = pr.getRecords().stream().map(this::toDto).collect(Collectors.toList());
+		if (!tops.isEmpty()) {
+			List<Long> rootIds = tops.stream().map(CommentDTO::getId).collect(Collectors.toList());
+			List<BlogComment> allReplies = commentMapper
+				.selectList(new LambdaQueryWrapper<BlogComment>().in(BlogComment::getRootId, rootIds)
+					.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
+					.orderByAsc(BlogComment::getCreateTime));
+			Map<Long, List<CommentDTO>> byRoot = new LinkedHashMap<>();
+			for (BlogComment r : allReplies) {
+				byRoot.computeIfAbsent(r.getRootId(), k -> new ArrayList<>()).add(toDto(r));
+			}
+			for (CommentDTO top : tops) {
+				List<CommentDTO> replies = byRoot.getOrDefault(top.getId(), Collections.emptyList());
+				top.setReplyTotal(replies.size());
+				top.setReplies(replies.size() > child ? new ArrayList<>(replies.subList(0, (int) child))
+						: new ArrayList<>(replies));
+			}
+		}
+		return new PageResult<>(tops, pr.getTotal(), pr.getCurrent(), pr.getSize());
+	}
+
+	@Override
+	public PageResult<CommentDTO> listReplies(Long rootId, Long offset, Long size) {
+		if (rootId == null || rootId <= 0) {
+			throw new BusinessException("缺少根评论ID");
+		}
+		long off = offset == null || offset < 0 ? 0L : offset;
+		long pageSize = size == null || size < 1 ? DEFAULT_REPLY_PAGE : size;
+		// 展开更多：按已展示条数 OFFSET 拉取，每次固定 +N
+		List<BlogComment> list = commentMapper
+			.selectList(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
+				.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
+				.orderByAsc(BlogComment::getCreateTime)
+				.last("LIMIT " + pageSize + " OFFSET " + off));
+		Long total = commentMapper.selectCount(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
+			.eq(BlogComment::getAuditStatus, AUDIT_APPROVED));
+		List<CommentDTO> dtos = list.stream().map(this::toDto).collect(Collectors.toList());
+		return new PageResult<>(dtos, total, off / pageSize + 1, pageSize);
 	}
 
 	@Override
@@ -259,7 +363,50 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		if (dto.getReplies() == null) {
 			dto.setReplies(new ArrayList<>());
 		}
+		dto.setImages(parseImages(entity.getImages()));
 		return dto;
+	}
+
+	/**
+	 * 校验并序列化附图：仅允许本站 /blog/uploads/** 路径
+	 */
+	private String serializeImages(List<String> images) {
+		if (images == null || images.isEmpty()) {
+			return null;
+		}
+		List<String> cleaned = images.stream()
+			.filter(StringUtils::hasText)
+			.map(String::trim)
+			.distinct()
+			.collect(Collectors.toList());
+		if (cleaned.size() > MAX_IMAGES) {
+			throw new BusinessException("评论图片最多" + MAX_IMAGES + "张");
+		}
+		for (String path : cleaned) {
+			if (!IMAGE_PATH.matcher(path).matches()) {
+				throw new BusinessException("评论图片路径不合法");
+			}
+		}
+		try {
+			return IMAGE_MAPPER.writeValueAsString(cleaned);
+		}
+		catch (Exception e) {
+			throw new BusinessException("评论图片处理失败");
+		}
+	}
+
+	private List<String> parseImages(String raw) {
+		if (!StringUtils.hasText(raw)) {
+			return new ArrayList<>();
+		}
+		try {
+			return IMAGE_MAPPER.readValue(raw, new TypeReference<List<String>>() {
+			});
+		}
+		catch (Exception e) {
+			log.warn("评论附图JSON解析失败: {}", raw);
+			return new ArrayList<>();
+		}
 	}
 
 }

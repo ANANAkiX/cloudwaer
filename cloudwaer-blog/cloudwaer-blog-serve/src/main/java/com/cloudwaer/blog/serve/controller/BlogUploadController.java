@@ -48,13 +48,27 @@ public class BlogUploadController {
 	private String uploadDir;
 
 	/**
-	 * 上传图片
+	 * 上传图片（作者：文章封面/正文）
 	 */
 	@PostMapping("/image")
 	@RequireLogin
 	@PermissionCode("blog:article:add")
 	@Operation(summary = "上传图片", description = "jpg/png/gif/webp，≤5MB；返回 /blog/uploads/** 路径")
 	public Result<String> uploadImage(@RequestParam("file") MultipartFile file) {
+		return Result.success(doUpload(file));
+	}
+
+	/**
+	 * 上传评论图片/表情包（登录即可，不要求作者权限）
+	 */
+	@PostMapping("/comment-image")
+	@RequireLogin
+	@Operation(summary = "上传评论图片", description = "登录用户评论配图/表情包；jpg/png/gif/webp，≤5MB")
+	public Result<String> uploadCommentImage(@RequestParam("file") MultipartFile file) {
+		return Result.success(doUpload(file));
+	}
+
+	private String doUpload(MultipartFile file) {
 		if (file == null || file.isEmpty()) {
 			throw new BusinessException("文件不能为空");
 		}
@@ -86,7 +100,7 @@ public class BlogUploadController {
 			log.error("图片上传失败", e);
 			throw new BusinessException("上传失败，请稍后重试");
 		}
-		return Result.success("/blog/uploads/" + filename);
+		return "/blog/uploads/" + filename;
 	}
 
 }

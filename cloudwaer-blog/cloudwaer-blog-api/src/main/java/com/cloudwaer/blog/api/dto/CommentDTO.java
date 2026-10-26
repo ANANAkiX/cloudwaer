@@ -63,9 +63,19 @@ public class CommentDTO implements Serializable {
 	private String content;
 
 	/**
+	 * 附图URL列表（评论图片/表情包）
+	 */
+	private List<String> images = new ArrayList<>();
+
+	/**
 	 * 点赞数
 	 */
 	private Integer likeCount;
+
+	/**
+	 * 楼中楼回复总数（公开树分页时回填）
+	 */
+	private Integer replyTotal;
 
 	/**
 	 * 审核状态：0-待审核，1-已通过，2-已拒绝

@@ -30,7 +30,7 @@ CREATE TABLE `blog_article`  (
   `category_id` bigint(20) NULL DEFAULT NULL COMMENT '分类ID（blog_category.id）',
   `author_id` bigint(20) NOT NULL COMMENT '作者ID（sys_user.id）',
   `author_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '作者昵称（冗余）',
-  `publish_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '发布状态：0-草稿，1-已发布，2-已下线',
+  `publish_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '发布状态：0-草稿，1-已发布，2-已下线，3-待审核',
   `is_top` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否置顶：0-否，1-是',
   `is_recommend` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否推荐：0-否，1-是',
   `view_count` int(11) NOT NULL DEFAULT 0 COMMENT '浏览量',
@@ -38,6 +38,7 @@ CREATE TABLE `blog_article`  (
   `comment_count` int(11) NOT NULL DEFAULT 0 COMMENT '评论数',
   `heat_score` double NOT NULL DEFAULT 0 COMMENT '热度分（对数加权+时间衰减）',
   `publish_time` datetime NULL DEFAULT NULL COMMENT '发布时间',
+  `audit_remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '审核意见（拒绝原因）',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
   `update_time` datetime NOT NULL COMMENT '更新时间',
@@ -53,9 +54,9 @@ CREATE TABLE `blog_article`  (
 -- ----------------------------
 -- Records of blog_article
 -- ----------------------------
-INSERT INTO `blog_article` VALUES (2100000000000000021, '欢迎使用 CloudWaer 博客', '这是 cloudwaer-blog 的第一篇文章，演示 Markdown 渲染、标签与热度功能 。', '# 欢迎使用 CloudWaer 博客\n\n这是 **cloudwaer-blog** 的第一篇文章，用于演示 Markdown 渲染、标签、评论与热度功能。\n\n## 快速开始\n\n1. 在管理后台发布文章\n2. 在首页查看文章流与热度排行\n3. 在详情页体验评论互动\n\n```java\npublic class HelloBlog {\n    public static void main(String[] args) {\n        System.out.println(\"Hello CloudWaer Blog!\");\n    }\n}\n```\n\n祝写作愉快！', '/blog/uploads/0082f5534cf743a8a1a6419f8d00c8ab.png', 2100000000000000001, 1, '管理员', 1, 1, 1, 150, 6, 1, 10.62829443397303, '2026-10-24 00:00:00', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `blog_article` VALUES (2113757534013804546, '冒烟测试文章', 'CRUD冒烟', '# Hello\n正文内容', NULL, 2100000000000000001, 2113757451016916994, 'blog_smoke_admin', 0, 0, 0, 0, 0, 0, 0, NULL, '2026-10-24 06:20:42', NULL, '2026-10-24 06:20:43', NULL, 0);
-INSERT INTO `blog_article` VALUES (2113758498082979841, '冒烟测试文章-已发布', '更新摘要', '# Hello\n更新正文', NULL, 2100000000000000001, 2113757451016916994, 'blog_smoke_admin', 1, 1, 1, 0, 0, 0, 0, '2026-10-24 06:24:33', '2026-10-24 06:24:32', NULL, '2026-10-24 06:24:33', NULL, 0);
+INSERT INTO `blog_article` VALUES (2100000000000000021, '欢迎使用 CloudWaer 博客', '这是 cloudwaer-blog 的第一篇文章，演示 Markdown 渲染、标签与热度功能 。', '# 欢迎使用 CloudWaer 博客\n\n这是 **cloudwaer-blog** 的第一篇文章，用于演示 Markdown 渲染、标签、评论与热度功能。\n\n## 快速开始\n\n1. 在管理后台发布文章\n2. 在首页查看文章流与热度排行\n3. 在详情页体验评论互动\n\n```java\npublic class HelloBlog {\n    public static void main(String[] args) {\n        System.out.println(\"Hello CloudWaer Blog!\");\n    }\n}\n```\n\n祝写作愉快！', '/blog/uploads/0082f5534cf743a8a1a6419f8d00c8ab.png', 2100000000000000001, 1, '管理员', 1, 1, 1, 150, 6, 1, 10.62829443397303, '2026-10-24 00:00:00', NULL, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `blog_article` VALUES (2113757534013804546, '冒烟测试文章', 'CRUD冒烟', '# Hello\n正文内容', NULL, 2100000000000000001, 2113757451016916994, 'blog_smoke_admin', 0, 0, 0, 0, 0, 0, 0, NULL, NULL, '2026-10-24 06:20:42', NULL, '2026-10-24 06:20:43', NULL, 0);
+INSERT INTO `blog_article` VALUES (2113758498082979841, '冒烟测试文章-已发布', '更新摘要', '# Hello\n更新正文', NULL, 2100000000000000001, 2113757451016916994, 'blog_smoke_admin', 1, 1, 1, 0, 0, 0, 0, '2026-10-24 06:24:33', NULL, '2026-10-24 06:24:32', NULL, '2026-10-24 06:24:33', NULL, 0);
 
 -- ----------------------------
 -- Table structure for blog_article_tag
@@ -152,6 +153,7 @@ CREATE TABLE `blog_comment`  (
   `nickname` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论者昵称',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像URL',
   `content` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容',
+  `images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '附图URL列表JSON（/blog/uploads/**）',
   `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '点赞数',
   `audit_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '审核状态：0-待审核，1-已通过，2-已拒绝',
   `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '评论IP',
@@ -169,7 +171,7 @@ CREATE TABLE `blog_comment`  (
 -- ----------------------------
 -- Records of blog_comment
 -- ----------------------------
-INSERT INTO `blog_comment` VALUES (2100000000000000041, 2100000000000000021, 0, 0, 1, '管理员', NULL, '欢迎使用 CloudWaer 博客，这是第一条评论。', 0, 1, '127.0.0.1', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `blog_comment` VALUES (2100000000000000041, 2100000000000000021, 0, 0, 1, '管理员', NULL, '欢迎使用 CloudWaer 博客，这是第一条评论。', NULL, 0, 1, '127.0.0.1', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 
 -- ----------------------------
 -- Table structure for blog_tag

@@ -1,6 +1,7 @@
 package com.cloudwaer.blog.serve.controller;
 
 import com.cloudwaer.blog.api.dto.ArticleDTO;
+import com.cloudwaer.blog.api.dto.ArticleAuditDTO;
 import com.cloudwaer.blog.api.dto.ArticleImportDTO;
 import com.cloudwaer.blog.api.dto.ArticleSaveDTO;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
@@ -71,8 +72,8 @@ public class BlogArticleController {
 	 */
 	@PostMapping("/save")
 	@PermissionCode("blog:article:add")
-	@Operation(summary = "新增文章", description = "创建文章，作者为当前登录用户")
-	public Result<Boolean> save(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+	@Operation(summary = "新增文章", description = "创建文章；返回落库发布状态（0草稿/1已发布/3待审核）")
+	public Result<Integer> save(@RequestBody @Validated ArticleSaveDTO saveDTO) {
 		return Result.success(blogArticleService.saveArticle(saveDTO));
 	}
 
@@ -81,8 +82,8 @@ public class BlogArticleController {
 	 */
 	@PutMapping("/update")
 	@PermissionCode("blog:article:edit")
-	@Operation(summary = "更新文章", description = "更新文章内容、标签与发布状态")
-	public Result<Boolean> update(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+	@Operation(summary = "更新文章", description = "更新文章内容、标签与发布状态；返回落库发布状态")
+	public Result<Integer> update(@RequestBody @Validated ArticleSaveDTO saveDTO) {
 		return Result.success(blogArticleService.updateArticle(saveDTO));
 	}
 
@@ -125,6 +126,16 @@ public class BlogArticleController {
 		return Result.success(blogArticleService.deleteArticle(id));
 	}
 
+	/**
+	 * 文章审核（审核中心；与评论审核一致：登录 + 服务端 ADMIN）
+	 */
+	@PostMapping("/audit")
+	@RequireLogin
+	@Operation(summary = "审核文章", description = "1-通过（上线），2-拒绝（回草稿并记录意见）；仅 ADMIN")
+	public Result<Boolean> audit(@RequestBody @Validated ArticleAuditDTO dto) {
+		return Result.success(blogArticleService.auditArticle(dto.getId(), dto.getAuditStatus(), dto.getRemark()));
+	}
+
 	// ===== 创作中心：仅本人（登录即可） =====
 
 	/**
@@ -155,8 +166,8 @@ public class BlogArticleController {
 	 */
 	@PostMapping("/my/save")
 	@RequireLogin
-	@Operation(summary = "我的文章保存", description = "创作中心：仅本人新建")
-	public Result<Boolean> mySave(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+	@Operation(summary = "我的文章保存", description = "创作中心：仅本人新建；返回落库发布状态（0草稿/1已发布/3待审核）")
+	public Result<Integer> mySave(@RequestBody @Validated ArticleSaveDTO saveDTO) {
 		return Result.success(blogArticleService.saveArticle(saveDTO));
 	}
 
@@ -165,8 +176,8 @@ public class BlogArticleController {
 	 */
 	@PutMapping("/my/update")
 	@RequireLogin
-	@Operation(summary = "我的文章更新", description = "创作中心：仅本人")
-	public Result<Boolean> myUpdate(@RequestBody @Validated ArticleSaveDTO saveDTO) {
+	@Operation(summary = "我的文章更新", description = "创作中心：仅本人；返回落库发布状态")
+	public Result<Integer> myUpdate(@RequestBody @Validated ArticleSaveDTO saveDTO) {
 		return Result.success(blogArticleService.updateArticle(saveDTO));
 	}
 

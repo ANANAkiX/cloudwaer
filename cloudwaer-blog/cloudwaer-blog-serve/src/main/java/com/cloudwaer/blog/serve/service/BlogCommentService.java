@@ -29,6 +29,25 @@ public interface BlogCommentService {
 	List<CommentDTO> listByArticle(Long articleId);
 
 	/**
+	 * 文章评论树分页（前台）：顶级评论分页，每条附带前 N 条楼中楼与回复总数
+	 * @param articleId 文章ID
+	 * @param current 页码（从1起）
+	 * @param size 顶级页大小（默认5）
+	 * @param childSize 每条附带子评论数（默认3）
+	 * @return 分页结果
+	 */
+	PageResult<CommentDTO> listPage(Long articleId, Long current, Long size, Long childSize);
+
+	/**
+	 * 楼中楼回复按偏移分页（前台「展开更多」）
+	 * @param rootId 根评论ID
+	 * @param offset 偏移（从0起，即已展示条数）
+	 * @param size 本次加载条数（默认10）
+	 * @return 分页结果
+	 */
+	PageResult<CommentDTO> listReplies(Long rootId, Long offset, Long size);
+
+	/**
 	 * 管理端评论分页
 	 * @param current 页码
 	 * @param size 页大小

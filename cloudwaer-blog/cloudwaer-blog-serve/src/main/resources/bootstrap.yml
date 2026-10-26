@@ -1,4 +1,5 @@
 spring:
+  prot:
   application:
     name: cloudwaer-blog-serve
   profiles:

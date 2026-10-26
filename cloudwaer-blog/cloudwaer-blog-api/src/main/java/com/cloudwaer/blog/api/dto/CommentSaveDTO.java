@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 博客评论发表DTO
@@ -39,5 +40,11 @@ public class CommentSaveDTO implements Serializable {
 	@NotBlank(message = "评论内容不能为空")
 	@Size(max = 1000, message = "评论内容最长1000字符")
 	private String content;
+
+	/**
+	 * 附图URL列表（/blog/uploads/**，最多3张）
+	 */
+	@Size(max = 3, message = "评论图片最多3张")
+	private List<String> images;
 
 }

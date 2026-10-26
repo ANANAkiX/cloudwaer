@@ -42,6 +42,11 @@ public class SiteSettingDTO implements Serializable {
 	private Integer enableSearch;
 
 	/**
+	 * 非管理员发布文章是否需审核：0-免审直接发布，1-需审核（默认1）
+	 */
+	private Integer requireArticleAudit;
+
+	/**
 	 * 网站布局：default / compact / magazine
 	 */
 	private String layout;

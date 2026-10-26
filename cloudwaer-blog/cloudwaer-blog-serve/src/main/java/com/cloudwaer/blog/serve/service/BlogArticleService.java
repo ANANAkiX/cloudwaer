@@ -36,16 +36,16 @@ public interface BlogArticleService {
 	/**
 	 * 新增文章（作者为当前登录用户）
 	 * @param saveDTO 保存DTO
-	 * @return 是否成功
+	 * @return 落库后的发布状态（0-草稿，1-已发布，3-待审核）
 	 */
-	Boolean saveArticle(ArticleSaveDTO saveDTO);
+	Integer saveArticle(ArticleSaveDTO saveDTO);
 
 	/**
 	 * 更新文章
 	 * @param saveDTO 更新DTO（id必填）
-	 * @return 是否成功
+	 * @return 落库后的发布状态（0-草稿，1-已发布，2-已下线，3-待审核）
 	 */
-	Boolean updateArticle(ArticleSaveDTO saveDTO);
+	Integer updateArticle(ArticleSaveDTO saveDTO);
 
 	/**
 	 * 删除文章（逻辑删除，级联清理标签关联）
@@ -53,6 +53,15 @@ public interface BlogArticleService {
 	 * @return 是否成功
 	 */
 	Boolean deleteArticle(Long id);
+
+	/**
+	 * 文章审核（仅 ADMIN）：通过→已发布，拒绝→回草稿并记录意见
+	 * @param id 文章ID（须为待审核状态）
+	 * @param auditStatus 1-通过，2-拒绝
+	 * @param remark 审核意见（拒绝原因，可空）
+	 * @return 是否成功
+	 */
+	Boolean auditArticle(Long id, Integer auditStatus, String remark);
 
 	/**
 	 * 批量填充标签

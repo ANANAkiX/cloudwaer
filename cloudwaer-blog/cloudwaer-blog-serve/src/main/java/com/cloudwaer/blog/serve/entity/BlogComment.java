@@ -51,6 +51,11 @@ public class BlogComment extends BaseEntity {
 	private String content;
 
 	/**
+	 * 附图URL列表JSON（如 ["\/blog\/uploads\/xx.png"]）
+	 */
+	private String images;
+
+	/**
 	 * 点赞数
 	 */
 	private Integer likeCount;

@@ -55,13 +55,15 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 			return chain.filter(exchange);
 		}
 
-		// 获取Token UUID
+		// 未携带 Token：放行，由下游 PermissionAuthorizationFilter 按 @RequireLogin /
+		// @PermissionCode 决策。
+		// 网关不做「默认拒绝」——单体模式本就由下游逐端点判定，公开接口（如 /blog/open/**）必须匿名可访问。
 		String tokenUuid = getToken(request);
 		if (!StringUtils.hasText(tokenUuid)) {
-			return unauthorizedResponse(exchange);
+			return chain.filter(exchange);
 		}
 
-		// 验证Token UUID（检查Redis中是否存在）
+		// 携带 Token：校验有效性与客户端绑定，不通过直接 401
 		if (tokenService == null) {
 			log.warn("TokenService未配置，无法验证Token");
 			return unauthorizedResponse(exchange);
