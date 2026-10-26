@@ -12,6 +12,7 @@ import com.cloudwaer.blog.serve.mapper.BlogCommentMapper;
 import com.cloudwaer.blog.serve.mapper.BlogLikeMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTopicMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTopicReplyMapper;
+import com.cloudwaer.blog.serve.service.BlogCommentService;
 import com.cloudwaer.blog.serve.service.BlogLikeService;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
@@ -44,6 +45,9 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 	@Autowired
 	private BlogTopicReplyMapper topicReplyMapper;
 
+	@Autowired
+	private BlogCommentService commentService;
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public LikeToggleDTO toggle(Integer targetType, Long targetId) {
@@ -70,6 +74,10 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 			if (targetType == TARGET_ARTICLE) {
 				articleMapper.refreshHeat(targetId);
 			}
+			else if (targetType == TARGET_COMMENT) {
+				// 点赞变化 → 评论质量分重算（排序键随事件更新）
+				commentService.refreshQualityScore(targetId);
+			}
 			return dto;
 		}
 
@@ -88,6 +96,9 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 		dto.setLikeCount(currentCount(targetType, targetId));
 		if (targetType == TARGET_ARTICLE) {
 			articleMapper.refreshHeat(targetId);
+		}
+		else if (targetType == TARGET_COMMENT) {
+			commentService.refreshQualityScore(targetId);
 		}
 		return dto;
 	}

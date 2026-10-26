@@ -99,7 +99,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	}
 
 	@Override
-	public PageResult<UserDTO> getUserPage(PageDTO pageDTO) {
+	public PageResult<UserDTO> getUserPage(PageDTO pageDTO, Long roleId) {
 		// 创建分页对象
 		Page<User> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
 
@@ -114,6 +114,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 				.like(User::getEmail, keyword)
 				.or()
 				.like(User::getPhone, keyword));
+		}
+
+		// 角色筛选：先取该角色下的用户ID再 IN（如 blog 模块只列博客主）
+		if (roleId != null) {
+			List<Long> userIds = userRoleMapper
+				.selectList(new LambdaQueryWrapper<UserRole>().eq(UserRole::getRoleId, roleId))
+				.stream()
+				.map(UserRole::getUserId)
+				.distinct()
+				.collect(Collectors.toList());
+			if (userIds.isEmpty()) {
+				return new PageResult<>(new java.util.ArrayList<>(), 0L, pageDTO.getCurrent(), pageDTO.getSize());
+			}
+			wrapper.in(User::getId, userIds);
 		}
 
 		// 分页查询

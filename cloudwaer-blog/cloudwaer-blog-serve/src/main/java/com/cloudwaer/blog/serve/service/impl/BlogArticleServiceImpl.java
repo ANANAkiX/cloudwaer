@@ -17,6 +17,7 @@ import com.cloudwaer.blog.serve.mapper.BlogCollectionMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTagMapper;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
 import com.cloudwaer.blog.serve.service.BlogSettingService;
+import com.cloudwaer.blog.serve.service.BloggerManageService;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
@@ -84,6 +85,9 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 
 	@Autowired
 	private BlogSettingService blogSettingService;
+
+	@Autowired
+	private BloggerManageService bloggerManageService;
 
 	@Autowired
 	private BlogArticleTagMapper articleTagMapper;
@@ -185,7 +189,7 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		if (article.getPublishStatus() == null) {
 			article.setPublishStatus(PUBLISH_DRAFT);
 		}
-		article.setPublishStatus(resolvePublishTarget(article.getPublishStatus(), PUBLISH_DRAFT));
+		article.setPublishStatus(resolvePublishTarget(article.getPublishStatus(), PUBLISH_DRAFT, userId));
 		if (article.getPublishStatus() == PUBLISH_ONLINE) {
 			article.setPublishTime(LocalDateTime.now());
 		}
@@ -211,7 +215,7 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		existing.setCategoryId(saveDTO.getCategoryId());
 		if (saveDTO.getPublishStatus() != null) {
 			int current = existing.getPublishStatus() == null ? PUBLISH_DRAFT : existing.getPublishStatus();
-			int target = resolvePublishTarget(saveDTO.getPublishStatus(), current);
+			int target = resolvePublishTarget(saveDTO.getPublishStatus(), current, existing.getAuthorId());
 			// 重新提交发布时清掉上次拒绝意见；内容编辑不改变已有审核结论
 			if (target == PUBLISH_PENDING && current != PUBLISH_PENDING) {
 				existing.setAuditRemark(null);
@@ -268,6 +272,11 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 			throw new BusinessException("仅待审核文章可审核");
 		}
 		if (auditStatus == AUDIT_APPROVED) {
+			// 暂停期作者的文章不允许放行上线
+			String blocked = bloggerManageService.blockedReason(article.getAuthorId());
+			if (blocked != null) {
+				throw new BusinessException("该作者处于暂停期，无法通过：" + blocked);
+			}
 			article.setPublishStatus(PUBLISH_ONLINE);
 			article.setAuditRemark(null);
 			if (article.getPublishTime() == null) {
@@ -290,13 +299,15 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 	 * 计算落库发布状态。
 	 *
 	 * <p>
-	 * 仅当「请求上线」且非 ADMIN 且站点开关开启时进入待审核(3)；已发布文章再次编辑保持已发布不重审。
+	 * 仅当「请求上线」且非 ADMIN 且站点开关开启时进入待审核(3)；已发布文章再次编辑保持已发布不重审。 上线动作（草稿/已下线 →
+	 * 发布）前，先拦截处于暂停期的博客主。
 	 * </p>
 	 * @param requested 请求的发布状态
 	 * @param current 当前库内状态（新建文章传草稿）
+	 * @param authorId 作者ID（暂停判定用）
 	 * @return 目标发布状态
 	 */
-	private int resolvePublishTarget(int requested, int current) {
+	private int resolvePublishTarget(int requested, int current, Long authorId) {
 		if (requested != PUBLISH_ONLINE && requested != PUBLISH_PENDING) {
 			return requested;
 		}
@@ -308,7 +319,11 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 			// 已通过：编辑直接生效，不重审
 			return PUBLISH_ONLINE;
 		}
-		// 草稿 / 已下线 → 发布动作
+		// 草稿 / 已下线 → 发布动作：暂停中的博客主一律拦截
+		String blocked = bloggerManageService.blockedReason(authorId);
+		if (blocked != null) {
+			throw new BusinessException(blocked);
+		}
 		if (isAdmin() || !isArticleAuditRequired()) {
 			return PUBLISH_ONLINE;
 		}

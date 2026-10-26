@@ -46,15 +46,16 @@ public class UserController {
 	 */
 	@GetMapping("/page")
 	@PermissionCode("admin:user:view")
-	@Operation(summary = "分页查询用户列表", description = "分页获取用户信息，支持复合搜索（用户名、昵称、邮箱、手机号）")
+	@Operation(summary = "分页查询用户列表", description = "分页获取用户信息，支持复合搜索与 roleId 角色筛选（如 4=博客主）")
 	public Result<PageResult<UserDTO>> getUserPage(@RequestParam(value = "current", defaultValue = "1") Long current,
 			@RequestParam(value = "size", defaultValue = "10") Long size,
-			@RequestParam(value = "keyword", required = false) String keyword) {
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "roleId", required = false) Long roleId) {
 		PageDTO pageDTO = new PageDTO();
 		pageDTO.setCurrent(current);
 		pageDTO.setSize(size);
 		pageDTO.setKeyword(keyword);
-		PageResult<UserDTO> pageResult = userService.getUserPage(pageDTO);
+		PageResult<UserDTO> pageResult = userService.getUserPage(pageDTO, roleId);
 		return Result.success(pageResult);
 	}
 

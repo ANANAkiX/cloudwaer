@@ -73,4 +73,14 @@ public interface BlogCommentService {
 	 */
 	Boolean deleteComment(Long id);
 
+	/**
+	 * 重算单条评论的质量分并落库（供审核/删除/点赞链路调用；目标不存在时静默返回）
+	 *
+	 * <p>
+	 * 算分只在事件触发时执行，避免排序键随时间漂移导致 offset 翻页重漏。
+	 * </p>
+	 * @param commentId 评论ID
+	 */
+	void refreshQualityScore(Long commentId);
+
 }

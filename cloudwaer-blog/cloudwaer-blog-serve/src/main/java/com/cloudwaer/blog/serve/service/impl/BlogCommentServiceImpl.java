@@ -172,9 +172,8 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 	@Override
 	public List<CommentDTO> listByArticle(Long articleId) {
 		List<BlogComment> all = commentMapper
-			.selectList(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getArticleId, articleId)
-				.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
-				.orderByAsc(BlogComment::getCreateTime));
+			.selectList(applyOrder(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getArticleId, articleId)
+				.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)));
 		if (all.isEmpty()) {
 			return new ArrayList<>();
 		}
@@ -206,20 +205,18 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		long child = childSize == null || childSize < 1 ? DEFAULT_CHILD_SIZE : childSize;
 
 		Page<BlogComment> page = new Page<>(cur, pageSize);
-		// 排序集中在此处：后续可替换为热度/质量算法排序
+		// 排序统一走 applyOrder：质量分优先，同分按创建时间（沙发在前）
 		IPage<BlogComment> pr = commentMapper.selectPage(page,
-				new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getArticleId, articleId)
+				applyOrder(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getArticleId, articleId)
 					.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
-					.eq(BlogComment::getParentId, 0L)
-					.orderByAsc(BlogComment::getCreateTime));
+					.eq(BlogComment::getParentId, 0L)));
 
 		List<CommentDTO> tops = pr.getRecords().stream().map(this::toDto).collect(Collectors.toList());
 		if (!tops.isEmpty()) {
 			List<Long> rootIds = tops.stream().map(CommentDTO::getId).collect(Collectors.toList());
 			List<BlogComment> allReplies = commentMapper
-				.selectList(new LambdaQueryWrapper<BlogComment>().in(BlogComment::getRootId, rootIds)
-					.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
-					.orderByAsc(BlogComment::getCreateTime));
+				.selectList(applyOrder(new LambdaQueryWrapper<BlogComment>().in(BlogComment::getRootId, rootIds)
+					.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)));
 			Map<Long, List<CommentDTO>> byRoot = new LinkedHashMap<>();
 			for (BlogComment r : allReplies) {
 				byRoot.computeIfAbsent(r.getRootId(), k -> new ArrayList<>()).add(toDto(r));
@@ -241,12 +238,10 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		}
 		long off = offset == null || offset < 0 ? 0L : offset;
 		long pageSize = size == null || size < 1 ? DEFAULT_REPLY_PAGE : size;
-		// 展开更多：按已展示条数 OFFSET 拉取，每次固定 +N
+		// 展开更多：按已展示条数 OFFSET 拉取，每次固定 +N（排序键与顶级一致，翻页不重不漏）
 		List<BlogComment> list = commentMapper
-			.selectList(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
-				.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)
-				.orderByAsc(BlogComment::getCreateTime)
-				.last("LIMIT " + pageSize + " OFFSET " + off));
+			.selectList(applyOrder(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
+				.eq(BlogComment::getAuditStatus, AUDIT_APPROVED)).last("LIMIT " + pageSize + " OFFSET " + off));
 		Long total = commentMapper.selectCount(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
 			.eq(BlogComment::getAuditStatus, AUDIT_APPROVED));
 		List<CommentDTO> dtos = list.stream().map(this::toDto).collect(Collectors.toList());
@@ -295,6 +290,9 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		if (auditStatus == AUDIT_APPROVED) {
 			articleMapper.incrementComment(existing.getArticleId());
 			articleMapper.refreshHeat(existing.getArticleId());
+			// 质量分：本条（点赞/存龄）与回复数受影响的父、根一并重算
+			refreshQualityScore(existing.getId());
+			refreshRelatedScores(existing);
 		}
 		return Boolean.TRUE;
 	}
@@ -317,6 +315,8 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		if (existing.getAuditStatus() != null && existing.getAuditStatus() == AUDIT_APPROVED) {
 			articleMapper.decrementComment(existing.getArticleId());
 			articleMapper.refreshHeat(existing.getArticleId());
+			// 回复数变化 → 父与根的质量分重算（被删行本身无需重算）
+			refreshRelatedScores(existing);
 		}
 		// 连带删除楼中楼回复（同一根评论下尚未通过的也一并逻辑删除）
 		List<BlogComment> children = commentMapper
@@ -334,6 +334,80 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 	private void requireAdmin() {
 		if (!isAdmin()) {
 			throw new BusinessException("仅管理员可操作");
+		}
+	}
+
+	/**
+	 * 前台排序策略开关：true=质量分优先（离线落库、事件触发重算，排序键稳定）；false=纯时间序回退
+	 */
+	private static final boolean ORDER_BY_QUALITY = true;
+
+	/**
+	 * 前台列表统一排序：质量分降序 → 创建时间升序（同分保持沙发在前）
+	 *
+	 * <p>
+	 * 全部分页/树接口共用，保证 offset 翻页的排序键一致。
+	 * </p>
+	 */
+	private LambdaQueryWrapper<BlogComment> applyOrder(LambdaQueryWrapper<BlogComment> wrapper) {
+		if (ORDER_BY_QUALITY) {
+			wrapper.orderByDesc(BlogComment::getQualityScore);
+		}
+		wrapper.orderByAsc(BlogComment::getCreateTime);
+		return wrapper;
+	}
+
+	@Override
+	public void refreshQualityScore(Long commentId) {
+		if (commentId == null || commentId <= 0) {
+			return;
+		}
+		BlogComment c = commentMapper.selectById(commentId);
+		if (c == null) {
+			// 逻辑删除/不存在：静默跳过（删除链路会引用已删行）
+			return;
+		}
+		long likes = c.getLikeCount() == null ? 0 : c.getLikeCount();
+		long replies = countReplies(c);
+		long ageDays = 0;
+		if (c.getCreateTime() != null) {
+			ageDays = Math.max(0, java.time.temporal.ChronoUnit.DAYS.between(c.getCreateTime().toLocalDate(),
+					java.time.LocalDate.now()));
+		}
+		// 初版算分：(点赞*2 + 回复数) / (1 + 存龄天数/30)，保留 4 位
+		double score = (likes * 2 + replies) / (1 + ageDays / 30.0);
+		c.setQualityScore(Math.round(score * 10000.0) / 10000.0);
+		commentMapper.updateById(c);
+	}
+
+	/**
+	 * 回复数：顶级评论取楼中楼总数（root_id 命中），楼中楼取直接回复数（parent_id 命中）
+	 */
+	private long countReplies(BlogComment c) {
+		boolean topLevel = c.getParentId() == null || c.getParentId() == 0L;
+		LambdaQueryWrapper<BlogComment> w = new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getAuditStatus,
+				AUDIT_APPROVED);
+		if (topLevel) {
+			w.eq(BlogComment::getRootId, c.getId());
+		}
+		else {
+			w.eq(BlogComment::getParentId, c.getId());
+		}
+		Long n = commentMapper.selectCount(w);
+		return n == null ? 0 : n;
+	}
+
+	/**
+	 * 回复数受影响的关联行：直接父 + 楼中楼根（两者可能相同/为空）
+	 */
+	private void refreshRelatedScores(BlogComment c) {
+		Long parentId = c.getParentId();
+		if (parentId != null && parentId > 0) {
+			refreshQualityScore(parentId);
+		}
+		Long rootId = c.getRootId();
+		if (rootId != null && rootId > 0 && !rootId.equals(parentId)) {
+			refreshQualityScore(rootId);
 		}
 	}
 

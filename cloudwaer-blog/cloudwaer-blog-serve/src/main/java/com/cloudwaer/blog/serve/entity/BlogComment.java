@@ -61,6 +61,11 @@ public class BlogComment extends BaseEntity {
 	private Integer likeCount;
 
 	/**
+	 * 质量分（离线落库，前台排序用；事件触发重算）
+	 */
+	private Double qualityScore;
+
+	/**
 	 * 审核状态：0-待审核，1-已通过，2-已拒绝
 	 */
 	private Integer auditStatus;

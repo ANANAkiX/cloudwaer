@@ -41,7 +41,13 @@ public interface UserService extends IService<User> {
 	 * @param pageDTO 分页参数
 	 * @return 分页结果
 	 */
-	PageResult<UserDTO> getUserPage(PageDTO pageDTO);
+	/**
+	 * 用户分页
+	 * @param pageDTO 分页与关键字
+	 * @param roleId 角色ID筛选（可空；如传 4 只列博客主）
+	 * @return 分页结果（含角色）
+	 */
+	PageResult<UserDTO> getUserPage(PageDTO pageDTO, Long roleId);
 
 	/**
 	 * 根据ID获取用户

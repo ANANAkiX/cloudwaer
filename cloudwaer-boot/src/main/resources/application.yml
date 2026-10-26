@@ -89,6 +89,7 @@ logging:
     org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: DEBUG
 
 cloudwaer:
+  #是否开启验证码（与 cloudwaer-ui/.env 的 VITE_LOGIN_CAPTCHA 保持一致，两边必须同步改）
   captcha:
     enabled: false
   api-scanner:

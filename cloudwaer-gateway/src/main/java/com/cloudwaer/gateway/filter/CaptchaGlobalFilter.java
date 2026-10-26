@@ -62,7 +62,7 @@ public class CaptchaGlobalFilter implements GlobalFilter, Ordered {
 		}
 
 		if (!StringUtils.hasText(captchaId) || !StringUtils.hasText(captchaCode)) {
-			return captchaError(exchange, 400, "缺少验证码参数");
+			return captchaError(exchange, 400, "请输入验证码");
 		}
 
 		String key = CAPTCHA_KEY_PREFIX + captchaId;
