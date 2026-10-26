@@ -87,6 +87,11 @@ public class ArticleDTO implements Serializable {
 	private Integer publishStatus;
 
 	/**
+	 * 当前登录用户是否已点赞（公开详情回填；匿名为 false）
+	 */
+	private Boolean liked;
+
+	/**
 	 * 审核意见（拒绝原因；通过时为空）
 	 */
 	private String auditRemark;

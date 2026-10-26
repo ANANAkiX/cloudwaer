@@ -9,7 +9,10 @@ import com.cloudwaer.blog.serve.entity.BlogArticle;
 import com.cloudwaer.blog.serve.entity.BlogComment;
 import com.cloudwaer.blog.serve.mapper.BlogArticleMapper;
 import com.cloudwaer.blog.serve.mapper.BlogCommentMapper;
+import com.cloudwaer.blog.serve.mapper.BlogLikeMapper;
+import com.cloudwaer.blog.serve.entity.BlogLike;
 import com.cloudwaer.blog.serve.service.BlogCommentService;
+import com.cloudwaer.blog.serve.service.BlogLikeService;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
@@ -27,6 +30,8 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -94,6 +99,9 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 
 	@Autowired
 	private BlogArticleMapper articleMapper;
+
+	@Autowired
+	private BlogLikeMapper likeMapper;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -195,7 +203,13 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 				root.getReplies().add(reply);
 			}
 		}
-		return new ArrayList<>(topMap.values());
+		List<CommentDTO> tops = new ArrayList<>(topMap.values());
+		List<CommentDTO> flat = new ArrayList<>(tops);
+		for (CommentDTO t : tops) {
+			flat.addAll(t.getReplies());
+		}
+		fillLiked(flat);
+		return tops;
 	}
 
 	@Override
@@ -228,6 +242,11 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 						: new ArrayList<>(replies));
 			}
 		}
+		List<CommentDTO> flat = new ArrayList<>(tops);
+		for (CommentDTO t : tops) {
+			flat.addAll(t.getReplies());
+		}
+		fillLiked(flat);
 		return new PageResult<>(tops, pr.getTotal(), pr.getCurrent(), pr.getSize());
 	}
 
@@ -245,6 +264,7 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 		Long total = commentMapper.selectCount(new LambdaQueryWrapper<BlogComment>().eq(BlogComment::getRootId, rootId)
 			.eq(BlogComment::getAuditStatus, AUDIT_APPROVED));
 		List<CommentDTO> dtos = list.stream().map(this::toDto).collect(Collectors.toList());
+		fillLiked(dtos);
 		return new PageResult<>(dtos, total, off / pageSize + 1, pageSize);
 	}
 
@@ -438,7 +458,33 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 			dto.setReplies(new ArrayList<>());
 		}
 		dto.setImages(parseImages(entity.getImages()));
+		dto.setLiked(Boolean.FALSE);
 		return dto;
+	}
+
+	/**
+	 * 批量回填「我是否赞过」：登录后一次查询整页；匿名保持 false 不查库
+	 */
+	private void fillLiked(List<CommentDTO> list) {
+		if (list == null || list.isEmpty()) {
+			return;
+		}
+		Long userId = SecurityContextUtil.getCurrentUserId();
+		if (userId == null) {
+			return;
+		}
+		List<Long> ids = list.stream().map(CommentDTO::getId).filter(Objects::nonNull).collect(Collectors.toList());
+		if (ids.isEmpty()) {
+			return;
+		}
+		Set<Long> likedIds = likeMapper
+			.selectList(new LambdaQueryWrapper<BlogLike>().eq(BlogLike::getTargetType, BlogLikeService.TARGET_COMMENT)
+				.in(BlogLike::getTargetId, ids)
+				.eq(BlogLike::getUserId, userId))
+			.stream()
+			.map(BlogLike::getTargetId)
+			.collect(Collectors.toSet());
+		list.forEach(dto -> dto.setLiked(likedIds.contains(dto.getId())));
 	}
 
 	/**

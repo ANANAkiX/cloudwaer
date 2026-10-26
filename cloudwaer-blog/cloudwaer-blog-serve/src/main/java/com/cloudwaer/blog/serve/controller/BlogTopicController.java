@@ -101,12 +101,11 @@ public class BlogTopicController {
 	}
 
 	/**
-	 * 点赞切换
+	 * 点赞切换（登录即可；blog:like 权限码从未进过种子，已按约定收敛为登录级）
 	 */
 	@PostMapping("/like/toggle")
 	@RequireLogin
-	@PermissionCode("blog:like")
-	@Operation(summary = "点赞切换", description = "再点取消；type:1文章 2评论 3话题 4回复")
+	@Operation(summary = "点赞切换", description = "再点取消；type:1文章 2评论 3话题 4回复；登录即可")
 	public Result<LikeToggleDTO> likeToggle(@RequestParam("type") Integer type,
 			@RequestParam("targetId") Long targetId) {
 		return Result.success(blogLikeService.toggle(type, targetId));

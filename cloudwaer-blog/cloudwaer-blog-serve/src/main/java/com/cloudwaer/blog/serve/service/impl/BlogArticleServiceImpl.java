@@ -16,6 +16,7 @@ import com.cloudwaer.blog.serve.mapper.BlogArticleTagMapper;
 import com.cloudwaer.blog.serve.mapper.BlogCollectionMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTagMapper;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
+import com.cloudwaer.blog.serve.service.BlogLikeService;
 import com.cloudwaer.blog.serve.service.BlogSettingService;
 import com.cloudwaer.blog.serve.service.BloggerManageService;
 import com.cloudwaer.common.core.dto.PageResult;
@@ -88,6 +89,9 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 
 	@Autowired
 	private BloggerManageService bloggerManageService;
+
+	@Autowired
+	private BlogLikeService blogLikeService;
 
 	@Autowired
 	private BlogArticleTagMapper articleTagMapper;
@@ -403,6 +407,8 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 		ArticleDTO dto = toDto(article);
 		fillTags(Collections.singletonList(dto));
 		fillCollection(dto, id);
+		// 回填「我是否赞过」：匿名直接 false（liked() 内部不查库）
+		dto.setLiked(Boolean.TRUE.equals(blogLikeService.liked(BlogLikeService.TARGET_ARTICLE, id)));
 		return dto;
 	}
 

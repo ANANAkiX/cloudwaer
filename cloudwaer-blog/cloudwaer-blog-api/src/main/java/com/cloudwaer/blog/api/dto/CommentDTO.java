@@ -73,6 +73,11 @@ public class CommentDTO implements Serializable {
 	private Integer likeCount;
 
 	/**
+	 * 当前登录用户是否已点赞（列表回填；匿名为 false）
+	 */
+	private Boolean liked;
+
+	/**
 	 * 楼中楼回复总数（公开树分页时回填）
 	 */
 	private Integer replyTotal;
