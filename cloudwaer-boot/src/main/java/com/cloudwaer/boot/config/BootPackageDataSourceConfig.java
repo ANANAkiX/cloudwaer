@@ -15,7 +15,7 @@ import org.springframework.core.annotation.Order;
  * 包路径兜底路由：覆盖 Feign 直调、服务内部调用等非 Servlet 入口。
  *
  * <p>
- * primary=flowable 时，admin/codegen 必须显式切到对应库；flowable 包保持 flowable（与 primary 一致，
+ * primary=flowable 时，admin/codegen/blog 必须显式切到对应库；flowable 包保持 flowable（与 primary 一致，
  * 主要是防止过滤器未覆盖的路径）。
  * </p>
  */
@@ -44,6 +44,10 @@ public class BootPackageDataSourceConfig {
 		public void flowableServe() {
 		}
 
+		@Pointcut("execution(* com.cloudwaer.blog.serve..*.*(..))")
+		public void blogServe() {
+		}
+
 		@Around("adminServe()")
 		public Object aroundAdmin(ProceedingJoinPoint pjp) throws Throwable {
 			return proceedWith("admin", pjp);
@@ -57,6 +61,14 @@ public class BootPackageDataSourceConfig {
 		@Around("flowableServe()")
 		public Object aroundFlowable(ProceedingJoinPoint pjp) throws Throwable {
 			return proceedWith("flowable", pjp);
+		}
+
+		/**
+		 * blog 使用独立库 cloudwaer_blog（集成模块各一库，不与 sys_* 共库）。
+		 */
+		@Around("blogServe()")
+		public Object aroundBlog(ProceedingJoinPoint pjp) throws Throwable {
+			return proceedWith("blog", pjp);
 		}
 
 		private Object proceedWith(String ds, ProceedingJoinPoint pjp) throws Throwable {

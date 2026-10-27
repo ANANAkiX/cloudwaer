@@ -12,6 +12,7 @@ import com.cloudwaer.admin.serve.mapper.PermissionMapper;
 import com.cloudwaer.admin.serve.mapper.RolePermissionMapper;
 import com.cloudwaer.admin.serve.mapper.UserRoleMapper;
 import com.cloudwaer.admin.serve.service.PermissionService;
+import com.cloudwaer.admin.serve.util.PermissionCacheSupport;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.service.TokenService;
 import lombok.NonNull;
@@ -42,6 +43,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
 	@Autowired(required = false)
 	private TokenService tokenService;
+
+	@Autowired(required = false)
+	private PermissionCacheSupport permissionCacheSupport;
 
 	@Override
 	public List<RouteDTO> getRoutesByUserId(Long userId) {
@@ -611,6 +615,9 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
 
 					// 更新Token中的权限信息（不删除Token，只更新权限）
 					int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
+					if (permissionCacheSupport != null) {
+						permissionCacheSupport.evict(userId);
+					}
 					log.debug("更新用户Token权限: userId={}, tokenCount={}, permissions={}", userId, updateCount,
 							latestPermissions);
 				}

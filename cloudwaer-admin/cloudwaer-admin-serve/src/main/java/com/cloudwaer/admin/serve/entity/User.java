@@ -40,4 +40,9 @@ public class User extends BaseEntity {
 	 */
 	private String phone;
 
+	/**
+	 * avatar
+	 */
+	private String avatar;
+
 }

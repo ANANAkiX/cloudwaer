@@ -55,20 +55,25 @@ public class AuthGlobalFilter implements GlobalFilter, Ordered {
 			return chain.filter(exchange);
 		}
 
-		// 获取Token UUID
+		// 未携带 Token：放行，由下游 PermissionAuthorizationFilter 按 @RequireLogin /
+		// @PermissionCode 决策。
+		// 网关不做「默认拒绝」——单体模式本就由下游逐端点判定，公开接口（如 /blog/open/**）必须匿名可访问。
 		String tokenUuid = getToken(request);
 		if (!StringUtils.hasText(tokenUuid)) {
-			return unauthorizedResponse(exchange);
+			return chain.filter(exchange);
 		}
 
-		// 验证Token UUID（检查Redis中是否存在）
+		// 携带 Token：校验有效性与客户端绑定，不通过直接 401
 		if (tokenService == null) {
 			log.warn("TokenService未配置，无法验证Token");
 			return unauthorizedResponse(exchange);
 		}
 
-		if (!tokenService.validateToken(tokenUuid)) {
-			log.warn("Token验证失败: tokenUuid={}", tokenUuid);
+		// 客户端绑定校验：X-Client-Id 必须与 Token 登录时的 clientId 一致
+		String clientId = request.getHeaders()
+			.getFirst(com.cloudwaer.common.core.constant.CommonConstants.CLIENT_ID_HEADER);
+		if (!tokenService.validateTokenClient(tokenUuid, clientId)) {
+			log.warn("Token客户端校验失败: tokenUuid={}, clientId={}", tokenUuid, clientId);
 			return unauthorizedResponse(exchange);
 		}
 

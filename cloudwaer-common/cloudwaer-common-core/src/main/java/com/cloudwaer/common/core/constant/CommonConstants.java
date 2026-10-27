@@ -52,4 +52,19 @@ public class CommonConstants {
 	 */
 	public static final String REDIS_PERMISSION_PREFIX = "cloudwaer:permission:";
 
+	/**
+	 * 客户端标识请求头（Token 与客户端绑定校验）
+	 */
+	public static final String CLIENT_ID_HEADER = "X-Client-Id";
+
+	/**
+	 * 客户端：管理后台
+	 */
+	public static final String CLIENT_ADMIN = "admin";
+
+	/**
+	 * 客户端：博客前台
+	 */
+	public static final String CLIENT_BLOG = "blog";
+
 }

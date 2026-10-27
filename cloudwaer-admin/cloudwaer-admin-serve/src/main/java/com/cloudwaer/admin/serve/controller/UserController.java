@@ -1,5 +1,6 @@
 package com.cloudwaer.admin.serve.controller;
 
+import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.serve.service.UserService;
 import com.cloudwaer.common.core.annotation.PermissionCode;
@@ -45,15 +46,16 @@ public class UserController {
 	 */
 	@GetMapping("/page")
 	@PermissionCode("admin:user:view")
-	@Operation(summary = "分页查询用户列表", description = "分页获取用户信息，支持复合搜索（用户名、昵称、邮箱、手机号）")
+	@Operation(summary = "分页查询用户列表", description = "分页获取用户信息，支持复合搜索与 roleId 角色筛选（如 4=博客主）")
 	public Result<PageResult<UserDTO>> getUserPage(@RequestParam(value = "current", defaultValue = "1") Long current,
 			@RequestParam(value = "size", defaultValue = "10") Long size,
-			@RequestParam(value = "keyword", required = false) String keyword) {
+			@RequestParam(value = "keyword", required = false) String keyword,
+			@RequestParam(value = "roleId", required = false) Long roleId) {
 		PageDTO pageDTO = new PageDTO();
 		pageDTO.setCurrent(current);
 		pageDTO.setSize(size);
 		pageDTO.setKeyword(keyword);
-		PageResult<UserDTO> pageResult = userService.getUserPage(pageDTO);
+		PageResult<UserDTO> pageResult = userService.getUserPage(pageDTO, roleId);
 		return Result.success(pageResult);
 	}
 
@@ -86,6 +88,17 @@ public class UserController {
 	@Operation(summary = "新增用户", description = "创建新的用户")
 	public Result<Boolean> saveUser(@RequestBody @Validated UserDTO userDTO) {
 		Boolean result = userService.saveUser(userDTO);
+		return Result.success(result);
+	}
+
+	/**
+	 * 用户注册（内部Feign接口，由 authentication 服务转发）
+	 */
+	@PostMapping("/register")
+	@PermissionCode(value = "admin:user:register", enable = false)
+	@Operation(summary = "用户注册", description = "创建新用户并分配访客角色，仅限内部服务调用")
+	public Result<Boolean> register(@RequestBody @Validated RegisterDTO registerDTO) {
+		Boolean result = userService.register(registerDTO);
 		return Result.success(result);
 	}
 

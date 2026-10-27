@@ -34,18 +34,37 @@ public class TokenService {
 	private JwtUtil jwtUtil;
 
 	/**
-	 * 生成并存储 Token
-	 * @param userId 用户ID
-	 * @param username 用户名
-	 * @param roleIds 角色ID列表
-	 * @param permissions 权限代码列表
-	 * @return Token UUID（包装后的Token标识）
+	 * 生成并存储 Token（兼容旧调用，默认 client=admin）
 	 */
 	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions) {
+		return generateAndStoreToken(userId, username, roleIds, permissions, "admin");
+	}
+
+	/**
+	 * 生成并存储 Token
+	 * @param clientId 客户端标识（admin/blog），Token 跨端不通用
+	 * @return Token UUID
+	 */
+	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions,
+			String clientId) {
+		return generateAndStoreToken(userId, username, roleIds, permissions, clientId, null, null);
+	}
+
+	/**
+	 * 生成并存储 Token
+	 * @param clientId 客户端标识（admin/blog），Token 跨端不通用
+	 * @param nickname 展示昵称（可空）
+	 * @param avatar 头像 URL（可空）
+	 * @return Token UUID
+	 */
+	public String generateAndStoreToken(Long userId, String username, List<Long> roleIds, List<String> permissions,
+			String clientId, String nickname, String avatar) {
 		if (redisUtil == null || !redisUtil.isAvailable()) {
 			log.warn("Redis未配置，无法存储Token");
 			return null;
 		}
+
+		String boundClient = StringUtils.hasText(clientId) ? clientId.trim() : "admin";
 
 		// 生成UUID作为Token标识
 		String tokenUuid = UUID.randomUUID().toString().replace("-", "");
@@ -55,6 +74,10 @@ public class TokenService {
 		claims.put("sub", username);
 		claims.put("userId", userId);
 		claims.put("tokenUuid", tokenUuid);
+		claims.put("clientId", boundClient);
+		if (StringUtils.hasText(nickname)) {
+			claims.put("nickname", nickname);
+		}
 		if (roleIds != null && !roleIds.isEmpty()) {
 			claims.put("roleIds", roleIds);
 			claims.put("roleId", roleIds.get(0)); // 兼容旧代码
@@ -73,6 +96,13 @@ public class TokenService {
 		tokenData.put("username", username);
 		tokenData.put("roleIds", roleIds);
 		tokenData.put("permissions", permissions);
+		tokenData.put("clientId", boundClient);
+		if (StringUtils.hasText(nickname)) {
+			tokenData.put("nickname", nickname);
+		}
+		if (StringUtils.hasText(avatar)) {
+			tokenData.put("avatar", avatar);
+		}
 		tokenData.put("createTime", System.currentTimeMillis());
 
 		try {
@@ -93,8 +123,8 @@ public class TokenService {
 			redisUtil.setAdd(userTokenListKey, tokenUuid);
 			redisUtil.expire(userTokenListKey, expirationSeconds);
 
-			log.info("Token生成并存储成功: userId={}, tokenUuid={}, allowMultipleLogin={}", userId, tokenUuid,
-					jwtProperties.isAllowMultipleLogin());
+			log.info("Token生成并存储成功: userId={}, tokenUuid={}, clientId={}, allowMultipleLogin={}", userId, tokenUuid,
+					boundClient, jwtProperties.isAllowMultipleLogin());
 
 			return tokenUuid;
 		}
@@ -102,6 +132,45 @@ public class TokenService {
 			log.error("存储Token失败: userId={}", userId, e);
 			return null;
 		}
+	}
+
+	/**
+	 * 校验 Token 是否属于指定客户端
+	 * @param tokenUuid Token UUID
+	 * @param clientId 请求声明的客户端标识
+	 * @return true=有效且客户端匹配
+	 */
+	public boolean validateTokenClient(String tokenUuid, String clientId) {
+		if (!validateToken(tokenUuid)) {
+			return false;
+		}
+		if (!StringUtils.hasText(clientId)) {
+			// 未声明客户端时：兼容旧 Token（无 clientId）放行；有 clientId 的 Token 要求声明一致
+			Map<String, Object> data = getTokenData(tokenUuid);
+			Object bound = data == null ? null : data.get("clientId");
+			return bound == null || StringUtils.hasText(String.valueOf(bound));
+		}
+		Map<String, Object> data = getTokenData(tokenUuid);
+		if (data == null) {
+			return false;
+		}
+		Object bound = data.get("clientId");
+		// 旧 Token 无 clientId：放行（平滑升级）；有则必须一致
+		if (bound == null || !StringUtils.hasText(String.valueOf(bound))) {
+			return true;
+		}
+		return clientId.equals(String.valueOf(bound));
+	}
+
+	/**
+	 * 获取 Token 绑定的客户端标识
+	 */
+	public String getTokenClientId(String tokenUuid) {
+		Map<String, Object> data = getTokenData(tokenUuid);
+		if (data == null || data.get("clientId") == null) {
+			return null;
+		}
+		return String.valueOf(data.get("clientId"));
 	}
 
 	/**
@@ -305,12 +374,16 @@ public class TokenService {
 					// 使用传入的新权限，如果没有则保持原权限（这种情况不应该发生，但为了安全）
 					List<String> permissions = newPermissions != null ? newPermissions
 							: (List<String>) tokenData.get("permissions");
+					Object clientId = tokenData.get("clientId");
 
 					// 构建新的JWT Claims
 					Map<String, Object> claims = new HashMap<>();
 					claims.put("sub", username);
 					claims.put("userId", tokenUserId);
 					claims.put("tokenUuid", tokenUuid);
+					if (clientId != null) {
+						claims.put("clientId", clientId);
+					}
 					if (roleIds != null && !roleIds.isEmpty()) {
 						claims.put("roleIds", roleIds);
 						claims.put("roleId", roleIds.get(0)); // 兼容旧代码
@@ -329,6 +402,9 @@ public class TokenService {
 					updatedTokenData.put("username", username);
 					updatedTokenData.put("roleIds", roleIds);
 					updatedTokenData.put("permissions", permissions);
+					if (clientId != null) {
+						updatedTokenData.put("clientId", clientId);
+					}
 					updatedTokenData.put("createTime", tokenData.get("createTime")); // 保持原创建时间
 
 					// 更新Redis中的Token数据

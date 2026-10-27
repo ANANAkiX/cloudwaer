@@ -106,7 +106,7 @@ public class AdminController {
 	}
 
 	/**
-	 * 获取当前用户的权限列表
+	 * 获取当前用户的权限列表（结果缓存 1h；授权变更时由服务侧清理 cache key）
 	 */
 	@GetMapping("/permission/current")
 	@RequireLogin

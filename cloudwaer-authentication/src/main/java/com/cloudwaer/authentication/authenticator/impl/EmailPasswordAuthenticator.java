@@ -48,7 +48,7 @@ public class EmailPasswordAuthenticator implements LoginAuthenticator {
 
 			List<String> permissionCodes = tryGetPermissionCodes(user.getId());
 			String tokenUuid = tokenService.generateAndStoreToken(user.getId(), username, user.getRoleIds(),
-					permissionCodes);
+					permissionCodes, loginRequestDTO.getClientId());
 			if (tokenUuid == null) {
 				log.error("Token生成失败: email={}", email);
 				throw new BusinessException(ResultCode.FAIL);

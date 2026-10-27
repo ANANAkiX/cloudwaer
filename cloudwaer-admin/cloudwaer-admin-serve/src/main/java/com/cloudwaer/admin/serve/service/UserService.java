@@ -1,6 +1,7 @@
 package com.cloudwaer.admin.serve.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.admin.serve.entity.User;
 import com.cloudwaer.common.core.dto.PageDTO;
@@ -40,7 +41,13 @@ public interface UserService extends IService<User> {
 	 * @param pageDTO 分页参数
 	 * @return 分页结果
 	 */
-	PageResult<UserDTO> getUserPage(PageDTO pageDTO);
+	/**
+	 * 用户分页
+	 * @param pageDTO 分页与关键字
+	 * @param roleId 角色ID筛选（可空；如传 4 只列博客主）
+	 * @return 分页结果（含角色）
+	 */
+	PageResult<UserDTO> getUserPage(PageDTO pageDTO, Long roleId);
 
 	/**
 	 * 根据ID获取用户
@@ -55,6 +62,13 @@ public interface UserService extends IService<User> {
 	 * @return 是否成功
 	 */
 	Boolean saveUser(UserDTO userDTO);
+
+	/**
+	 * 用户注册（创建用户并分配访客角色）
+	 * @param registerDTO 注册信息
+	 * @return 是否成功
+	 */
+	Boolean register(RegisterDTO registerDTO);
 
 	/**
 	 * 更新用户
