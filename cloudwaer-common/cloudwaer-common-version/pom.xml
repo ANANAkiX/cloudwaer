@@ -142,6 +142,26 @@
                 <artifactId>cloudwaer-blog-api</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-qa-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-learn-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-wiki-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.cloudwaer</groupId>
+                <artifactId>cloudwaer-res-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

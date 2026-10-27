@@ -19,7 +19,6 @@
         <module>cloudwaer-gateway</module>
         <module>cloudwaer-admin</module>
         <module>cloudwaer-integration-serve</module>
-        <module>cloudwaer-blog</module>
         <module>cloudwaer-boot</module>
     </modules>
 
