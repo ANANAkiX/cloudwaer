@@ -54,6 +54,25 @@
             <artifactId>cloudwaer-common-datasource</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-wiki-serve</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.cloud</groupId>
+                    <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.alibaba.cloud</groupId>
+                    <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <!-- Business services (embedded) -->
         <dependency>
             <groupId>com.cloudwaer</groupId>
