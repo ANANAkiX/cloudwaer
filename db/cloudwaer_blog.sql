@@ -114,6 +114,27 @@ CREATE TABLE `blog_author_apply`  (
 -- ----------------------------
 
 -- ----------------------------
+-- Table structure for blog_blogger_status
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_blogger_status`;
+CREATE TABLE `blog_blogger_status`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `user_id` bigint(20) NOT NULL COMMENT '用户ID（sys_user.id）',
+  `suspend_until` datetime NULL DEFAULT NULL COMMENT '暂停截止时间；NULL=永久暂停',
+  `suspend_reason` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '暂停原因',
+  `revoked` tinyint(4) NOT NULL DEFAULT 0 COMMENT '0-暂停生效中，1-已解除',
+  `handle_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '最近操作人',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_user`(`user_id` ASC) USING BTREE,
+  INDEX `idx_until`(`suspend_until` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '博客主暂停状态' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
 -- Table structure for blog_category
 -- ----------------------------
 DROP TABLE IF EXISTS `blog_category`;
@@ -155,6 +176,7 @@ CREATE TABLE `blog_comment`  (
   `content` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '评论内容',
   `images` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '附图URL列表JSON（/blog/uploads/**）',
   `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '点赞数',
+  `quality_score` double NOT NULL DEFAULT 0 COMMENT '质量分（离线落库，排序用；事件触发重算）',
   `audit_status` tinyint(4) NOT NULL DEFAULT 0 COMMENT '审核状态：0-待审核，1-已通过，2-已拒绝',
   `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '评论IP',
   `create_time` datetime NOT NULL COMMENT '创建时间',
@@ -171,7 +193,78 @@ CREATE TABLE `blog_comment`  (
 -- ----------------------------
 -- Records of blog_comment
 -- ----------------------------
-INSERT INTO `blog_comment` VALUES (2100000000000000041, 2100000000000000021, 0, 0, 1, '管理员', NULL, '欢迎使用 CloudWaer 博客，这是第一条评论。', NULL, 0, 1, '127.0.0.1', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `blog_comment` VALUES (2100000000000000041, 2100000000000000021, 0, 0, 1, '管理员', NULL, '欢迎使用 CloudWaer 博客，这是第一条评论。', NULL, 0, 0, 1, '127.0.0.1', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+
+-- ----------------------------
+-- Table structure for blog_like
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_like`;
+CREATE TABLE `blog_like`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `target_type` tinyint(4) NOT NULL COMMENT '目标：1-文章，2-评论，3-话题，4-话题回复',
+  `target_id` bigint(20) NOT NULL COMMENT '目标ID',
+  `user_id` bigint(20) NOT NULL COMMENT '点赞用户ID',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_like`(`target_type` ASC, `target_id` ASC, `user_id` ASC) USING BTREE,
+  INDEX `idx_user`(`user_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '点赞记录' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for blog_topic
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_topic`;
+CREATE TABLE `blog_topic`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `title` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '标题',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '正文',
+  `user_id` bigint(20) NOT NULL COMMENT '发帖用户ID',
+  `nickname` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像URL',
+  `view_count` int(11) NOT NULL DEFAULT 0 COMMENT '浏览量',
+  `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '点赞数',
+  `reply_count` int(11) NOT NULL DEFAULT 0 COMMENT '回复数',
+  `is_top` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否置顶：0-否，1-是',
+  `is_essence` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否加精：0-否，1-是',
+  `last_reply_time` datetime NULL DEFAULT NULL COMMENT '最后回复时间',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_user`(`user_id` ASC) USING BTREE,
+  INDEX `idx_top_last`(`is_top` ASC, `last_reply_time` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '微论坛话题' ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for blog_topic_reply
+-- ----------------------------
+DROP TABLE IF EXISTS `blog_topic_reply`;
+CREATE TABLE `blog_topic_reply`  (
+  `id` bigint(20) NOT NULL COMMENT '主键ID',
+  `topic_id` bigint(20) NOT NULL COMMENT '话题ID',
+  `parent_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '父回复ID，0-顶级',
+  `root_id` bigint(20) NOT NULL DEFAULT 0 COMMENT '根回复ID，0-顶级',
+  `user_id` bigint(20) NOT NULL COMMENT '回复用户ID',
+  `nickname` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '昵称',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像URL',
+  `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '回复内容',
+  `like_count` int(11) NOT NULL DEFAULT 0 COMMENT '点赞数',
+  `ip` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT 'IP',
+  `create_time` datetime NOT NULL COMMENT '创建时间',
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '创建人',
+  `update_time` datetime NOT NULL COMMENT '更新时间',
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效，2-无效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_topic`(`topic_id` ASC) USING BTREE,
+  INDEX `idx_root`(`root_id` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '微论坛话题回复' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for blog_tag

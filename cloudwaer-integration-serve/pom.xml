@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
@@ -20,6 +20,11 @@
     <modules>
         <module>cloudwaer-codegen</module>
         <module>cloudwaer-flowable</module>
+        <module>cloudwaer-blog</module>
+        <module>cloudwaer-qa</module>
+        <module>cloudwaer-learn</module>
+        <module>cloudwaer-wiki</module>
+        <module>cloudwaer-res</module>
     </modules>
 
     <dependencyManagement>
