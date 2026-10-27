@@ -24,6 +24,7 @@
         <module>cloudwaer-common-security</module>
         <module>cloudwaer-common-log</module>
         <module>cloudwaer-common-redis</module>
+        <module>cloudwaer-common-datasource</module>
     </modules>
 </project>
 

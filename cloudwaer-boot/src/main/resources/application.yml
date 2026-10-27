@@ -16,7 +16,7 @@ spring:
 
   # 多数据源：各模块沿用微服务时期的原库（集成模块各一库：admin/flowable/codegen/blog）
   # primary=flowable：保证 Flowable 引擎（无 ThreadLocal 时）绝不落到 admin 库
-  # admin/codegen/blog 由请求过滤器 / 包路径切面显式切换
+  # admin/codegen/blog 由 cloudwaer-common-datasource 按路径/包约定自动路由
   datasource:
     dynamic:
       primary: flowable

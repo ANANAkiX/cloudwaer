@@ -11,7 +11,7 @@
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
- Date: 25/10/2026 00:27:33
+ Date: 28/10/2026 00:36:19
 */
 
 SET NAMES utf8mb4;
@@ -107,6 +107,49 @@ INSERT INTO `sys_dict_item` VALUES (2013029000000000405, 2013029000000000004, '4
 INSERT INTO `sys_dict_item` VALUES (2013029000000000406, 2013029000000000004, '5', '5', '已关闭', 5, '模型版本-已关闭', '2026-10-23 23:49:00', 'system', '2026-10-23 23:49:00', 'system', 1);
 
 -- ----------------------------
+-- Table structure for sys_file
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_file`;
+CREATE TABLE `sys_file`  (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '原始文件名',
+  `access_url` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '访问路径（相对或完整 URL）',
+  `provider` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '存储供应商 LOCAL/ALIYUN_OSS/TENCENT_COS',
+  `oss_config_id` bigint(20) NULL DEFAULT NULL COMMENT '使用的 OSS 配置 ID',
+  `object_key` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'OSS 对象键；LOCAL 可为相对路径',
+  `bucket` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '桶名',
+  `content_type` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `file_size` bigint(20) NOT NULL DEFAULT 0 COMMENT '字节数',
+  `md5` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `biz_type` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '业务类型：avatar/article/product… 预留',
+  `biz_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '业务 ID 预留',
+  `create_time` datetime NOT NULL,
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_time` datetime NOT NULL,
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-删除，1-有效',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_biz`(`biz_type` ASC, `biz_id` ASC) USING BTREE,
+  INDEX `idx_provider`(`provider` ASC) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '平台通用文件元数据' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_file
+-- ----------------------------
+INSERT INTO `sys_file` VALUES (2114380103574286337, '创建用户结果_1792942374442.csv', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/25/fbaa59cf24b74b8ea785261f7d56cafe.csv', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/25/fbaa59cf24b74b8ea785261f7d56cafe.csv', 'cloudwaer-ui', 'text/csv', 182, NULL, NULL, NULL, '2026-10-25 23:34:35', NULL, '2026-10-25 23:37:02', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114381219636637698, 'files.zip', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/25/49894ee33e24418b9628fd06e85fa742.zip', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/25/49894ee33e24418b9628fd06e85fa742.zip', 'cloudwaer-ui', 'application/x-zip-compressed', 341, NULL, NULL, NULL, '2026-10-25 23:39:01', NULL, '2026-10-26 00:47:11', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114389995651493890, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/c1406bb6f04b4bc8bca24b72ec703de2.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/c1406bb6f04b4bc8bca24b72ec703de2.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 00:13:53', NULL, '2026-10-26 00:26:35', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114399564243050498, '微信图片_2026-10-25_225701_826.jpg', '/api/admin/file/display?id=2114399564243050498', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/311a6c8bb2634d7f8471a5eac3d68e0f.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, NULL, NULL, '2026-10-26 00:51:54', NULL, '2026-10-26 00:53:14', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114399587198476290, '微信图片_2026-10-25_225701_826.jpg', '/api/admin/file/display?id=2114399587198476290', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/e5348183df3845d3af951e4c548a12e8.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 00:52:00', NULL, '2026-10-26 00:56:10', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114401115154059266, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/cf0d3d8bd03b4792986b8cd5204dfe41.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/cf0d3d8bd03b4792986b8cd5204dfe41.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, NULL, NULL, '2026-10-26 00:58:04', NULL, '2026-10-26 01:00:54', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114401274214649858, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/69e3e4f987664e68851b1ed6fe2357b9.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/69e3e4f987664e68851b1ed6fe2357b9.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 00:58:42', NULL, '2026-10-26 01:00:51', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114401348512550913, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/f41f39cde94941e7bbacb8064f8572c6.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/f41f39cde94941e7bbacb8064f8572c6.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 00:59:00', NULL, '2026-10-26 01:00:49', NULL, 0);
+INSERT INTO `sys_file` VALUES (2114402720310005761, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/7698a3b8d3a941d5a3d7c44a32e8bd98.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/7698a3b8d3a941d5a3d7c44a32e8bd98.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 01:04:27', NULL, '2026-10-26 01:04:27', NULL, 1);
+INSERT INTO `sys_file` VALUES (2114402855899271170, '微信图片_2026-10-25_225701_826.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/641197b5ea264452bf564d9b5adea979.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/641197b5ea264452bf564d9b5adea979.jpg', 'cloudwaer-ui', 'image/jpeg', 98440, NULL, 'avatar', '1', '2026-10-26 01:04:59', NULL, '2026-10-26 01:04:59', NULL, 1);
+INSERT INTO `sys_file` VALUES (2114500331440369665, '22f62aaf78f74aa3b3573140e856f1f4.jpg', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/8c887bf5a46243cc91852d8852681890.jpg', 'ALIYUN_OSS', 2114379361417359361, 'uploads/2026/10/26/8c887bf5a46243cc91852d8852681890.jpg', 'cloudwaer-ui', 'image/jpeg', 4794490, NULL, 'avatar', '1992208936665325569', '2026-10-26 07:32:19', NULL, '2026-10-26 07:32:19', NULL, 1);
+
+-- ----------------------------
 -- Table structure for sys_gateway_route
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_gateway_route`;
@@ -139,6 +182,37 @@ INSERT INTO `sys_gateway_route` VALUES (1991546479613448194, 'cloudwaer-codegen-
 INSERT INTO `sys_gateway_route` VALUES (1992205324727853058, 'ws-cloudwaer-im-service', 'lb:ws://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/ws/**\"}}]', NULL, 0, '仅让 WebSocket 握手走这条，避免影响 REST 调用\n', '2025-11-22 20:15:37', NULL, '2026-01-06 05:56:00', NULL, 0);
 INSERT INTO `sys_gateway_route` VALUES (1992239401883295746, 'rest-cloudwaer-im-service', 'lb://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/**\"}}]', NULL, 1, '处理 /im/** 的 HTTP 接口', '2025-11-22 22:31:02', NULL, '2026-01-06 05:56:13', NULL, 0);
 INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', NULL, 0, 'cloudwaer-flowable-serve 的基础网关转发（与 admin/codegen 一致，保留 /flowable 前缀，勿加 StripPrefix）', '2026-01-14 23:19:48', NULL, '2026-10-23 21:20:13', NULL, 1);
+
+-- ----------------------------
+-- Table structure for sys_oss_config
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_oss_config`;
+CREATE TABLE `sys_oss_config`  (
+  `id` bigint(20) NOT NULL COMMENT '主键',
+  `config_name` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '配置名称',
+  `provider` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT 'LOCAL | ALIYUN_OSS | TENCENT_COS',
+  `endpoint` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'Endpoint / Region',
+  `bucket` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'Bucket',
+  `access_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'AccessKey（建议密文存储）',
+  `secret_key` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'SecretKey（建议密文存储）',
+  `cdn_domain` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT 'CDN/自定义域名，可空',
+  `base_path` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '对象键前缀，如 uploads/',
+  `is_default` tinyint(4) NOT NULL DEFAULT 0 COMMENT '是否默认：1-是',
+  `status` int(11) NOT NULL DEFAULT 1 COMMENT '状态：0-禁用，1-启用',
+  `remark` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `create_time` datetime NOT NULL,
+  `create_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  `update_time` datetime NOT NULL,
+  `update_user` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_provider`(`provider` ASC) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = 'OSS/对象存储供应商配置' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of sys_oss_config
+-- ----------------------------
+INSERT INTO `sys_oss_config` VALUES (1, '本地磁盘', 'LOCAL', NULL, NULL, NULL, NULL, NULL, 'uploads', 0, 1, '开发默认，文件落 boot 本地目录', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system');
+INSERT INTO `sys_oss_config` VALUES (2114379361417359361, 'aliyunoss', 'ALIYUN_OSS', 'oss-cn-guangzhou.aliyuncs.com', 'cloudwaer-ui', 'key', 'key', NULL, NULL, 1, 1, NULL, '2026-10-25 23:31:38', NULL, '2026-10-25 23:31:38', NULL);
 
 -- ----------------------------
 -- Table structure for sys_permission
@@ -277,9 +351,6 @@ INSERT INTO `sys_permission` VALUES (2011851625458683950, 'flowable:node:action:
 INSERT INTO `sys_permission` VALUES (2011851625458683951, 'flowable:node:action:delete', '删除节点动作', 3, NULL, 2011850922522693634, 12, NULL, '删除节点动作', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683952, 'flowable:node:action:status', '更新节点动作状态', 3, NULL, 2011850922522693634, 13, NULL, '启用或禁用节点动作', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683953, 'flowable:node:action:config', '获取节点动作配置', 3, NULL, 2011850922522693634, 14, NULL, '获取节点动作配置', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
-INSERT INTO `sys_permission` VALUES (2011851625458683954, 'flowable:file:upload', '文件上传', 3, '', 2013024515860238337, 1, '', '上传附件文件', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
-INSERT INTO `sys_permission` VALUES (2011851625458683955, 'flowable:file:download', '文件下载', 3, '', 2013024515860238337, 2, '', '下载附件文件', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
-INSERT INTO `sys_permission` VALUES (2011851625458683956, 'flowable:file:delete', '删除文件', 3, '', 2013024515860238337, 3, '', '删除附件文件', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683957, 'flowable:statistics:dashboard', '查看统计面板', 3, NULL, 2011849591380627457, 6, NULL, '查看Flowable统计面板', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683958, 'flowable:statistics:report', '生成报表', 3, NULL, 2011849591380627457, 7, NULL, '生成流程统计报表', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
 INSERT INTO `sys_permission` VALUES (2011851625458683959, 'flowable:statistics:export', '导出报表', 3, NULL, 2011849591380627457, 8, NULL, '导出统计报表', '2026-01-16 01:23:01', NULL, '2026-01-16 01:23:01', NULL, 1);
@@ -293,6 +364,7 @@ INSERT INTO `sys_permission` VALUES (2100000000000000103, 'blog:article:view', '
 INSERT INTO `sys_permission` VALUES (2100000000000000104, 'blog:article:add', '新增文章', 3, '', 2100000000000000102, 2, '', '新增博客文章（POST /blog/article/save）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000105, 'blog:article:edit', '修改文章', 3, '', 2100000000000000102, 3, '', '修改博客文章（PUT /blog/article/update）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000106, 'blog:article:delete', '删除文章', 3, '', 2100000000000000102, 4, '', '删除博客文章（DELETE /blog/article/delete）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000107, 'blog:article:import', '导入文章', 3, '', 2100000000000000102, 5, '', '导入 MD/TXT/PDF/DOCX 为文章草稿（POST /blog/article/import）', '2026-10-26 00:00:00', 'system', '2026-10-26 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000120, 'blog:category', '分类管理', 2, '/blog/categorymanagement', 2100000000000000101, 2, 'Folder', '博客分类管理页（GET /blog/category/list）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000121, 'blog:category:view', '查看分类', 3, '', 2100000000000000120, 1, '', '分类列表（GET /blog/category/list）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000122, 'blog:category:add', '新增分类', 3, '', 2100000000000000120, 2, '', '新增/保存分类（POST /blog/category/save）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
@@ -303,18 +375,35 @@ INSERT INTO `sys_permission` VALUES (2100000000000000131, 'blog:tag:view', '查�
 INSERT INTO `sys_permission` VALUES (2100000000000000132, 'blog:tag:add', '新增标签', 3, '', 2100000000000000130, 2, '', '新增/保存标签（POST /blog/tag/save）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000133, 'blog:tag:edit', '修改标签', 3, '', 2100000000000000130, 3, '', '更新标签（PUT /blog/tag/update）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000134, 'blog:tag:delete', '删除标签', 3, '', 2100000000000000130, 4, '', '删除标签（DELETE /blog/tag/delete）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000140, 'blog:comment', '评论审核', 2, '/blog/commentaudit', 2100000000000000101, 4, 'ChatLineSquare', '博客评论审核页（GET /blog/comment/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000141, 'blog:comment:view', '查看评论', 3, '', 2100000000000000140, 1, '', '评论分页（GET /blog/comment/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000142, 'blog:comment:audit', '审核评论', 3, '', 2100000000000000140, 2, '', '审核评论（POST /blog/comment/audit）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000143, 'blog:comment:delete', '删除评论', 3, '', 2100000000000000140, 3, '', '删除评论（DELETE /blog/comment/delete）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000144, 'blog:comment:add', '发表评论', 3, '', 2100000000000000140, 4, '', '登录用户发表评论（POST /blog/comment/add）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000150, 'blog:author', '博客主申请', 2, '/blog/authorapply', 2100000000000000101, 5, 'UserFilled', '博客主申请审核页（GET /blog/author/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000140, 'blog:comment', '评论审核', 2, '/blog/commentaudit', 2100000000000000101, 4, 'ChatLineSquare', '博客评论审核页（GET /blog/comment/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
+INSERT INTO `sys_permission` VALUES (2100000000000000141, 'blog:comment:view', '查看评论', 3, '', 2100000000000000140, 1, '', '评论分页（GET /blog/comment/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
+INSERT INTO `sys_permission` VALUES (2100000000000000142, 'blog:comment:audit', '审核评论', 3, '', 2100000000000000140, 2, '', '审核评论（POST /blog/comment/audit）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
+INSERT INTO `sys_permission` VALUES (2100000000000000143, 'blog:comment:delete', '删除评论', 3, '', 2100000000000000140, 3, '', '删除评论（DELETE /blog/comment/delete）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
+INSERT INTO `sys_permission` VALUES (2100000000000000144, 'blog:comment:add', '发表评论', 3, '', 2100000000000000140, 4, '', '登录用户发表评论（POST /blog/comment/add）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
+INSERT INTO `sys_permission` VALUES (2100000000000000150, 'blog:author', '博客主申请', 2, '/blog/authorapply', 2100000000000000101, 5, 'UserFilled', '博客主申请审核页（GET /blog/author/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 0);
 INSERT INTO `sys_permission` VALUES (2100000000000000151, 'blog:author:view', '查看申请', 3, '', 2100000000000000150, 1, '', '申请分页（GET /blog/author/page）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000152, 'blog:author:handle', '处理申请', 3, '', 2100000000000000150, 2, '', '通过/拒绝申请（POST /blog/author/handle）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000153, 'blog:author:apply', '申请博客主', 3, '', 2100000000000000150, 3, '', '自助申请（POST /blog/author/apply）', '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_permission` VALUES (2100000000000000160, 'blog:setting', '网站设置', 2, '/blog/sitesetting', 2100000000000000101, 6, 'Setting', '博客站点设置页（GET /blog/setting）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000156, 'blog:blogger', '博客主管理', 2, '/blog/bloggermanagement', 2100000000000000101, 6, 'User', '博客主管理页：仅列 BLOGGER 角色用户（GET /admin/user/page?roleId=4）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000157, 'blog:blogger:view', '查看博客主', 3, '', 2100000000000000156, 1, '', '批量查询暂停状态（GET /blog/blogger/status）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000158, 'blog:blogger:suspend', '暂停/解封', 3, '', 2100000000000000156, 2, '', '暂停至指定时间与解除（POST /blog/blogger/suspend|release）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000159, 'blog:blogger:revoke', '取消博客主', 3, '', 2100000000000000156, 3, '', '移除 BLOGGER 角色（调 admin /user/assign-roles，服务端码 admin:user:assign-role）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000160, 'blog:setting', '网站设置', 2, '/blog/sitesetting', 2100000000000000101, 8, 'Setting', '博客站点设置页（GET /blog/setting）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000161, 'blog:setting:view', '查看设置', 3, '', 2100000000000000160, 1, '', '站点设置读取（GET /blog/setting；公开 GET /blog/open/setting）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
 INSERT INTO `sys_permission` VALUES (2100000000000000162, 'blog:setting:edit', '保存设置', 3, '', 2100000000000000160, 2, '', '保存站点设置（POST /blog/setting/save）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000170, 'blog:review', '审核中心', 2, '/blog/reviewcenter', 2100000000000000101, 7, 'CircleCheck', '集中审核评论等（GET /blog/comment/page）', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000171, 'blog:review:view', '查看审核', 3, '', 2100000000000000170, 1, '', '审核中心查看', '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000230, 'blog:collection', '合集管理', 2, '/blog/collectionmanagement', 2100000000000000101, 5, 'Collection', '博客合集管理页（GET /blog/collection/page）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000231, 'blog:collection:view', '查看合集', 3, '', 2100000000000000230, 1, '', '合集分页/详情（GET /blog/collection/page|detail）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000232, 'blog:collection:add', '新增合集', 3, '', 2100000000000000230, 2, '', '新增合集（POST /blog/collection/save）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000233, 'blog:collection:edit', '修改合集', 3, '', 2100000000000000230, 3, '', '更新合集（PUT /blog/collection/update）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000234, 'blog:collection:delete', '删除合集', 3, '', 2100000000000000230, 4, '', '删除合集并解除文章绑定（DELETE /blog/collection/delete）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000235, 'blog:collection:sort', '合集排序', 3, '', 2100000000000000230, 5, '', '合集内文章手动排序（PUT /blog/collection/article-sort）', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000250, 'sys:file', '文件管理', 2, '/system/filemanagement', 1001, 20, 'FolderOpened', '平台文件与 OSS 配置', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000251, 'sys:file:view', '查看文件', 3, '', 2100000000000000250, 1, '', '文件列表/下载', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000252, 'sys:file:upload', '上传文件', 3, '', 2100000000000000250, 2, '', '文件上传', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000253, 'sys:file:delete', '删除文件', 3, '', 2100000000000000250, 3, '', '删除并同步 OSS', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_permission` VALUES (2100000000000000254, 'sys:oss:config', 'OSS 配置', 3, '', 2100000000000000250, 4, '', '对象存储供应商配置', '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -367,151 +456,16 @@ CREATE TABLE `sys_role_permission`  (
 -- ----------------------------
 -- Records of sys_role_permission
 -- ----------------------------
-INSERT INTO `sys_role_permission` VALUES (2100000000000000151, 1, 2100000000000000120, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000152, 1, 2100000000000000121, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000153, 1, 2100000000000000122, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000154, 1, 2100000000000000123, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000155, 1, 2100000000000000124, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000161, 1, 2100000000000000130, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000162, 1, 2100000000000000131, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000163, 1, 2100000000000000132, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000164, 1, 2100000000000000133, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000165, 1, 2100000000000000134, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000171, 1, 2100000000000000140, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000172, 1, 2100000000000000141, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000173, 1, 2100000000000000142, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000174, 1, 2100000000000000143, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000175, 1, 2100000000000000144, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000181, 3, 2100000000000000144, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000191, 4, 2100000000000000102, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000192, 4, 2100000000000000103, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000193, 4, 2100000000000000104, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000194, 4, 2100000000000000105, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000195, 4, 2100000000000000106, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000196, 4, 2100000000000000144, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000201, 1, 2100000000000000150, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000202, 1, 2100000000000000151, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000203, 1, 2100000000000000152, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000204, 1, 2100000000000000153, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2100000000000000205, 3, 2100000000000000153, '2026-10-24 00:00:00', 'system', '2026-10-24 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000211, 1, 2100000000000000160, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000212, 1, 2100000000000000161, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2100000000000000213, 1, 2100000000000000162, '2026-10-25 00:00:00', 'system', '2026-10-25 00:00:00', 'system', 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763009, 1, 1001, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763010, 1, 1002, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763011, 1, 1003, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763012, 1, 1004, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763013, 1, 1005, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763014, 1, 1006, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763015, 1, 114214272234, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763016, 1, 125634234412342343, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311422763017, 1, 1991143600931201000, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066177, 1, 1991205164119891970, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066178, 1, 1991242409023631362, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066179, 1, 1991242808984072194, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066180, 1, 1991242997413179393, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066181, 1, 1991243204884426753, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066182, 1, 1991244603546398722, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066183, 1, 1991244778629230593, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066184, 1, 1991244964420120578, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066185, 1, 1991245154136879106, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066186, 1, 1991268323568517122, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066187, 1, 1991268510370234370, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066188, 1, 1991455913399685122, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066189, 1, 1991456923035766785, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066190, 1, 1991473796049752066, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066191, 1, 1991473884234993666, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066192, 1, 1991473999733542914, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066193, 1, 1991474490890735617, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066194, 1, 1991474490890735618, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311494066195, 1, 1991474490890735619, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980738, 1, 1991474490890735620, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980739, 1, 1991474490890735621, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980740, 1, 1991474490890735622, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980741, 1, 1991474490890735623, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980742, 1, 1991474490890735624, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980743, 1, 1991474490890735625, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980744, 1, 1991474490890735626, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980745, 1, 1991474490890735627, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980746, 1, 1991474490890735628, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980747, 1, 1991474490890735629, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980748, 1, 1991474490890735630, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980749, 1, 1991474490890735631, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980750, 1, 1991474490890735632, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980751, 1, 1991474490890735633, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980752, 1, 1991474490890735634, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980753, 1, 1991474490890735635, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980754, 1, 1991474490890735636, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980755, 1, 1991474490890735637, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980756, 1, 1991474490890735638, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980757, 1, 1991474490890735639, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980758, 1, 1991474490890735640, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980759, 1, 1991829450476220417, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311556980760, 1, 1993000000000001100, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895298, 1, 1993000000000001200, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895299, 1, 1993000000000001210, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895300, 1, 1993000000000001300, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895301, 1, 1993000000000001310, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895302, 1, 1993000000000001320, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895303, 1, 1993000000000001400, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895304, 1, 2011849591380627457, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895305, 1, 2011850922522693634, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895306, 1, 2011851483955449857, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895307, 1, 2011851625458683906, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895308, 1, 2011851625458683908, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895309, 1, 2011851625458683909, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895310, 1, 2011851625458683910, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895311, 1, 2011851625458683911, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895312, 1, 2011851625458683912, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895313, 1, 2011851625458683913, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895314, 1, 2011851625458683914, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895315, 1, 2011851625458683916, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895316, 1, 2011851625458683917, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895317, 1, 2011851625458683918, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895318, 1, 2011851625458683919, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895319, 1, 2011851625458683920, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895320, 1, 2011851625458683922, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895321, 1, 2011851625458683923, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895322, 1, 2011851625458683924, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895323, 1, 2011851625458683925, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895324, 1, 2011851625458683926, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895325, 1, 2011851625458683928, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895326, 1, 2011851625458683929, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895327, 1, 2011851625458683930, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895328, 1, 2011851625458683931, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895329, 1, 2011851625458683932, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895330, 1, 2011851625458683933, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895331, 1, 2011851625458683934, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895332, 1, 2011851625458683935, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311619895333, 1, 2011851625458683937, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809857, 1, 2011851625458683938, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809858, 1, 2011851625458683939, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809859, 1, 2011851625458683940, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809860, 1, 2011851625458683941, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809861, 1, 2011851625458683942, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809862, 1, 2011851625458683943, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809863, 1, 2011851625458683944, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809864, 1, 2011851625458683945, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809865, 1, 2011851625458683946, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809866, 1, 2011851625458683947, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809867, 1, 2011851625458683948, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809868, 1, 2011851625458683949, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809869, 1, 2011851625458683950, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809870, 1, 2011851625458683951, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809871, 1, 2011851625458683952, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809872, 1, 2011851625458683953, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809873, 1, 2011851625458683957, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809874, 1, 2011851625458683958, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809875, 1, 2011851625458683959, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809876, 1, 2011851625458683960, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809877, 1, 2011851625458683961, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809878, 1, 2011851625458683962, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809879, 1, 2100000000000000101, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809880, 1, 2100000000000000102, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809881, 1, 2100000000000000103, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809882, 1, 2100000000000000104, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809883, 1, 2100000000000000105, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2113774311682809884, 1, 2100000000000000106, '2026-10-24 07:27:23', NULL, '2026-10-24 07:27:23', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000356, 1, 2100000000000000156, '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000357, 1, 2100000000000000157, '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000358, 1, 2100000000000000158, '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
+INSERT INTO `sys_role_permission` VALUES (2100000000000000359, 1, 2100000000000000159, '2026-10-27 00:00:00', 'system', '2026-10-27 00:00:00', 'system', 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121588850690, 2, 2100000000000000101, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121588850691, 2, 2100000000000000102, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121588850692, 2, 2100000000000000103, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
@@ -528,15 +482,154 @@ INSERT INTO `sys_role_permission` VALUES (2114026121588850702, 2, 21000000000000
 INSERT INTO `sys_role_permission` VALUES (2114026121668542465, 2, 2100000000000000132, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121668542466, 2, 2100000000000000133, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121668542467, 2, 2100000000000000134, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542468, 2, 2100000000000000140, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542469, 2, 2100000000000000141, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542470, 2, 2100000000000000142, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542471, 2, 2100000000000000143, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542472, 2, 2100000000000000144, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
-INSERT INTO `sys_role_permission` VALUES (2114026121668542473, 2, 2100000000000000150, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121668542474, 2, 2100000000000000151, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121668542475, 2, 2100000000000000152, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
 INSERT INTO `sys_role_permission` VALUES (2114026121668542476, 2, 2100000000000000153, '2026-10-25 00:07:59', NULL, '2026-10-25 00:07:59', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824450, 1, 1001, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824451, 1, 1002, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824452, 1, 1003, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824453, 1, 1004, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824454, 1, 1005, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824455, 1, 1006, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824456, 1, 114214272234, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752702824457, 1, 125634234412342343, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739009, 1, 1991143600931201000, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739010, 1, 1991205164119891970, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739011, 1, 1991242409023631362, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739012, 1, 1991242808984072194, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739013, 1, 1991242997413179393, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739014, 1, 1991243204884426753, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739015, 1, 1991244603546398722, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739016, 1, 1991244778629230593, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739017, 1, 1991244964420120578, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739018, 1, 1991245154136879106, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739019, 1, 1991268323568517122, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739020, 1, 1991268510370234370, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739021, 1, 1991455913399685122, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739022, 1, 1991456923035766785, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739023, 1, 1991473796049752066, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739024, 1, 1991473884234993666, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739025, 1, 1991473999733542914, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739026, 1, 1991474490890735617, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739027, 1, 1991474490890735618, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739028, 1, 1991474490890735619, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739029, 1, 1991474490890735620, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739030, 1, 1991474490890735621, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739031, 1, 1991474490890735622, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739032, 1, 1991474490890735623, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739033, 1, 1991474490890735624, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739034, 1, 1991474490890735625, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739035, 1, 1991474490890735626, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739036, 1, 1991474490890735627, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739037, 1, 1991474490890735628, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739038, 1, 1991474490890735629, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739039, 1, 1991474490890735630, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739040, 1, 1991474490890735631, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739041, 1, 1991474490890735632, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739042, 1, 1991474490890735633, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752765739043, 1, 1991474490890735634, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847873, 1, 1991474490890735635, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847874, 1, 1991474490890735636, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847875, 1, 1991474490890735637, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847876, 1, 1991474490890735638, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847877, 1, 1991474490890735639, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847878, 1, 1991474490890735640, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847879, 1, 1991829450476220417, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847880, 1, 1993000000000001100, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847881, 1, 1993000000000001200, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847882, 1, 1993000000000001210, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847883, 1, 1993000000000001300, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847884, 1, 1993000000000001310, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847885, 1, 1993000000000001320, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847886, 1, 1993000000000001400, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847887, 1, 2011849591380627457, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847888, 1, 2011850922522693634, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847889, 1, 2011851483955449857, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847890, 1, 2011851625458683906, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847891, 1, 2011851625458683908, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847892, 1, 2011851625458683909, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847893, 1, 2011851625458683910, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847894, 1, 2011851625458683911, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847895, 1, 2011851625458683912, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847896, 1, 2011851625458683913, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847897, 1, 2011851625458683914, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847898, 1, 2011851625458683916, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847899, 1, 2011851625458683917, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847900, 1, 2011851625458683918, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847901, 1, 2011851625458683919, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847902, 1, 2011851625458683920, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847903, 1, 2011851625458683922, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847904, 1, 2011851625458683923, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847905, 1, 2011851625458683924, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847906, 1, 2011851625458683925, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847907, 1, 2011851625458683926, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847908, 1, 2011851625458683928, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847909, 1, 2011851625458683929, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847910, 1, 2011851625458683930, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847911, 1, 2011851625458683931, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847912, 1, 2011851625458683932, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847913, 1, 2011851625458683933, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847914, 1, 2011851625458683934, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847915, 1, 2011851625458683935, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847916, 1, 2011851625458683937, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752832847917, 1, 2011851625458683938, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762434, 1, 2011851625458683939, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762435, 1, 2011851625458683940, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762436, 1, 2011851625458683941, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762437, 1, 2011851625458683942, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762438, 1, 2011851625458683943, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762439, 1, 2011851625458683944, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762440, 1, 2011851625458683945, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762441, 1, 2011851625458683946, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762442, 1, 2011851625458683947, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762443, 1, 2011851625458683948, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762444, 1, 2011851625458683949, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762445, 1, 2011851625458683950, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762446, 1, 2011851625458683951, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762447, 1, 2011851625458683952, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762448, 1, 2011851625458683953, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762449, 1, 2011851625458683957, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762450, 1, 2011851625458683958, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762451, 1, 2011851625458683959, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762452, 1, 2011851625458683960, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762453, 1, 2011851625458683961, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762454, 1, 2011851625458683962, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762455, 1, 2100000000000000101, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762456, 1, 2100000000000000102, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762457, 1, 2100000000000000103, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762458, 1, 2100000000000000104, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762459, 1, 2100000000000000105, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762460, 1, 2100000000000000106, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762461, 1, 2100000000000000107, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762462, 1, 2100000000000000120, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762463, 1, 2100000000000000121, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762464, 1, 2100000000000000122, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762465, 1, 2100000000000000123, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762466, 1, 2100000000000000124, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762467, 1, 2100000000000000130, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762468, 1, 2100000000000000131, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762469, 1, 2100000000000000132, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762470, 1, 2100000000000000133, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762471, 1, 2100000000000000134, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762473, 1, 2100000000000000151, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762474, 1, 2100000000000000152, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762475, 1, 2100000000000000153, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762476, 1, 2100000000000000160, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762477, 1, 2100000000000000161, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762478, 1, 2100000000000000162, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762479, 1, 2100000000000000170, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762480, 1, 2100000000000000171, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752895762481, 1, 2100000000000000230, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871298, 1, 2100000000000000231, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871299, 1, 2100000000000000232, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871300, 1, 2100000000000000233, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871301, 1, 2100000000000000234, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871302, 1, 2100000000000000235, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871303, 1, 2100000000000000250, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871304, 1, 2100000000000000251, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871305, 1, 2100000000000000252, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871306, 1, 2100000000000000254, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
+INSERT INTO `sys_role_permission` VALUES (2114395752962871307, 1, 2100000000000000253, '2026-10-26 00:36:46', NULL, '2026-10-26 00:36:46', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -563,9 +656,10 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$QglwBinM.wSdYblvNtTIveMDfltN./vRjPczrA9FnZNQwU1SnvwU6', '管理员', 'chen_a_nan@qq.com', '', NULL, '2025-11-18 18:45:43', NULL, '2026-01-12 07:32:35', NULL, 1);
-INSERT INTO `sys_user` VALUES (1992208936665325569, 'test', '$2a$10$B6/HWEMm37XBm3vAJDpIduGCMam.iF8LspVQg21weWSTghugFz.he', '测试', 'wx-gpt-plus@qq.com', '', NULL, '2025-11-22 20:29:59', NULL, '2026-01-12 07:32:39', NULL, 1);
-INSERT INTO `sys_user` VALUES (2113728300956426241, 'root', '$2a$10$3wUApDCZ0jSEdqSeCxbM6uHD.aurWwTpBqPpOqqgX8UeW77gl94Tm', '', '', '', NULL, '2026-10-24 04:24:33', NULL, '2026-10-24 04:24:38', NULL, 0);
+INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$QglwBinM.wSdYblvNtTIveMDfltN./vRjPczrA9FnZNQwU1SnvwU6', '管理员', 'chen_a_nan@qq.com', '', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/641197b5ea264452bf564d9b5adea979.jpg', '2025-11-18 18:45:43', NULL, '2026-01-12 07:32:35', NULL, 1);
+INSERT INTO `sys_user` VALUES (1992208936665325569, 'test', '$2a$10$B6/HWEMm37XBm3vAJDpIduGCMam.iF8LspVQg21weWSTghugFz.he', '这是测试账号', 'wx-gpt-plus@qq.com', '', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/8c887bf5a46243cc91852d8852681890.jpg', '2025-11-22 20:29:59', NULL, '2026-01-12 07:32:39', NULL, 1);
+INSERT INTO `sys_user` VALUES (2114792600349368322, 'b7tmp001', '$2a$10$Oq8qtlqmaVco1SDuHJ0qkOk37GOqLi.jVc2Wk270HI9V7YwKkNi8G', 'b7tmp', NULL, NULL, NULL, '2026-10-27 02:53:42', NULL, '2026-10-27 02:54:12', NULL, 0);
+INSERT INTO `sys_user` VALUES (2114792911449284609, 'b7tmp002', '$2a$10$jLyjQPiFGEf7/QLrmbY2F.QjDA64M3DgNwZSxCgBxeq7PRop1I13G', 'b7tmp', NULL, NULL, NULL, '2026-10-27 02:54:56', NULL, '2026-10-27 02:54:56', NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -592,6 +686,7 @@ CREATE TABLE `sys_user_role`  (
 -- ----------------------------
 INSERT INTO `sys_user_role` VALUES (2, 2, 1, '2025-11-20 02:28:41', NULL, '2025-11-20 02:28:52', NULL, 1);
 INSERT INTO `sys_user_role` VALUES (1991967599781089282, 1, 1, '2025-11-22 04:30:59', NULL, '2025-11-22 04:30:59', NULL, 1);
-INSERT INTO `sys_user_role` VALUES (2008296925178875906, 1992208936665325569, 2, '2026-01-06 05:57:54', NULL, '2026-01-06 05:57:54', NULL, 1);
+INSERT INTO `sys_user_role` VALUES (2114732977282048002, 1992208936665325569, 2, '2026-10-26 22:56:46', NULL, '2026-10-26 22:56:46', NULL, 1);
+INSERT INTO `sys_user_role` VALUES (2114732977344962561, 1992208936665325569, 4, '2026-10-26 22:56:46', NULL, '2026-10-26 22:56:46', NULL, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;

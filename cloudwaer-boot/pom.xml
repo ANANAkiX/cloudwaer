@@ -49,6 +49,11 @@
             <artifactId>cloudwaer-common-redis</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-datasource</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Business services (embedded) -->
         <dependency>
             <groupId>com.cloudwaer</groupId>

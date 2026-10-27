@@ -11,7 +11,7 @@
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
- Date: 25/10/2026 00:27:48
+ Date: 28/10/2026 00:36:35
 */
 
 SET NAMES utf8mb4;
@@ -41,7 +41,7 @@ CREATE TABLE `config_info`  (
   `encrypted_data_key` varchar(1024) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '密钥',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_configinfo_datagrouptenant`(`data_id` ASC, `group_id` ASC, `tenant_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 18 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'config_info' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = 'config_info' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of config_info
@@ -58,6 +58,8 @@ INSERT INTO `config_info` VALUES (9, 'application-cloudwaer-authentication-dev.y
 INSERT INTO `config_info` VALUES (10, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: update\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'f404bcd8ffa3e617b41596380ae3896b', '2026-01-13 00:00:00', '2026-01-16 18:07:48', 'nacos', '127.0.0.1', '', 'public', 'Flowable服务配置', NULL, NULL, 'yaml', NULL, '');
 INSERT INTO `config_info` VALUES (16, 'application-cloudwaer-flowable-serve-dev.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_flowable?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n\nflowable:\n  database-schema-update: update\n  async-executor-activate: false\n  idm:\n    enabled: false\n\ncloudwaer:\n  swagger:\n    title: Flowable流程服务API\n    version: 1.0\n    description: Flowable流程服务的API文档\n  api-scanner:\n    enabled: true\n    service-id: cloudwaer-flowable-serve\n    exclude-methods:\n      - error\n      - health\n    exclude-paths:\n      - /actuator/**\n      - /error\n      - /swagger-ui/**\n      - /v3/api-docs/**\n    base-packages:\n      - com.cloudwaer.flowable', 'f404bcd8ffa3e617b41596380ae3896b', '2026-01-14 19:09:20', '2026-01-16 18:07:48', 'nacos_namespace_migrate', '127.0.0.1', '', '', 'Flowable服务配置', NULL, NULL, 'yaml', NULL, '');
 INSERT INTO `config_info` VALUES (17, 'application-common.yml', 'DEFAULT_GROUP', 'spring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', '15ede9d96351caea5ca46bbce9396bfe', '2026-01-14 19:30:48', '2026-01-14 19:37:56', 'nacos_namespace_migrate', '127.0.0.1', '', '', '所有服务都会默认加载这个配置文件', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (18, 'application-cloudwaer-blog-serve-dev.yml', 'DEFAULT_GROUP', 'server:\n  port: 4105\nspring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_blog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', 'b3b4eb29b62df134c6eb457538918830', '2026-10-26 21:18:37', '2026-10-26 21:22:49', 'nacos_namespace_migrate', '0:0:0:0:0:0:0:1', '', '', '', NULL, NULL, 'yaml', NULL, '');
+INSERT INTO `config_info` VALUES (19, 'application-cloudwaer-blog-serve-dev.yml', 'DEFAULT_GROUP', 'server:\n  port: 4105\nspring:\n  datasource:\n    driver-class-name: com.mysql.cj.jdbc.Driver\n    url: jdbc:mysql://localhost:3306/cloudwaer_blog?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\n    username: root\n    password: root\n  redis:\n    host: localhost\n    port: 6379\n    database: 0\n\nmybatis-plus:\n  mapper-locations: classpath*:mapper/**/*.xml\n  type-aliases-package: com.cloudwaer.**.entity\n  configuration:\n    map-underscore-to-camel-case: true', 'b3b4eb29b62df134c6eb457538918830', '2026-10-26 21:18:37', '2026-10-26 21:22:49', 'nacos', '0:0:0:0:0:0:0:1', '', 'public', '', NULL, NULL, 'yaml', NULL, '');
 
 -- ----------------------------
 -- Table structure for config_info_gray
@@ -82,7 +84,7 @@ CREATE TABLE `config_info_gray`  (
   UNIQUE INDEX `uk_configinfogray_datagrouptenantgray`(`data_id` ASC, `group_id` ASC, `tenant_id` ASC, `gray_name` ASC) USING BTREE,
   INDEX `idx_dataid_gmt_modified`(`data_id` ASC, `gmt_modified` ASC) USING BTREE,
   INDEX `idx_gmt_modified`(`gmt_modified` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'config_info_gray' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'config_info_gray' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of config_info_gray
@@ -131,7 +133,7 @@ CREATE TABLE `group_capacity`  (
 -- ----------------------------
 -- Records of group_capacity
 -- ----------------------------
-INSERT INTO `group_capacity` VALUES (1, '', 0, 12, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-10-23 20:29:55');
+INSERT INTO `group_capacity` VALUES (1, '', 0, 14, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-10-26 19:48:04');
 
 -- ----------------------------
 -- Table structure for his_config_info
@@ -159,11 +161,13 @@ CREATE TABLE `his_config_info`  (
   INDEX `idx_gmt_create`(`gmt_create` ASC) USING BTREE,
   INDEX `idx_gmt_modified`(`gmt_modified` ASC) USING BTREE,
   INDEX `idx_did`(`data_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 83 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '多租户改造' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 85 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '多租户改造' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of his_config_info
 -- ----------------------------
+INSERT INTO `his_config_info` VALUES (0, 83, 'application-cloudwaer-blog-serve-dev', 'DEFAULT_GROUP', '', 'spring:\r\n  datasource:\r\n    driver-class-name: com.mysql.cj.jdbc.Driver\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root\r\n  redis:\r\n    host: localhost\r\n    port: 6379\r\n    database: 0\r\n\r\nmybatis-plus:\r\n  mapper-locations: classpath*:mapper/**/*.xml\r\n  type-aliases-package: com.cloudwaer.**.entity\r\n  configuration:\r\n    map-underscore-to-camel-case: true', '3871ebfa8e4f58498c4812e86d411293', '2026-10-26 21:18:36', '2026-10-26 13:18:37', 'nacos', '0:0:0:0:0:0:0:1', 'I', 'public', '', 'formal', '', '{\"src_user\":\"nacos\",\"type\":\"yaml\"}');
+INSERT INTO `his_config_info` VALUES (19, 84, 'application-cloudwaer-blog-serve-dev.yml', 'DEFAULT_GROUP', '', 'spring:\r\n  datasource:\r\n    driver-class-name: com.mysql.cj.jdbc.Driver\r\n    url: jdbc:mysql://localhost:3306/cloudwaer?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai\r\n    username: root\r\n    password: root\r\n  redis:\r\n    host: localhost\r\n    port: 6379\r\n    database: 0\r\n\r\nmybatis-plus:\r\n  mapper-locations: classpath*:mapper/**/*.xml\r\n  type-aliases-package: com.cloudwaer.**.entity\r\n  configuration:\r\n    map-underscore-to-camel-case: true', '3871ebfa8e4f58498c4812e86d411293', '2026-10-26 21:22:49', '2026-10-26 13:22:49', 'nacos', '0:0:0:0:0:0:0:1', 'U', 'public', '', 'formal', '', '{\"type\":\"yaml\",\"src_user\":\"nacos\"}');
 
 -- ----------------------------
 -- Table structure for permissions
@@ -212,12 +216,13 @@ CREATE TABLE `tenant_capacity`  (
   `gmt_modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `uk_tenant_id`(`tenant_id` ASC) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '租户容量信息表' ROW_FORMAT = DYNAMIC;
+) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_bin COMMENT = '租户容量信息表' ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Records of tenant_capacity
 -- ----------------------------
-INSERT INTO `tenant_capacity` VALUES (1, 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 0, 0, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-10-23 20:29:56');
+INSERT INTO `tenant_capacity` VALUES (1, 'f91fb05b-8bf8-499b-8698-5cb45c6d4fde', 0, 0, 0, 0, 0, 0, '2026-01-09 19:36:09', '2026-10-26 19:48:04');
+INSERT INTO `tenant_capacity` VALUES (2, 'public', 0, 7, 0, 0, 0, 0, '2026-10-26 13:18:37', '2026-10-26 19:48:04');
 
 -- ----------------------------
 -- Table structure for tenant_info

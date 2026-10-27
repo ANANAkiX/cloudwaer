@@ -14,8 +14,8 @@ import org.springframework.context.annotation.Configuration;
  *
  * <p>
  * 引擎必须使用与业务相同的 dynamic 路由 DataSource（不要另包一层代理，否则 Spring 事务按 DataSource 实例绑定连接时会与 MyBatis
- * 断开共享）。运行期由 {@code DynamicDataSourceRouteFilter} 在 {@code /flowable/**} 请求全程 push
- * flowable 键。
+ * 断开共享）。运行期由 {@code PathDataSourceRouteFilter} 在 {@code /flowable/**} 请求全程 push flowable
+ * 键。
  * </p>
  */
 @Configuration(proxyBeanMethods = false)
