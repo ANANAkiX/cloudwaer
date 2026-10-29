@@ -61,4 +61,11 @@ public class SysSettingController {
 		return Result.success(sysSettingService.publish());
 	}
 
+	@PostMapping("/password-transport/generate-keys")
+	@PermissionCode("admin:setting:save")
+	@Operation(summary = "生成密码加密密钥对", description = "生成 RSA-2048 密钥对写入设置（草稿，发布后生效）")
+	public Result<Map<String, Object>> generatePasswordTransportKeys() {
+		return Result.success(sysSettingService.generatePasswordTransportKeys());
+	}
+
 }

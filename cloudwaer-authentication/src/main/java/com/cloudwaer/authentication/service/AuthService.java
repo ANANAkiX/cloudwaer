@@ -10,6 +10,7 @@ import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
 import com.cloudwaer.common.core.service.GlobalSettingService;
+import com.cloudwaer.common.core.service.PasswordTransportService;
 import com.cloudwaer.common.core.service.TokenService;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,12 @@ public class AuthService {
 	@Autowired
 	private GlobalSettingService globalSettingService;
 
+	@Autowired
+	private PasswordTransportService passwordTransportService;
+
 	public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
+		// 密码传输加密启用时此处解密（未启用原样返回，无痛兼容）
+		loginRequestDTO.setPassword(passwordTransportService.resolvePlainPassword(loginRequestDTO.getPassword()));
 		// 交给可插拔认证器完成认证，返回主体标识（用户名/邮箱/手机号等）
 		return loginAuthenticationManager.authenticate(loginRequestDTO);
 	}
@@ -53,6 +59,7 @@ public class AuthService {
 		if (!globalSettingService.getBool(GlobalSettingService.KEY_REGISTER_ENABLED, true)) {
 			throw new BusinessException("注册功能已关闭");
 		}
+		registerRequest.setPassword(passwordTransportService.resolvePlainPassword(registerRequest.getPassword()));
 		RegisterDTO registerDTO = new RegisterDTO();
 		BeanUtils.copyProperties(registerRequest, registerDTO);
 
@@ -85,6 +92,12 @@ public class AuthService {
 				new TypeReference<List<Map<String, String>>>() {
 				}, new ArrayList<>());
 		data.put("oauthProviders", oauthProviders);
+		Map<String, Object> passwordTransport = new HashMap<>();
+		passwordTransport.put("enabled", passwordTransportService.isEnabled());
+		if (passwordTransportService.isEnabled()) {
+			passwordTransport.put("publicKey", passwordTransportService.getPublicKeyPem());
+		}
+		data.put("passwordTransport", passwordTransport);
 		return data;
 	}
 
