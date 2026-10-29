@@ -16,6 +16,11 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-aop</artifactId>
         </dependency>

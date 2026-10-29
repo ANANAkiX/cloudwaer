@@ -1,6 +1,7 @@
 package com.cloudwaer.gateway.controller;
 
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.gateway.config.CaptchaProperties;
 import lombok.RequiredArgsConstructor;
@@ -31,30 +32,38 @@ public class CaptchaController {
 
 	private final CaptchaProperties props;
 
+	private final GlobalSettingService globalSettingService;
+
 	private static final String CAPTCHA_KEY_PREFIX = "captcha:";
 
 	@GetMapping("/captcha")
 	public Result<Map<String, Object>> createCaptcha() {
 		try {
-			if (!props.isEnabled()) {
+			boolean enabled = globalSettingService.getBool(GlobalSettingService.KEY_CAPTCHA_ENABLED, props.isEnabled());
+			int expireSeconds = globalSettingService.getInt(GlobalSettingService.KEY_CAPTCHA_EXPIRE,
+					props.getExpireSeconds());
+			int codeLength = globalSettingService.getInt(GlobalSettingService.KEY_CAPTCHA_LENGTH, props.getLength());
+			int imgWidth = globalSettingService.getInt(GlobalSettingService.KEY_CAPTCHA_WIDTH, props.getWidth());
+			int imgHeight = globalSettingService.getInt(GlobalSettingService.KEY_CAPTCHA_HEIGHT, props.getHeight());
+			if (!enabled) {
 				Map<String, Object> data = new HashMap<>();
 				data.put("enabled", false);
 				return Result.success(data);
 			}
 
 			String id = UUID.randomUUID().toString().replace("-", "");
-			String code = randomCode(props.getLength());
+			String code = randomCode(codeLength);
 
 			// store to redis (lower case for case-insensitive compare)
-			redisUtil.set(CAPTCHA_KEY_PREFIX + id, code.toLowerCase(), Duration.ofSeconds(props.getExpireSeconds()));
+			redisUtil.set(CAPTCHA_KEY_PREFIX + id, code.toLowerCase(), Duration.ofSeconds(expireSeconds));
 
-			String imageBase64 = buildImageBase64(code, props.getWidth(), props.getHeight());
+			String imageBase64 = buildImageBase64(code, imgWidth, imgHeight);
 
 			Map<String, Object> data = new HashMap<>();
 			data.put("enabled", true);
 			data.put("captchaId", id);
 			data.put("imageBase64", imageBase64);
-			data.put("expireSeconds", props.getExpireSeconds());
+			data.put("expireSeconds", expireSeconds);
 			return Result.success(data);
 		}
 		catch (Exception e) {

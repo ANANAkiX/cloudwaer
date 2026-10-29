@@ -31,6 +31,12 @@
     </dependencyManagement>
 
     <dependencies>
+        <!-- 公共核心（全局动态设置 GlobalSettingService） -->
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

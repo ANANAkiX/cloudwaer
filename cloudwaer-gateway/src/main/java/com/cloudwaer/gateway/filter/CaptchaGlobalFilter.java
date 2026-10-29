@@ -1,6 +1,7 @@
 package com.cloudwaer.gateway.filter;
 
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.core.util.WebFluxResponseUtil;
 import com.cloudwaer.gateway.config.CaptchaProperties;
@@ -38,9 +39,12 @@ public class CaptchaGlobalFilter implements GlobalFilter, Ordered {
 
 	private final ObjectMapper objectMapper;
 
+	private final GlobalSettingService globalSettingService;
+
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-		if (!props.isEnabled()) {
+		// 支持全局设置热切换：未覆盖时用 yml 兜底
+		if (!globalSettingService.getBool(GlobalSettingService.KEY_CAPTCHA_ENABLED, props.isEnabled())) {
 			return chain.filter(exchange);
 		}
 		ServerHttpRequest request = exchange.getRequest();

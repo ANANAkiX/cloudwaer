@@ -1,5 +1,6 @@
 package com.cloudwaer.common.log;
 
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.log.config.LogProperties;
 import com.cloudwaer.common.log.service.LogSaver;
 import com.cloudwaer.common.log.service.impl.Slf4jLogSaver;
@@ -40,8 +41,8 @@ public class LogAutoConfiguration {
 	 */
 	@Bean
 	public RequestLogAspect requestLogAspect(LogProperties properties, LogSaver saver, Environment environment,
-			Executor commonLogExecutor) {
-		return new RequestLogAspect(properties, saver, environment, commonLogExecutor);
+			Executor commonLogExecutor, GlobalSettingService globalSettingService) {
+		return new RequestLogAspect(properties, saver, environment, commonLogExecutor, globalSettingService);
 	}
 
 	/**

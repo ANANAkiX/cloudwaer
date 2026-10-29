@@ -1,5 +1,6 @@
 package com.cloudwaer.common.redis;
 
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.redis.aspect.RedisCacheAspect;
 import com.cloudwaer.common.redis.config.RedisCacheProperties;
@@ -36,8 +37,9 @@ public class RedisCacheAutoConfiguration {
 	@Bean
 	@ConditionalOnBean(StringRedisTemplate.class)
 	@ConditionalOnMissingBean
-	public RedisCacheAspect redisCacheAspect(RedisUtil redisUtil, ObjectProvider<ObjectMapper> objectMapperProvider) {
-		return new RedisCacheAspect(redisUtil, objectMapperProvider);
+	public RedisCacheAspect redisCacheAspect(RedisUtil redisUtil, ObjectProvider<ObjectMapper> objectMapperProvider,
+			GlobalSettingService globalSettingService, RedisCacheProperties redisCacheProperties) {
+		return new RedisCacheAspect(redisUtil, objectMapperProvider, globalSettingService, redisCacheProperties);
 	}
 
 }

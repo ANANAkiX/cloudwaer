@@ -1,8 +1,10 @@
 package com.cloudwaer.common.redis.aspect;
 
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.cloudwaer.common.redis.annotation.RedisCache;
+import com.cloudwaer.common.redis.config.RedisCacheProperties;
 import com.cloudwaer.common.redis.model.AuthCacheContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +52,15 @@ public class RedisCacheAspect {
 
 	private final ObjectProvider<ObjectMapper> objectMapperProvider;
 
+	private final GlobalSettingService globalSettingService;
+
+	private final RedisCacheProperties redisCacheProperties;
+
+	/**
+	 * {@link RedisCache#time()} 的注解默认值（24h）：命中默认值时允许被全局默认 TTL 覆盖
+	 */
+	private static final long ANNOTATION_DEFAULT_TIME = 86400L;
+
 	private final ExpressionParser parser = new SpelExpressionParser();
 
 	private final ParameterNameDiscoverer nameDiscoverer = new DefaultParameterNameDiscoverer();
@@ -57,6 +68,10 @@ public class RedisCacheAspect {
 	@Around("@annotation(cacheAnnotation)")
 	public Object around(ProceedingJoinPoint pjp, RedisCache cacheAnnotation) throws Throwable {
 		if (redisUtil == null || !redisUtil.isAvailable()) {
+			return pjp.proceed();
+		}
+		// 全局设置热切换：关闭后不读不写缓存（yml 需保持开启使切面存在）
+		if (!globalSettingService.getBool(GlobalSettingService.KEY_REDIS_CACHE_ENABLED, true)) {
 			return pjp.proceed();
 		}
 
@@ -82,13 +97,25 @@ public class RedisCacheAspect {
 		if (result != null) {
 			try {
 				String json = mapper().writeValueAsString(result);
-				redisUtil.set(cacheKey, json, cacheAnnotation.time());
+				redisUtil.set(cacheKey, json, resolveTtlSeconds(cacheAnnotation));
 			}
 			catch (Exception e) {
 				log.warn("写入 Redis 缓存失败, key={}", cacheKey, e);
 			}
 		}
 		return result;
+	}
+
+	/**
+	 * 过期秒数：注解显式指定则用注解；注解为默认值时允许全局设置覆盖（未覆盖用 yml/代码默认）
+	 */
+	private long resolveTtlSeconds(RedisCache cacheAnnotation) {
+		long ttl = cacheAnnotation.time();
+		if (ttl == ANNOTATION_DEFAULT_TIME) {
+			return globalSettingService.getLong(GlobalSettingService.KEY_REDIS_CACHE_DEFAULT_SECONDS,
+					redisCacheProperties.getDefaultTimeSeconds());
+		}
+		return ttl;
 	}
 
 	private String buildKey(Method method, Object[] args, RedisCache annotation) {

@@ -1,6 +1,7 @@
 package com.cloudwaer.boot.config;
 
 import com.cloudwaer.boot.filter.CaptchaValidationFilter;
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -14,8 +15,8 @@ public class CaptchaFilterConfiguration {
 
 	@Bean
 	public CaptchaValidationFilter captchaValidationFilter(CaptchaProperties props, RedisUtil redisUtil,
-			ObjectMapper objectMapper) {
-		return new CaptchaValidationFilter(props, redisUtil, objectMapper);
+			ObjectMapper objectMapper, GlobalSettingService globalSettingService) {
+		return new CaptchaValidationFilter(props, redisUtil, objectMapper, globalSettingService);
 	}
 
 	@Bean

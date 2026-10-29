@@ -36,6 +36,23 @@ public class RedisUtil {
 	// ---------- 基础：String / 生命周期 ----------
 
 	/**
+	 * 发布消息到频道（Redis pub/sub）。Redis 未配置时安全降级。
+	 */
+	public boolean publish(String channel, String message) {
+		if (stringRedisTemplate == null || channel == null) {
+			return false;
+		}
+		try {
+			stringRedisTemplate.convertAndSend(channel, message == null ? "" : message);
+			return true;
+		}
+		catch (Exception e) {
+			log.error("Redis publish failed: channel={}", channel, e);
+			return false;
+		}
+	}
+
+	/**
 	 * Redis 是否可用
 	 */
 	public boolean isAvailable() {

@@ -2,6 +2,7 @@ package com.cloudwaer.boot.filter;
 
 import com.cloudwaer.boot.config.CaptchaProperties;
 import com.cloudwaer.common.core.result.Result;
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -29,16 +30,21 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
 
 	private final ObjectMapper objectMapper;
 
-	public CaptchaValidationFilter(CaptchaProperties props, RedisUtil redisUtil, ObjectMapper objectMapper) {
+	private final GlobalSettingService globalSettingService;
+
+	public CaptchaValidationFilter(CaptchaProperties props, RedisUtil redisUtil, ObjectMapper objectMapper,
+			GlobalSettingService globalSettingService) {
 		this.props = props;
 		this.redisUtil = redisUtil;
 		this.objectMapper = objectMapper;
+		this.globalSettingService = globalSettingService;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
-		if (!props.isEnabled()) {
+		// 支持全局设置热切换：未覆盖时用 yml 兜底
+		if (!globalSettingService.getBool(GlobalSettingService.KEY_CAPTCHA_ENABLED, props.isEnabled())) {
 			filterChain.doFilter(request, response);
 			return;
 		}

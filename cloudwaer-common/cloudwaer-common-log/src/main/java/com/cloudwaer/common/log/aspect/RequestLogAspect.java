@@ -1,5 +1,6 @@
 package com.cloudwaer.common.log.aspect;
 
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.log.config.LogProperties;
 import com.cloudwaer.common.log.model.LogRecord;
 import com.cloudwaer.common.log.service.LogSaver;
@@ -20,6 +21,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.time.Instant;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Executor;
 
 @Slf4j
@@ -37,9 +40,12 @@ public class RequestLogAspect {
 
 	private final Executor executor;
 
+	private final GlobalSettingService globalSettingService;
+
 	@Around("(@within(org.springframework.stereotype.Controller) || @within(org.springframework.web.bind.annotation.RestController)) && (execution(* *(..)) && (@annotation(org.springframework.web.bind.annotation.RequestMapping) || @annotation(org.springframework.web.bind.annotation.GetMapping) || @annotation(org.springframework.web.bind.annotation.PostMapping) || @annotation(org.springframework.web.bind.annotation.PutMapping) || @annotation(org.springframework.web.bind.annotation.DeleteMapping) || @annotation(org.springframework.web.bind.annotation.PatchMapping)))")
 	public Object around(ProceedingJoinPoint pjp) throws Throwable {
-		if (!properties.isEnabled()) {
+		// 全局设置热切换：未覆盖时用 yml 兜底
+		if (!globalSettingService.getBool(GlobalSettingService.KEY_LOG_ENABLED, properties.isEnabled())) {
 			return pjp.proceed();
 		}
 		RequestAttributes ra = RequestContextHolder.getRequestAttributes();
@@ -91,9 +97,10 @@ public class RequestLogAspect {
 	}
 
 	private boolean shouldExclude(String uri, String httpMethod, ProceedingJoinPoint pjp) {
-		// 路径排除（支持Ant匹配）
-		if (properties.getExcludePaths() != null) {
-			for (String pattern : properties.getExcludePaths()) {
+		// 路径排除（支持Ant匹配；动态设置优先，未覆盖时用 yml）
+		Set<String> excludePaths = resolveExcludePaths();
+		if (excludePaths != null) {
+			for (String pattern : excludePaths) {
 				if (StringUtils.hasText(pattern) && matcher.match(pattern, uri))
 					return true;
 			}
@@ -113,6 +120,25 @@ public class RequestLogAspect {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * 排除路径：动态设置（逗号分隔）优先；未覆盖时用 yml 的 exclude-paths
+	 */
+	private Set<String> resolveExcludePaths() {
+		String raw = globalSettingService.getRaw(GlobalSettingService.KEY_LOG_EXCLUDE_PATHS);
+		if (StringUtils.hasText(raw)) {
+			Set<String> dynamic = new LinkedHashSet<>();
+			for (String pattern : raw.split(",")) {
+				if (StringUtils.hasText(pattern)) {
+					dynamic.add(pattern.trim());
+				}
+			}
+			if (!dynamic.isEmpty()) {
+				return dynamic;
+			}
+		}
+		return properties.getExcludePaths();
 	}
 
 	private String getClientIp(HttpServletRequest request) {

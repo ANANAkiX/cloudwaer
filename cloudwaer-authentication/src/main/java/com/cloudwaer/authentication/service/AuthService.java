@@ -9,6 +9,7 @@ import com.cloudwaer.authentication.dto.RegisterRequestDTO;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
+import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.service.TokenService;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,13 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,6 +38,9 @@ public class AuthService {
 	@Autowired
 	private AdminFeignClient adminFeignClient;
 
+	@Autowired
+	private GlobalSettingService globalSettingService;
+
 	public LoginResponseDTO login(LoginRequestDTO loginRequestDTO) {
 		// 交给可插拔认证器完成认证，返回主体标识（用户名/邮箱/手机号等）
 		return loginAuthenticationManager.authenticate(loginRequestDTO);
@@ -39,6 +50,9 @@ public class AuthService {
 	 * 用户注册：转发到 admin 内部接口创建用户并分配访客角色
 	 */
 	public Boolean register(RegisterRequestDTO registerRequest) {
+		if (!globalSettingService.getBool(GlobalSettingService.KEY_REGISTER_ENABLED, true)) {
+			throw new BusinessException("注册功能已关闭");
+		}
 		RegisterDTO registerDTO = new RegisterDTO();
 		BeanUtils.copyProperties(registerRequest, registerDTO);
 
@@ -57,6 +71,21 @@ public class AuthService {
 		}
 		log.info("用户注册成功: username={}", registerRequest.getUsername());
 		return result.getData();
+	}
+
+	/**
+	 * 匿名公开设置（登录页用）：验证码开关/有效期、注册开关、已启用第三方登录（脱敏）
+	 */
+	public Map<String, Object> publicSettings() {
+		Map<String, Object> data = new HashMap<>();
+		data.put("captchaEnabled", globalSettingService.getBool(GlobalSettingService.KEY_CAPTCHA_ENABLED, false));
+		data.put("captchaExpireSeconds", globalSettingService.getInt(GlobalSettingService.KEY_CAPTCHA_EXPIRE, 120));
+		data.put("registerEnabled", globalSettingService.getBool(GlobalSettingService.KEY_REGISTER_ENABLED, true));
+		List<Map<String, String>> oauthProviders = globalSettingService.getJson(GlobalSettingService.OAUTH_PUBLIC_KEY,
+				new TypeReference<List<Map<String, String>>>() {
+				}, new ArrayList<>());
+		data.put("oauthProviders", oauthProviders);
+		return data;
 	}
 
 	public Boolean tokenValid() {
