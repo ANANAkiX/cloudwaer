@@ -9,6 +9,7 @@ import com.cloudwaer.admin.serve.mapper.SysOauthProviderMapper;
 import com.cloudwaer.admin.serve.mapper.SysSettingMapper;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.service.GlobalSettingService;
+import com.cloudwaer.common.core.service.PasswordTransportService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,8 +66,12 @@ public class SysSettingService {
 			new SettingKeyMeta("login.fail-max", "auth", "INT", "登录失败锁定次数", null, null, false),
 			new SettingKeyMeta("login.lock-minutes", "auth", "INT", "登录失败锁定时长（分钟）", null, null, false),
 			// ---- 安全 ----
-			new SettingKeyMeta("security.password-transport.enabled", "security", "BOOL", "登录密码传输加密", null, null,
-					false),
+			new SettingKeyMeta("security.password-transport.enabled", "security", "BOOL", "登录密码传输加密（RSA）", null,
+					"false", true),
+			new SettingKeyMeta("security.password-transport.public-key", "security", "STRING", "密码加密公钥（PEM，下发登录页）",
+					null, null, true),
+			new SettingKeyMeta("security.password-transport.private-key", "security", "SECRET", "密码加密私钥（PEM，仅服务端）",
+					null, null, true),
 			new SettingKeyMeta("security.setting-encrypt.enabled", "security", "BOOL", "敏感配置值密文存储", null, null, false),
 			// ---- 系统 ----
 			new SettingKeyMeta("log.enabled", "system", "BOOL", "请求日志开关", "cloudwaer.log.enabled", "true", true),
@@ -89,6 +94,9 @@ public class SysSettingService {
 
 	@Autowired
 	private GlobalSettingService globalSettingService;
+
+	@Autowired
+	private PasswordTransportService passwordTransportService;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -195,6 +203,35 @@ public class SysSettingService {
 		result.put("success", ok);
 		result.put("keyCount", values.size());
 		result.put("publishTime", globalSettingService.getRaw(GlobalSettingService.PUBLISH_TIME_KEY));
+		List<String> warnings = new ArrayList<>();
+		boolean ptEnabled = "true".equalsIgnoreCase(values.get(PasswordTransportService.KEY_PT_ENABLED))
+				|| "1".equals(values.get(PasswordTransportService.KEY_PT_ENABLED));
+		if (ptEnabled && (!StringUtils.hasText(values.get(PasswordTransportService.KEY_PT_PUBLIC_KEY))
+				|| !StringUtils.hasText(values.get(PasswordTransportService.KEY_PT_PRIVATE_KEY)))) {
+			warnings.add("已启用登录密码加密但密钥对不完整：请先「生成 RSA 密钥对」，并随本次发布一起生效，否则登录会报解密失败");
+		}
+		result.put("warnings", warnings);
+		return result;
+	}
+
+	/**
+	 * 生成密码传输加密的 RSA 密钥对并写入设置（草稿，发布后生效）
+	 */
+	public Map<String, Object> generatePasswordTransportKeys() {
+		Map<String, String> keyPair = passwordTransportService.generateKeyPairPem();
+		List<SettingSaveItem> items = new ArrayList<>();
+		SettingSaveItem pub = new SettingSaveItem();
+		pub.setSettingKey(PasswordTransportService.KEY_PT_PUBLIC_KEY);
+		pub.setSettingValue(keyPair.get("publicKey"));
+		items.add(pub);
+		SettingSaveItem priv = new SettingSaveItem();
+		priv.setSettingKey(PasswordTransportService.KEY_PT_PRIVATE_KEY);
+		priv.setSettingValue(keyPair.get("privateKey"));
+		items.add(priv);
+		save(items);
+		Map<String, Object> result = new HashMap<>();
+		result.put("publicKey", keyPair.get("publicKey"));
+		result.put("hint", "密钥对已保存为草稿；开启「登录密码传输加密」并点击「发布设置」后生效");
 		return result;
 	}
 
