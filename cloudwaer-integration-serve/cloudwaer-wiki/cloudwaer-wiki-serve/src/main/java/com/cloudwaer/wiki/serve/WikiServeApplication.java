@@ -1,5 +1,6 @@
 package com.cloudwaer.wiki.serve;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -11,6 +12,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
  */
 @SpringBootApplication(scanBasePackages = "com.cloudwaer")
 @EnableDiscoveryClient
+@MapperScan("com.cloudwaer.wiki.serve.mapper")
 public class WikiServeApplication {
 
 	public static void main(String[] args) {

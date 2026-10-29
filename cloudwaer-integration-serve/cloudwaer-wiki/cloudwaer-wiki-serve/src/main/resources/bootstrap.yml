@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: cloudwaer-wiki-serve
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 25MB
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+        namespace: ""
+      config:
+        server-addr: localhost:8848
+        namespace: ""
+        file-extension: yml
+        shared-configs:
+          - data-id: application-common.yml
+            group: DEFAULT_GROUP
+            refresh: true
+          # 服务特定配置（Nacos 中创建同名 Data Id）
+          - data-id: application-cloudwaer-wiki-serve-dev.yml
+            group: DEFAULT_GROUP
+            refresh: true
