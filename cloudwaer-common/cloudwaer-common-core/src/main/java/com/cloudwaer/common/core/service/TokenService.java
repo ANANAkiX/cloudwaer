@@ -33,6 +33,9 @@ public class TokenService {
 	@Autowired
 	private JwtUtil jwtUtil;
 
+	@Autowired
+	private GlobalSettingService globalSettingService;
+
 	/**
 	 * 生成并存储 Token（兼容旧调用，默认 client=admin）
 	 */
@@ -109,14 +112,16 @@ public class TokenService {
 			String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
 			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
 
-			// 如果不允许多处登录，清除该用户的所有旧Token
-			if (!jwtProperties.isAllowMultipleLogin()) {
+			// 如果不允许多处登录，清除该用户的所有旧Token（支持全局设置热切换）
+			if (!globalSettingService.getBool(GlobalSettingService.KEY_JWT_ALLOW_MULTI,
+					jwtProperties.isAllowMultipleLogin())) {
 				clearUserTokens(userId);
 			}
 
 			// 存储Token数据到Redis
 			String tokenDataJson = getObjectMapper().writeValueAsString(tokenData);
-			long expirationSeconds = jwtProperties.getExpiration() / 1000;
+			long expirationSeconds = globalSettingService.getLong(GlobalSettingService.KEY_JWT_EXPIRATION,
+					jwtProperties.getExpiration()) / 1000;
 			redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 			// 将Token UUID添加到用户的Token列表中
@@ -410,7 +415,8 @@ public class TokenService {
 					// 更新Redis中的Token数据
 					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
 					String tokenDataJson = getObjectMapper().writeValueAsString(updatedTokenData);
-					long expirationSeconds = jwtProperties.getExpiration() / 1000;
+					long expirationSeconds = globalSettingService.getLong(GlobalSettingService.KEY_JWT_EXPIRATION,
+							jwtProperties.getExpiration()) / 1000;
 					redisUtil.set(tokenKey, tokenDataJson, expirationSeconds);
 
 					updateCount++;

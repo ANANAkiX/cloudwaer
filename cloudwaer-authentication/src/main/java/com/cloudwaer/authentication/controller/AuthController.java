@@ -33,6 +33,16 @@ public class AuthController {
 	private AuthService authService;
 
 	/**
+	 * 匿名公开设置（登录页/前台用）：验证码开关、注册开关、已启用第三方登录等
+	 */
+	@GetMapping("/public-settings")
+	@PermissionCode(value = "auth:public:settings", enable = false)
+	@Operation(summary = "获取公开设置", description = "匿名可读：验证码开关/有效期、注册开关、第三方登录入口（脱敏）")
+	public Result<Map<String, Object>> publicSettings() {
+		return Result.success(authService.publicSettings());
+	}
+
+	/**
 	 * 校验当前请求中的Token是否有效
 	 */
 	@GetMapping("/token/valid")
