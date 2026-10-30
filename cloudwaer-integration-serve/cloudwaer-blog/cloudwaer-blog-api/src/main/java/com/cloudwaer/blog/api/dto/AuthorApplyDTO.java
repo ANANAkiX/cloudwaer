@@ -67,4 +67,9 @@ public class AuthorApplyDTO implements Serializable {
 	 */
 	private LocalDateTime createTime;
 
+	/**
+	 * 当前是否真实持有博客主/管理员身份（仅 myApply 填充；申请已通过但角色被取消时为 false）
+	 */
+	private Boolean bloggerActive;
+
 }

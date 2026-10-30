@@ -167,7 +167,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 	public Boolean register(RegisterDTO registerDTO) {
 		Long exists = this.count(new LambdaQueryWrapper<User>().eq(User::getUsername, registerDTO.getUsername()));
 		if (exists != null && exists > 0) {
-			throw new BusinessException("用户名已存在");
+			throw new BusinessException("账号已存在");
 		}
 
 		Role guestRole = roleMapper
@@ -181,6 +181,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		userDTO.setPassword(registerDTO.getPassword());
 		userDTO.setNickname(registerDTO.getNickname() != null && !registerDTO.getNickname().isBlank()
 				? registerDTO.getNickname() : registerDTO.getUsername());
+		userDTO.setEmail(registerDTO.getEmail());
 		userDTO.setRoleIds(List.of(guestRole.getId()));
 		return saveUser(userDTO);
 	}
@@ -235,20 +236,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 		}
 
 		// 角色变更后立即刷新该用户全部在线 Token 权限（否则需重新登录才生效）
-		refreshUserTokenPermissions(userId);
+		refreshUserTokenPermissions(userId, roleIds == null ? List.of() : roleIds);
 		return true;
 	}
 
 	/**
 	 * 刷新用户 Token 中的权限码（不重登）
 	 */
-	private void refreshUserTokenPermissions(Long userId) {
+	private void refreshUserTokenPermissions(Long userId, List<Long> roleIds) {
 		if (tokenService == null || permissionService == null || userId == null) {
 			return;
 		}
 		try {
 			List<String> latestPermissions = permissionService.getPermissionCodesByUserId(userId);
-			int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions);
+			int updateCount = tokenService.updateUserTokenPermissions(userId, latestPermissions,
+					roleIds == null ? List.of() : roleIds);
 			if (permissionCacheSupport != null) {
 				permissionCacheSupport.evict(userId);
 			}

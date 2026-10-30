@@ -14,6 +14,7 @@ import com.cloudwaer.blog.serve.mapper.BlogTopicMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTopicReplyMapper;
 import com.cloudwaer.blog.serve.service.BlogCommentService;
 import com.cloudwaer.blog.serve.service.BlogLikeService;
+import com.cloudwaer.blog.serve.service.BlogMessageNotifier;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -47,6 +48,9 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 
 	@Autowired
 	private BlogCommentService commentService;
+
+	@Autowired
+	private BlogMessageNotifier blogMessageNotifier;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -91,6 +95,9 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 		likeMapper.insert(like);
 		applyCounter(targetType, targetId, true);
 
+		// 站内信：点赞通知目标作者（自己赞自己不发）
+		notifyLike(targetType, targetId, userId);
+
 		LikeToggleDTO dto = new LikeToggleDTO();
 		dto.setLiked(true);
 		dto.setLikeCount(currentCount(targetType, targetId));
@@ -101,6 +108,35 @@ public class BlogLikeServiceImpl implements BlogLikeService {
 			commentService.refreshQualityScore(targetId);
 		}
 		return dto;
+	}
+
+	/**
+	 * 点赞站内信：文章 → 作者；评论 → 评论人（话题/回复暂不发）
+	 */
+	private void notifyLike(Integer targetType, Long targetId, Long likerId) {
+		try {
+			String likerName = SecurityContextUtil.getCurrentUsername();
+			if (targetType == TARGET_ARTICLE) {
+				BlogArticle article = articleMapper.selectById(targetId);
+				if (article != null) {
+					blogMessageNotifier.notifyArticleLiked(article.getAuthorId(), likerId, likerName, targetId,
+							article.getTitle());
+				}
+			}
+			else if (targetType == TARGET_COMMENT) {
+				BlogComment comment = commentMapper.selectById(targetId);
+				if (comment != null) {
+					String content = comment.getContent();
+					String snippet = content == null ? ""
+							: (content.length() > 30 ? content.substring(0, 30) + "…" : content);
+					blogMessageNotifier.notifyCommentLiked(comment.getUserId(), likerId, likerName,
+							comment.getArticleId(), snippet);
+				}
+			}
+		}
+		catch (Exception e) {
+			log.warn("点赞站内信发送失败（不影响点赞）: {}", e.getMessage());
+		}
 	}
 
 	@Override

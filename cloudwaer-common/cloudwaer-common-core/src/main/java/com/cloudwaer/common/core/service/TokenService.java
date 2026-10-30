@@ -324,6 +324,17 @@ public class TokenService {
 	 * @return 更新的Token数量
 	 */
 	public int updateUserTokenPermissions(Long userId, List<String> newPermissions) {
+		return updateUserTokenPermissions(userId, newPermissions, null);
+	}
+
+	/**
+	 * 更新用户Token中的权限与角色信息（不改变Token UUID）
+	 * <p>
+	 * 角色变更（如取消博客主）必须传 newRoleIds，否则 Token 中的 roleIds 会一直停留在旧值
+	 * @param newRoleIds 新的角色ID列表；null 表示保持 Token 中原角色
+	 * @return 更新的Token数量
+	 */
+	public int updateUserTokenPermissions(Long userId, List<String> newPermissions, List<Long> newRoleIds) {
 		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
 			return 0;
 		}
@@ -360,7 +371,7 @@ public class TokenService {
 					Long tokenUserId = extractLongValue(tokenData.get("userId"));
 					String username = (String) tokenData.get("username");
 					@SuppressWarnings("unchecked")
-					List<Long> roleIds = (List<Long>) tokenData.get("roleIds");
+					List<Long> roleIds = newRoleIds != null ? newRoleIds : (List<Long>) tokenData.get("roleIds");
 
 					if (tokenUserId == null || username == null) {
 						skipCount++;
@@ -436,6 +447,63 @@ public class TokenService {
 		}
 		catch (Exception e) {
 			log.error("更新用户Token权限失败: userId={}", userId, e);
+			return 0;
+		}
+	}
+
+	/**
+	 * 更新用户全部 Token 中的昵称/头像（资料修改后即时生效，不改变 Token UUID）
+	 * <p>
+	 * 发文等场景读取的是 Redis tokenData 里的 nickname/avatar，修改资料后必须同步刷新
+	 * @return 更新的Token数量
+	 */
+	public int updateUserTokenProfile(Long userId, String nickname, String avatar) {
+		if (redisUtil == null || !redisUtil.isAvailable() || userId == null) {
+			return 0;
+		}
+		try {
+			String userTokenListKey = jwtProperties.getUserTokenListKeyPrefix() + userId;
+			Set<String> tokenUuids = redisUtil.setMembers(userTokenListKey);
+			if (tokenUuids == null || tokenUuids.isEmpty()) {
+				return 0;
+			}
+			int updateCount = 0;
+			for (String tokenUuid : tokenUuids) {
+				try {
+					Map<String, Object> tokenData = getTokenData(tokenUuid);
+					if (tokenData == null) {
+						redisUtil.setRemove(userTokenListKey, tokenUuid);
+						continue;
+					}
+					if (StringUtils.hasText(nickname)) {
+						tokenData.put("nickname", nickname);
+					}
+					else {
+						tokenData.remove("nickname");
+					}
+					if (StringUtils.hasText(avatar)) {
+						tokenData.put("avatar", avatar);
+					}
+					else {
+						tokenData.remove("avatar");
+					}
+					String tokenKey = jwtProperties.getRedisKeyPrefix() + tokenUuid;
+					long ttlSeconds = redisUtil.getExpire(tokenKey);
+					if (ttlSeconds <= 0) {
+						continue;
+					}
+					redisUtil.set(tokenKey, getObjectMapper().writeValueAsString(tokenData), ttlSeconds);
+					updateCount++;
+				}
+				catch (Exception e) {
+					log.warn("更新Token资料失败: userId={}, tokenUuid={}, {}", userId, tokenUuid, e.getMessage());
+				}
+			}
+			log.info("更新用户Token资料完成: userId={}, updateCount={}, nickname={}", userId, updateCount, nickname);
+			return updateCount;
+		}
+		catch (Exception e) {
+			log.error("更新用户Token资料失败: userId={}", userId, e);
 			return 0;
 		}
 	}

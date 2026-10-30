@@ -54,6 +54,10 @@
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-redis</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-ws</artifactId>
+        </dependency>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -17,6 +17,7 @@ import com.cloudwaer.blog.serve.mapper.BlogCollectionMapper;
 import com.cloudwaer.blog.serve.mapper.BlogTagMapper;
 import com.cloudwaer.blog.serve.service.BlogArticleService;
 import com.cloudwaer.blog.serve.service.BlogLikeService;
+import com.cloudwaer.blog.serve.service.BlogMessageNotifier;
 import com.cloudwaer.blog.serve.service.BlogSettingService;
 import com.cloudwaer.blog.serve.service.BloggerManageService;
 import com.cloudwaer.common.core.dto.PageResult;
@@ -89,6 +90,9 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 
 	@Autowired
 	private BloggerManageService bloggerManageService;
+
+	@Autowired
+	private BlogMessageNotifier blogMessageNotifier;
 
 	@Autowired
 	private BlogLikeService blogLikeService;
@@ -296,6 +300,9 @@ public class BlogArticleServiceImpl implements BlogArticleService {
 			blogArticleMapper.refreshHeat(id);
 		}
 		log.info("文章审核完成: id={}, result={}, authorId={}", id, auditStatus, article.getAuthorId());
+		// 站内信：审核结果通知作者（通过附文章详情链接）
+		blogMessageNotifier.notifyArticleAuditResult(article.getAuthorId(), article.getId(), article.getTitle(),
+				auditStatus, remark);
 		return Boolean.TRUE;
 	}
 

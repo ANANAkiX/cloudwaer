@@ -110,6 +110,17 @@ cloudwaer:
       access-key-id: ""
       access-key-secret: ""
       bucket: ""
+  # 第三方登录（GitHub 等）回跳白名单：逗号分隔 origin（如 https://blog.example.com）
+  # localhost / 127.0.0.1 始终放行，无需配置；生产环境把各前端正式域名加进来
+  oauth:
+    redirect-origins: ""
+  # 出站 HTTP 代理（GitHub OAuth 换票等外网请求）：yml 兜底，后台「服务器设置」可覆盖并发布热生效
+  # non-proxy-hosts 默认含 localhost，避免内部 Feign 被带进外部代理；微服务部署补上网内网段/服务名
+  proxy:
+    enabled: false
+    host: ""
+    port: 0
+    non-proxy-hosts: "localhost|127.0.0.1|::1"
 
 
 mybatis-plus:
