@@ -65,4 +65,22 @@ public class LoginRequestDTO implements Serializable {
 	@Schema(description = "客户端标识", required = true, example = "admin")
 	private String clientId;
 
+	/**
+	 * 第三方登录供应商类型（loginType=THIRD_PARTY 时使用）
+	 */
+	@Schema(description = "第三方供应商类型", example = "GITHUB")
+	private String provider;
+
+	/**
+	 * 第三方授权码（loginType=THIRD_PARTY 时使用）
+	 */
+	@Schema(description = "第三方授权码")
+	private String code;
+
+	/**
+	 * 第三方授权 state（loginType=THIRD_PARTY 时使用）
+	 */
+	@Schema(description = "第三方授权 state")
+	private String state;
+
 }

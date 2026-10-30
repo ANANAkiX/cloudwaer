@@ -11,6 +11,8 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  * 设置发布广播订阅：收到 {@link GlobalSettingService#NOTIFY_CHANNEL} 消息后立即刷新本地设置快照。
  *
@@ -29,24 +31,44 @@ public class GlobalSettingRefreshListener implements MessageListener, SmartLifec
 
 	private final ObjectProvider<RedisConnectionFactory> connectionFactoryProvider;
 
+	private final List<GlobalSettingRefreshAware> refreshAwareList;
+
 	private volatile RedisMessageListenerContainer container;
 
 	private volatile boolean running = false;
 
 	public GlobalSettingRefreshListener(GlobalSettingService globalSettingService,
-			ObjectProvider<RedisConnectionFactory> connectionFactoryProvider) {
+			ObjectProvider<RedisConnectionFactory> connectionFactoryProvider,
+			List<GlobalSettingRefreshAware> refreshAwareList) {
 		this.globalSettingService = globalSettingService;
 		this.connectionFactoryProvider = connectionFactoryProvider;
+		this.refreshAwareList = refreshAwareList;
 	}
 
 	@Override
 	public void onMessage(Message message, byte[] pattern) {
 		log.debug("收到设置发布广播，刷新本地快照");
 		globalSettingService.refresh();
+		notifyRefreshAware();
+	}
+
+	/**
+	 * 通知设置刷新感知方（启动时与每次收到发布广播后触发）
+	 */
+	private void notifyRefreshAware() {
+		for (GlobalSettingRefreshAware aware : refreshAwareList) {
+			try {
+				aware.onGlobalSettingRefreshed();
+			}
+			catch (Exception e) {
+				log.warn("设置刷新感知回调失败: {}", e.getMessage());
+			}
+		}
 	}
 
 	@Override
 	public void start() {
+		notifyRefreshAware();
 		RedisConnectionFactory factory = connectionFactoryProvider.getIfAvailable();
 		if (factory == null) {
 			log.info("GlobalSetting 广播订阅未启动：无 RedisConnectionFactory");

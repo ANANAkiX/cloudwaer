@@ -5,7 +5,9 @@ import com.cloudwaer.admin.api.feign.AdminFeignClient;
 import com.cloudwaer.authentication.authenticator.LoginAuthenticationManager;
 import com.cloudwaer.authentication.dto.LoginRequestDTO;
 import com.cloudwaer.authentication.dto.LoginResponseDTO;
+import com.cloudwaer.authentication.dto.OauthLoginRequestDTO;
 import com.cloudwaer.authentication.dto.RegisterRequestDTO;
+import com.cloudwaer.authentication.enums.LoginType;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.result.ResultCode;
@@ -53,6 +55,20 @@ public class AuthService {
 	}
 
 	/**
+	 * 第三方授权码登录：组装 THIRD_PARTY 认证请求交给认证器调度（不走密码链路）
+	 */
+	public LoginResponseDTO oauthLogin(OauthLoginRequestDTO oauthRequest) {
+		LoginRequestDTO loginRequestDTO = new LoginRequestDTO();
+		loginRequestDTO.setLoginType(LoginType.THIRD_PARTY.name());
+		loginRequestDTO.setProvider(oauthRequest.getProviderType());
+		loginRequestDTO.setCode(oauthRequest.getCode());
+		loginRequestDTO.setState(oauthRequest.getState());
+		loginRequestDTO.setClientId(oauthRequest.getClientId() != null && !oauthRequest.getClientId().isBlank()
+				? oauthRequest.getClientId() : "admin");
+		return loginAuthenticationManager.authenticate(loginRequestDTO);
+	}
+
+	/**
 	 * 用户注册：转发到 admin 内部接口创建用户并分配访客角色
 	 */
 	public Boolean register(RegisterRequestDTO registerRequest) {
@@ -60,6 +76,11 @@ public class AuthService {
 			throw new BusinessException("注册功能已关闭");
 		}
 		registerRequest.setPassword(passwordTransportService.resolvePlainPassword(registerRequest.getPassword()));
+		// 长度在解密后校验（密码传输加密启用时字段为 RSA 密文）
+		String plainPassword = registerRequest.getPassword();
+		if (!StringUtils.hasText(plainPassword) || plainPassword.length() < 6 || plainPassword.length() > 32) {
+			throw new BusinessException("密码长度须在6-32位");
+		}
 		RegisterDTO registerDTO = new RegisterDTO();
 		BeanUtils.copyProperties(registerRequest, registerDTO);
 

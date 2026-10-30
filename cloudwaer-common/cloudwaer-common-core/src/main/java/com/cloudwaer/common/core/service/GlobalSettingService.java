@@ -76,6 +76,14 @@ public class GlobalSettingService {
 
 	public static final String KEY_REDIS_CACHE_DEFAULT_SECONDS = "redis.cache.default-seconds";
 
+	public static final String KEY_PROXY_ENABLED = "proxy.enabled";
+
+	public static final String KEY_PROXY_HOST = "proxy.host";
+
+	public static final String KEY_PROXY_PORT = "proxy.port";
+
+	public static final String KEY_PROXY_NON_PROXY_HOSTS = "proxy.non-proxy-hosts";
+
 	private final AtomicReference<Map<String, String>> snapshot = new AtomicReference<>(Collections.emptyMap());
 
 	@Autowired(required = false)

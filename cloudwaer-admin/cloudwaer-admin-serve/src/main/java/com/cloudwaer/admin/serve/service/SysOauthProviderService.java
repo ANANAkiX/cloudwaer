@@ -80,4 +80,17 @@ public class SysOauthProviderService {
 		return Boolean.TRUE;
 	}
 
+	/**
+	 * 按供应商类型取启用中的配置（登录流程内部使用，含 Secret，勿对外暴露）
+	 */
+	public SysOauthProvider getEnabledByType(String providerType) {
+		if (!StringUtils.hasText(providerType)) {
+			return null;
+		}
+		return oauthProviderMapper
+			.selectOne(new LambdaQueryWrapper<SysOauthProvider>().eq(SysOauthProvider::getProviderType, providerType)
+				.eq(SysOauthProvider::getEnabled, 1)
+				.last("LIMIT 1"));
+	}
+
 }

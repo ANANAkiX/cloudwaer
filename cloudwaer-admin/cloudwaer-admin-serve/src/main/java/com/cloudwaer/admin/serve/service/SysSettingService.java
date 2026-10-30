@@ -83,6 +83,13 @@ public class SysSettingService {
 					"cloudwaer.redis.cache.enabled", "true", true),
 			new SettingKeyMeta("redis.cache.default-seconds", "system", "LONG", "方法缓存默认 TTL（秒，注解未指定时）",
 					"cloudwaer.redis.cache.default-time-seconds", "86400", true),
+			// ---- 网络代理（出站 HTTP，如 GitHub OAuth 换票）----
+			new SettingKeyMeta("proxy.enabled", "system", "BOOL", "出站 HTTP 代理开关（发布后热生效）", "cloudwaer.proxy.enabled",
+					"false", true),
+			new SettingKeyMeta("proxy.host", "system", "STRING", "代理主机（如 127.0.0.1）", "cloudwaer.proxy.host", "", true),
+			new SettingKeyMeta("proxy.port", "system", "INT", "代理端口（如 7890）", "cloudwaer.proxy.port", "0", true),
+			new SettingKeyMeta("proxy.non-proxy-hosts", "system", "STRING", "不走代理的主机（| 分隔，支持 * 通配）",
+					"cloudwaer.proxy.non-proxy-hosts", "localhost|127.0.0.1|::1", true),
 			new SettingKeyMeta("upload.max-size", "system", "INT", "单文件上传大小限制（MB）", null, null, false),
 			new SettingKeyMeta("upload.allowed-types", "system", "STRING", "允许上传的文件类型（逗号分隔）", null, null, false));
 

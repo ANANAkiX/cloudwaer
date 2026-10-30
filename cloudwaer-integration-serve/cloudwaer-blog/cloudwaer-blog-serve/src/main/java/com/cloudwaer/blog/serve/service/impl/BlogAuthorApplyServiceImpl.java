@@ -3,6 +3,8 @@ package com.cloudwaer.blog.serve.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.cloudwaer.admin.api.dto.UserDTO;
+import com.cloudwaer.admin.api.feign.AdminFeignClient;
 import com.cloudwaer.blog.api.dto.AuthorApplyDTO;
 import com.cloudwaer.blog.serve.entity.BlogAuthorApply;
 import com.cloudwaer.blog.serve.mapper.BlogAuthorApplyMapper;
@@ -10,6 +12,7 @@ import com.cloudwaer.blog.serve.service.BlogAuthorApplyService;
 import com.cloudwaer.blog.serve.service.BlogMessageNotifier;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
+import com.cloudwaer.common.core.result.Result;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -67,6 +70,9 @@ public class BlogAuthorApplyServiceImpl implements BlogAuthorApplyService {
 	@Autowired
 	private BlogMessageNotifier blogMessageNotifier;
 
+	@Autowired
+	private AdminFeignClient adminFeignClient;
+
 	@Override
 	@Transactional(rollbackFor = Exception.class)
 	public Long apply(String reason) {
@@ -121,7 +127,33 @@ public class BlogAuthorApplyServiceImpl implements BlogAuthorApplyService {
 		if (latest == null) {
 			return null;
 		}
-		return toDto(latest);
+		AuthorApplyDTO dto = toDto(latest);
+		// 申请状态是历史记录，能否发文看当前角色：取消博客主后角色已摘，不能继续展示「已通过」
+		dto.setBloggerActive(isBloggerActive(userId));
+		return dto;
+	}
+
+	/**
+	 * 当前是否持有博客主/管理员身份：以 admin 实时角色为准，失败时回退 Token 内角色
+	 */
+	private boolean isBloggerActive(Long userId) {
+		try {
+			String username = SecurityContextUtil.getCurrentUsername();
+			if (username != null) {
+				Result<UserDTO> result = adminFeignClient.getUserByUsername(username);
+				if (result != null && result.getCode() != null && result.getCode() == 200 && result.getData() != null
+						&& result.getData().getId() != null && result.getData().getId().equals(userId)) {
+					List<Long> freshRoleIds = result.getData().getRoleIds();
+					return freshRoleIds != null
+							&& (freshRoleIds.contains(ADMIN_ROLE_ID) || freshRoleIds.contains(BLOGGER_ROLE_ID));
+				}
+			}
+		}
+		catch (Exception e) {
+			log.warn("查询实时角色失败，回退 Token 角色: {}", e.getMessage());
+		}
+		List<Long> roleIds = SecurityContextUtil.getCurrentRoleIds();
+		return roleIds != null && (roleIds.contains(ADMIN_ROLE_ID) || roleIds.contains(BLOGGER_ROLE_ID));
 	}
 
 	@Override

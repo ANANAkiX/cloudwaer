@@ -34,4 +34,9 @@ public class RegisterDTO implements Serializable {
 	 */
 	private String nickname;
 
+	/**
+	 * 邮箱（可空）
+	 */
+	private String email;
+
 }
