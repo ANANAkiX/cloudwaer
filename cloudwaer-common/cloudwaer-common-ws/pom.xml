@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.cloudwaer</groupId>
+        <artifactId>cloudwaer-common</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>cloudwaer-common-ws</artifactId>
+    <name>cloudwaer-common-ws</name>
+    <description>平台级 WebSocket 实时通道：连接鉴权、用户通道、统一信封、心跳、Redis 跨实例分发；业务模块引用即得推送能力</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-common-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-configuration-processor</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+    </dependencies>
+
+</project>

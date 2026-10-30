@@ -3,6 +3,7 @@ package com.cloudwaer.admin.api.feign;
 import com.cloudwaer.admin.api.dto.GatewayRouteDTO;
 import com.cloudwaer.admin.api.dto.RegisterDTO;
 import com.cloudwaer.admin.api.dto.RouteDTO;
+import com.cloudwaer.admin.api.dto.SendMessageDTO;
 import com.cloudwaer.admin.api.dto.UserDTO;
 import com.cloudwaer.common.core.result.Result;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -69,5 +70,13 @@ public interface AdminFeignClient {
 	 */
 	@PostMapping("/user/register")
 	Result<Boolean> registerUser(@RequestBody RegisterDTO registerDTO);
+
+	/**
+	 * 发送站内信（内部接口，业务模块系统提示统一入口）
+	 * @param dto 发送内容（收件人/标题/业务关联）
+	 * @return 是否成功
+	 */
+	@PostMapping("/message/send-internal")
+	Result<Boolean> sendMessage(@RequestBody SendMessageDTO dto);
 
 }

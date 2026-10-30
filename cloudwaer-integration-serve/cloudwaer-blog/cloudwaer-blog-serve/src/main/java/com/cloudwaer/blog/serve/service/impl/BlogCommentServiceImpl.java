@@ -10,6 +10,7 @@ import com.cloudwaer.blog.serve.entity.BlogComment;
 import com.cloudwaer.blog.serve.mapper.BlogArticleMapper;
 import com.cloudwaer.blog.serve.mapper.BlogCommentMapper;
 import com.cloudwaer.blog.serve.mapper.BlogLikeMapper;
+import com.cloudwaer.blog.serve.service.BlogMessageNotifier;
 import com.cloudwaer.blog.serve.entity.BlogLike;
 import com.cloudwaer.blog.serve.service.BlogCommentService;
 import com.cloudwaer.blog.serve.service.BlogLikeService;
@@ -102,6 +103,9 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 
 	@Autowired
 	private BlogLikeMapper likeMapper;
+
+	@Autowired
+	private BlogMessageNotifier blogMessageNotifier;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -314,7 +318,46 @@ public class BlogCommentServiceImpl implements BlogCommentService {
 			refreshQualityScore(existing.getId());
 			refreshRelatedScores(existing);
 		}
+		// 站内信：审核结果通知评论人（附所在文章链接）
+		blogMessageNotifier.notifyCommentAuditResult(existing.getUserId(), existing.getArticleId(), auditStatus);
+		// 站内信：对话通知（文章被评论→作者；回复楼中楼→被回复人）
+		if (auditStatus == AUDIT_APPROVED) {
+			notifyConversation(existing);
+		}
 		return Boolean.TRUE;
+	}
+
+	/**
+	 * 评论通过审核后的对话通知：文章作者（被评论）+ 被回复人（楼中楼，与文章作者去重；自己评论自己不发）
+	 */
+	private void notifyConversation(BlogComment comment) {
+		try {
+			BlogArticle article = articleMapper.selectById(comment.getArticleId());
+			if (article == null) {
+				return;
+			}
+			String snippet = truncateSnippet(comment.getContent());
+			blogMessageNotifier.notifyArticleCommented(article.getAuthorId(), comment.getUserId(),
+					comment.getNickname(), article.getId(), article.getTitle(), snippet);
+			Long parentId = comment.getParentId();
+			if (parentId != null && parentId > 0) {
+				BlogComment parent = commentMapper.selectById(parentId);
+				if (parent != null && parent.getUserId() != null && !parent.getUserId().equals(article.getAuthorId())) {
+					blogMessageNotifier.notifyCommentReplied(parent.getUserId(), comment.getUserId(),
+							comment.getNickname(), article.getId(), snippet);
+				}
+			}
+		}
+		catch (Exception e) {
+			log.warn("评论对话通知发送失败（不影响审核）: {}", e.getMessage());
+		}
+	}
+
+	private String truncateSnippet(String content) {
+		if (content == null) {
+			return "";
+		}
+		return content.length() > 30 ? content.substring(0, 30) + "…" : content;
 	}
 
 	@Override

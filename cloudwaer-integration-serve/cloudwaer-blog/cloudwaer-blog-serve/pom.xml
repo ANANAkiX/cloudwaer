@@ -54,6 +54,15 @@
             <groupId>com.cloudwaer</groupId>
             <artifactId>cloudwaer-common-redis</artifactId>
         </dependency>
+        <!-- 站内信发送（Feign → admin） -->
+        <dependency>
+            <groupId>com.cloudwaer</groupId>
+            <artifactId>cloudwaer-admin-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
         <!-- Spring Boot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

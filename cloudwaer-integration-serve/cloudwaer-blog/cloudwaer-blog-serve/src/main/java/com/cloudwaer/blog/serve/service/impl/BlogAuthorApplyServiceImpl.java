@@ -7,6 +7,7 @@ import com.cloudwaer.blog.api.dto.AuthorApplyDTO;
 import com.cloudwaer.blog.serve.entity.BlogAuthorApply;
 import com.cloudwaer.blog.serve.mapper.BlogAuthorApplyMapper;
 import com.cloudwaer.blog.serve.service.BlogAuthorApplyService;
+import com.cloudwaer.blog.serve.service.BlogMessageNotifier;
 import com.cloudwaer.common.core.dto.PageResult;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.util.SecurityContextUtil;
@@ -62,6 +63,9 @@ public class BlogAuthorApplyServiceImpl implements BlogAuthorApplyService {
 
 	@Autowired
 	private BlogAuthorApplyMapper applyMapper;
+
+	@Autowired
+	private BlogMessageNotifier blogMessageNotifier;
 
 	@Override
 	@Transactional(rollbackFor = Exception.class)
@@ -159,6 +163,8 @@ public class BlogAuthorApplyServiceImpl implements BlogAuthorApplyService {
 		existing.setHandleTime(LocalDateTime.now());
 		existing.setHandleRemark(remark);
 		applyMapper.updateById(existing);
+		// 站内信：申请结果通知申请人（通过附个人主页链接）
+		blogMessageNotifier.notifyAuthorApplyResult(existing, applyStatus);
 		return Boolean.TRUE;
 	}
 
