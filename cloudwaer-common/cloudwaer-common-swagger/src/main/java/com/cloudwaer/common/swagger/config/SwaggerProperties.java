@@ -40,11 +40,11 @@ public class SwaggerProperties {
 	/**
 	 * 许可证名称
 	 */
-	private String licenseName = "Apache 2.0";
+	private String licenseName = "MIT License";
 
 	/**
 	 * 许可证URL
 	 */
-	private String licenseUrl = "https://www.apache.org/licenses/LICENSE-2.0.html";
+	private String licenseUrl = "https://www.cloudwaer.cn/License";
 
 }
