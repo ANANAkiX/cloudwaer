@@ -17,7 +17,7 @@ public final class DictTypeConstants {
 
 	public static final String BOOLEAN = "boolean";
 
-	public static final String FLOWABLE_TYPE = "flowable_type";
+	public static final String WORKFLOW_TYPE = "workflow_type";
 
 	public static final String WF_PROCESS_STATUS = "wf_process_status";
 
@@ -25,6 +25,6 @@ public final class DictTypeConstants {
 
 	public static final String HTTP_METHOD = "http_method";
 
-	public static final String FLOWABLE_PRIORITY = "flowable_priority";
+	public static final String WORKFLOW_PRIORITY = "workflow_priority";
 
 }
