@@ -35,7 +35,10 @@ import com.cloudwaer.workflow.serve.engine.DslNode;
 import com.cloudwaer.workflow.serve.engine.ExecutionContext;
 import com.cloudwaer.workflow.serve.entity.WfDefinition;
 import com.cloudwaer.workflow.serve.entity.WfInstance;
+import com.cloudwaer.workflow.serve.entity.WfNode;
 import com.cloudwaer.workflow.serve.mapper.WfDefinitionMapper;
+import com.cloudwaer.workflow.serve.mapper.WfNodeMapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 
 @Slf4j
 @Service
@@ -60,15 +63,27 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
 	private WfDefinitionMapper defMapper;
 
 	@Autowired
+	private WfNodeMapper nodeMapper;
+
+	@Autowired
 	private com.cloudwaer.workflow.serve.engine.DslParser dslParser;
 
 	@Override
 	public PageResult<WorkflowTaskDTO> listTodo(PageDTO pageDTO) {
 		String username = SecurityContextUtil.getCurrentUsername();
+		List<Long> roleIds = SecurityContextUtil.getCurrentRoleIds();
 		Page<WfTask> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
 		LambdaQueryWrapper<WfTask> wrapper = new LambdaQueryWrapper<>();
 		wrapper.in(WfTask::getTaskStatus, TaskStatus.PENDING.getCode(), TaskStatus.CLAIMED.getCode());
-		wrapper.and(w -> w.eq(WfTask::getAssignee, username).or().like(WfTask::getCandidateUsers, username));
+		wrapper.and(w -> {
+			w.eq(WfTask::getAssignee, username).or().like(WfTask::getCandidateUsers, username);
+			// 角色候选组任务：candidateGroups 逗号分隔角色ID
+			if (roleIds != null) {
+				for (Long roleId : roleIds) {
+					w.or().apply("FIND_IN_SET({0}, candidate_groups)", roleId);
+				}
+			}
+		});
 		wrapper.orderByDesc(WfTask::getCreateTime);
 		IPage<WfTask> result = taskMapper.selectPage(page, wrapper);
 		return toPageResult(result);
@@ -215,9 +230,80 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
 		processEngine.recordHistory(task.getInstanceId(), task.getTaskId(), task.getNodeId(), task.getNodeName(),
 				"user_task", "approve", username, dto.getComment(), "approve");
 
+		// 会签/或签聚合裁决：未达推进条件则等待其余审批
+		if (!multiGateAllowsAdvance(task, username)) {
+			return true;
+		}
+
 		// 推进流程到下一个节点
 		advanceProcess(task, username);
 		return true;
+	}
+
+	/**
+	 * 会签/或签聚合裁决：或签任一通过即推进（取消其余）；会签达到通过人数才推进。
+	 */
+	private boolean multiGateAllowsAdvance(WfTask task, String username) {
+		String multiType = task.getMultiType();
+		if (!"countersign".equals(multiType) && !"or_sign".equals(multiType)) {
+			return true;
+		}
+		List<WfTask> siblings = taskMapper
+			.selectList(new LambdaQueryWrapper<WfTask>().eq(WfTask::getInstanceId, task.getInstanceId())
+				.eq(WfTask::getNodeId, task.getNodeId()));
+		if ("or_sign".equals(multiType)) {
+			// 或签：任一通过即推进，取消其余未完成任务
+			cancelPendingSiblings(task, siblings);
+			return true;
+		}
+		long approved = siblings.stream()
+			.filter(t -> TaskStatus.COMPLETED.getCode().equals(t.getTaskStatus()) && "approve".equals(t.getResult()))
+			.count();
+		int required = resolveRequiredSignCount(task, siblings.size());
+		if (approved >= required) {
+			// 会签到齐：取消剩余未完成任务
+			cancelPendingSiblings(task, siblings);
+			return true;
+		}
+		processEngine.recordHistory(task.getInstanceId(), task.getTaskId(), task.getNodeId(), task.getNodeName(),
+				"user_task", "wait", username, "会签进度 " + approved + "/" + required + "，等待其他人审批", null);
+		return false;
+	}
+
+	private void cancelPendingSiblings(WfTask current, List<WfTask> siblings) {
+		List<String> ids = siblings.stream()
+			.filter(t -> !t.getTaskId().equals(current.getTaskId()))
+			.filter(t -> TaskStatus.PENDING.getCode().equals(t.getTaskStatus())
+					|| TaskStatus.CLAIMED.getCode().equals(t.getTaskStatus()))
+			.map(WfTask::getTaskId)
+			.toList();
+		if (!ids.isEmpty()) {
+			taskMapper.update(null,
+					new LambdaUpdateWrapper<WfTask>().set(WfTask::getTaskStatus, TaskStatus.CANCELED.getCode())
+						.in(WfTask::getTaskId, ids));
+		}
+	}
+
+	/**
+	 * 会签需求数：优先节点配置的通过人数（multiCount），缺省=全员到齐。
+	 */
+	private int resolveRequiredSignCount(WfTask task, int total) {
+		try {
+			WfInstance instance = instanceMapper
+				.selectOne(new LambdaQueryWrapper<WfInstance>().eq(WfInstance::getInstanceId, task.getInstanceId()));
+			if (instance != null) {
+				WfNode node = nodeMapper
+					.selectOne(new LambdaQueryWrapper<WfNode>().eq(WfNode::getDefId, instance.getDefId())
+						.eq(WfNode::getNodeId, task.getNodeId()));
+				if (node != null && node.getMultiCount() != null && node.getMultiCount() > 0) {
+					return Math.min(node.getMultiCount(), total);
+				}
+			}
+		}
+		catch (Exception e) {
+			log.warn("解析会签通过人数失败: {}", e.getMessage());
+		}
+		return total;
 	}
 
 	private boolean handleReject(WfTask task, TaskCompleteDTO dto, String username) {

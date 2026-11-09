@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -34,10 +35,56 @@ public class UserTaskNodeExecutor implements NodeExecutor {
 
 	@Override
 	public NodeResult execute(DslNode node, ExecutionContext context) {
-		// 解析处理人
-		String assignee = resolveAssignee(node, context);
+		// 会签/或签 + 多个指定用户：每人一个任务，complete 时按 multiType 聚合裁决
+		List<String> signUsers = resolveSignUsers(node);
+		if (signUsers.size() > 1) {
+			String lastTaskId = null;
+			for (String user : signUsers) {
+				lastTaskId = insertTask(node, context, user, null, null);
+			}
+			log.info("创建{}任务组: nodeId={}, users={}", "countersign".equals(node.getMultiType()) ? "会签" : "或签",
+					node.getNodeId(), signUsers);
+			return NodeResult.wait(lastTaskId);
+		}
 
-		// 创建任务
+		// 单任务模式（含候选人认领）
+		String assignee = resolveAssignee(node, context);
+		String candidateUsers = null;
+		String candidateGroups = null;
+		if ("role".equals(node.getAssigneeType()) || "dept".equals(node.getAssigneeType())) {
+			// 候选组模式，不指定具体人
+			candidateGroups = node.getAssigneeVal();
+		}
+		else if ("user".equals(node.getAssigneeType()) && node.getAssigneeVal() != null
+				&& node.getAssigneeVal().contains(",")) {
+			candidateUsers = node.getAssigneeVal();
+			assignee = null; // 多候选人，需要认领
+		}
+		String taskId = insertTask(node, context, assignee, candidateUsers, candidateGroups);
+		log.info("创建用户任务: taskId={}, nodeId={}, assignee={}", taskId, node.getNodeId(), assignee);
+		return NodeResult.wait(taskId);
+	}
+
+	/**
+	 * 会签/或签按人拆任务：仅「指定用户」多人时拆分；角色/部门候选组无法确定成员，保持单任务。
+	 */
+	private List<String> resolveSignUsers(DslNode node) {
+		String multiType = node.getMultiType();
+		if (!"countersign".equals(multiType) && !"or_sign".equals(multiType)) {
+			return List.of();
+		}
+		if (!"user".equals(node.getAssigneeType()) || node.getAssigneeVal() == null) {
+			return List.of();
+		}
+		return Arrays.stream(node.getAssigneeVal().split(","))
+			.map(String::trim)
+			.filter(s -> !s.isEmpty())
+			.distinct()
+			.toList();
+	}
+
+	private String insertTask(DslNode node, ExecutionContext context, String assignee, String candidateUsers,
+			String candidateGroups) {
 		WfTask task = new WfTask();
 		String taskId = UUID.randomUUID().toString().replace("-", "");
 		task.setTaskId(taskId);
@@ -50,16 +97,8 @@ public class UserTaskNodeExecutor implements NodeExecutor {
 		task.setTaskStatus(0); // pending
 		task.setAssignee(assignee);
 		task.setMultiType(node.getMultiType());
-
-		// 处理候选人/候选组
-		if ("role".equals(node.getAssigneeType())) {
-			task.setCandidateGroups(node.getAssigneeVal());
-		}
-		else if ("user".equals(node.getAssigneeType()) && node.getAssigneeVal() != null
-				&& node.getAssigneeVal().contains(",")) {
-			task.setCandidateUsers(node.getAssigneeVal());
-			task.setAssignee(null); // 多候选人，需要认领
-		}
+		task.setCandidateUsers(candidateUsers);
+		task.setCandidateGroups(candidateGroups);
 
 		// 存节点表单配置（含 formId）
 		if (node.getConfigJson() != null && !node.getConfigJson().isBlank()) {
@@ -72,12 +111,11 @@ public class UserTaskNodeExecutor implements NodeExecutor {
 		}
 
 		taskMapper.insert(task);
-		log.info("创建用户任务: taskId={}, nodeId={}, assignee={}", taskId, node.getNodeId(), assignee);
 		if (eventPublisher != null) {
 			eventPublisher.publish("task:create", context.getInstanceId(), taskId, node.getNodeId(), node.getNodeName(),
 					context.getOperator(), null);
 		}
-		return NodeResult.wait(taskId);
+		return taskId;
 	}
 
 	private String resolveAssignee(DslNode node, ExecutionContext context) {

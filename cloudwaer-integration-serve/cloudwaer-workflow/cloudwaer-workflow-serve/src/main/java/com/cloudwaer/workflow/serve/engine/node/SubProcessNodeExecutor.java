@@ -1,6 +1,9 @@
 package com.cloudwaer.workflow.serve.engine.node;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.cloudwaer.workflow.serve.engine.*;
+import com.cloudwaer.workflow.serve.entity.WfDefinition;
+import com.cloudwaer.workflow.serve.mapper.WfDefinitionMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +25,12 @@ public class SubProcessNodeExecutor implements NodeExecutor {
 	@Autowired
 	@Lazy
 	private ProcessEngine processEngine;
+
+	@Autowired
+	private WfDefinitionMapper defMapper;
+
+	@Autowired
+	private DslParser dslParser;
 
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -50,10 +59,23 @@ public class SubProcessNodeExecutor implements NodeExecutor {
 				return NodeResult.auto(null);
 			}
 
+			// 查找子流程最新已发布定义：引擎 startProcess 需要真实 DSL，
+			// 传 null 会在 @Transactional 方法内抛出并把外层事务标记 rollback-only
+			WfDefinition def = defMapper
+				.selectOne(new LambdaQueryWrapper<WfDefinition>().eq(WfDefinition::getDefKey, subDefKey)
+					.eq(WfDefinition::getDefStatus, 1)
+					.orderByDesc(WfDefinition::getVersion)
+					.last("LIMIT 1"));
+			if (def == null || def.getDslJson() == null) {
+				return NodeResult.error("子流程定义不存在或未发布: " + subDefKey);
+			}
+			// 先做 DSL 校验，避免异常发生在事务方法内
+			dslParser.parse(def.getDslJson());
+
 			// 启动子流程
 			Map<String, Object> vars = passVariables ? context.getVariables() : Map.of();
-			String subInstanceId = processEngine.startProcess(subDefKey, null, null, "子流程-" + node.getNodeName(), null,
-					context.getOperator(), null, vars, null);
+			String subInstanceId = processEngine.startProcess(subDefKey, def.getDslJson(), null,
+					"子流程-" + node.getNodeName(), null, context.getOperator(), null, vars, def.getId());
 			log.info("[SUB_PROCESS] 子流程已启动: subDefKey={}, subInstanceId={}, waitComplete={}", subDefKey, subInstanceId,
 					waitComplete);
 

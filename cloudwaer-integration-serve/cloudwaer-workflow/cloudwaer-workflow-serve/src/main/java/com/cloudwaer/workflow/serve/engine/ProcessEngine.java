@@ -117,12 +117,27 @@ public class ProcessEngine {
 			var incomingEdges = dsl.incomingEdges(node.getNodeId());
 			boolean isParallelJoin = "parallel".equals(node.getNodeType()) && incomingEdges.size() > 1;
 			if (isParallelJoin) {
-				int arrived = ctx.getArrivalCount().merge(node.getNodeId(), 1, Integer::sum);
-				if (arrived < incomingEdges.size()) {
+				// 到达计数持久化到 wf_history：内存计数随请求结束丢失，跨请求/跨线程不可靠
+				Long passed = historyMapper
+					.selectCount(new LambdaQueryWrapper<WfHistory>().eq(WfHistory::getInstanceId, ctx.getInstanceId())
+						.eq(WfHistory::getNodeId, node.getNodeId())
+						.eq(WfHistory::getAction, "join_pass"));
+				if (passed != null && passed > 0) {
+					// 已放行过，不重复推进
+					return;
+				}
+				recordHistory(ctx.getInstanceId(), ctx.getCurrentTaskId(), node.getNodeId(), node.getNodeName(),
+						node.getNodeType(), "join_arrive", ctx.getOperator(), "并行分支到达", null);
+				Long arrived = historyMapper
+					.selectCount(new LambdaQueryWrapper<WfHistory>().eq(WfHistory::getInstanceId, ctx.getInstanceId())
+						.eq(WfHistory::getNodeId, node.getNodeId())
+						.eq(WfHistory::getAction, "join_arrive"));
+				if (arrived == null || arrived < incomingEdges.size()) {
 					log.info("并行汇聚等待: nodeId={}, {}/{} 分支已到", node.getNodeId(), arrived, incomingEdges.size());
 					return;
 				}
-				ctx.getArrivalCount().remove(node.getNodeId());
+				recordHistory(ctx.getInstanceId(), ctx.getCurrentTaskId(), node.getNodeId(), node.getNodeName(),
+						node.getNodeType(), "join_pass", ctx.getOperator(), "并行汇聚完成，放行", null);
 				log.info("并行汇聚完成: nodeId={}, 全部 {} 分支已到", node.getNodeId(), incomingEdges.size());
 			}
 
