@@ -19,7 +19,7 @@ import java.time.Duration;
  */
 @Slf4j
 @Component
-public class WebhookListener implements WorkflowEventListener {
+public class WebhookListener implements NodeScopedListener {
 
 	@Autowired
 	private ObjectMapper objectMapper;

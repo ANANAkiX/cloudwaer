@@ -24,6 +24,10 @@ public class EventPublisher {
 			return;
 		}
 		for (WorkflowEventListener listener : listeners) {
+			// 节点级监听器（审计/站内信/Webhook 等）只按节点 listenerJson 显式启用
+			if (listener instanceof NodeScopedListener) {
+				continue;
+			}
 			String type = listener.getEventType();
 			if ("*".equals(type) || type.equals(event.getEventType())) {
 				try {

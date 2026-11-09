@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class AuditLogListener implements WorkflowEventListener {
+public class AuditLogListener implements NodeScopedListener {
 
 	@Override
 	public String getEventType() {

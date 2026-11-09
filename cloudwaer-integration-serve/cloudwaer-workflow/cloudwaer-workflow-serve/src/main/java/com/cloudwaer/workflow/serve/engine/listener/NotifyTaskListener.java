@@ -3,6 +3,7 @@ package com.cloudwaer.workflow.serve.engine.listener;
 import com.cloudwaer.workflow.serve.engine.action.NotifyActionExecutor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
 /**
@@ -10,10 +11,10 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-public class NotifyTaskListener implements WorkflowEventListener {
+public class NotifyTaskListener implements NodeScopedListener {
 
 	@Autowired
-	private org.springframework.context.ApplicationEventPublisher eventPublisher;
+	private ApplicationEventPublisher eventPublisher;
 
 	@Override
 	public String getEventType() {
