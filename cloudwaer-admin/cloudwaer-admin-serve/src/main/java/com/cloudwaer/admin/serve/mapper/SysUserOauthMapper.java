@@ -3,6 +3,7 @@ package com.cloudwaer.admin.serve.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.cloudwaer.admin.serve.entity.SysUserOauth;
 import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 /**
@@ -13,6 +14,7 @@ import org.apache.ibatis.annotations.Param;
  *
  * @author cloudwaer
  */
+@Mapper
 public interface SysUserOauthMapper extends BaseMapper<SysUserOauth> {
 
 	/**

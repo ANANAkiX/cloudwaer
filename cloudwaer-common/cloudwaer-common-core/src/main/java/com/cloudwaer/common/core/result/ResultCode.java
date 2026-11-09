@@ -54,7 +54,7 @@ public enum ResultCode {
 	/**
 	 * 服务未找到
 	 */
-	FLOWABLE_ERROR(503, "审批出错"),
+	WORKFLOW_ERROR(503, "审批出错"),
 
 	/**
 	 * 用户名或密码错误

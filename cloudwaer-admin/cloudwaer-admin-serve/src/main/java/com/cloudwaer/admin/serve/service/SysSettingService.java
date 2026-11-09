@@ -10,6 +10,7 @@ import com.cloudwaer.admin.serve.mapper.SysSettingMapper;
 import com.cloudwaer.common.core.exception.BusinessException;
 import com.cloudwaer.common.core.service.GlobalSettingService;
 import com.cloudwaer.common.core.service.PasswordTransportService;
+import com.cloudwaer.common.core.util.RedisUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -105,6 +106,9 @@ public class SysSettingService {
 	@Autowired
 	private PasswordTransportService passwordTransportService;
 
+	@Autowired(required = false)
+	private RedisUtil redisUtil;
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -115,6 +119,8 @@ public class SysSettingService {
 	 * 设置列表：已知键全量 + 库中自定义键；含生效值、来源、待发布标记
 	 */
 	public List<SettingItemDTO> listItems() {
+		// 惰性自愈：Redis 快照丢失（如 Redis 重启）时用已发布值重建，无需手动重新发布
+		healSnapshotIfMissing();
 		Map<String, SysSetting> dbMap = loadDbMap();
 		Map<String, String> snapshot = globalSettingService.currentSnapshot();
 
@@ -195,13 +201,18 @@ public class SysSettingService {
 	}
 
 	/**
-	 * 发布设置：库中非空值 + 派生的公开第三方登录列表 → 写 Redis 快照并广播，各实例立即生效
+	 * 发布设置：setting_value → published_value 落库（快照重建源），打包写入 Redis 快照并广播， 各实例立即生效。Redis
+	 * 快照丢失时由 {@link #healSnapshotIfMissing()} 用 published_value 重建。
 	 */
 	public Map<String, Object> publish() {
 		Map<String, String> values = new HashMap<>();
 		for (SysSetting row : settingMapper.selectList(new LambdaQueryWrapper<>())) {
-			if (StringUtils.hasText(row.getSettingValue())) {
-				values.put(row.getSettingKey(), row.getSettingValue());
+			if (!Objects.equals(row.getSettingValue(), row.getPublishedValue())) {
+				row.setPublishedValue(row.getSettingValue());
+				settingMapper.updateById(row);
+			}
+			if (StringUtils.hasText(row.getPublishedValue())) {
+				values.put(row.getSettingKey(), row.getPublishedValue());
 			}
 		}
 		values.put(GlobalSettingService.OAUTH_PUBLIC_KEY, buildPublicOauthJson());
@@ -219,6 +230,31 @@ public class SysSettingService {
 		}
 		result.put("warnings", warnings);
 		return result;
+	}
+
+	/**
+	 * 快照丢失自愈：Redis 快照键不存在（如 Redis 重启/清库）时，用库中 published_value 重建并广播（草稿不生效）。
+	 * 启动时与打开设置页时触发；无已发布内容则跳过。
+	 */
+	public boolean healSnapshotIfMissing() {
+		// 以 Redis 快照键为准：本实例内存快照可能仍在（运行中丢 Redis 不影响当前生效值），
+		// 但其他实例/重启后的实例会丢，必须重建
+		if (redisUtil != null && redisUtil.isAvailable() && redisUtil.hasKey(GlobalSettingService.SNAPSHOT_KEY)) {
+			return false;
+		}
+		Map<String, String> values = new HashMap<>();
+		for (SysSetting row : settingMapper.selectList(new LambdaQueryWrapper<>())) {
+			if (StringUtils.hasText(row.getPublishedValue())) {
+				values.put(row.getSettingKey(), row.getPublishedValue());
+			}
+		}
+		if (values.isEmpty()) {
+			return false;
+		}
+		values.put(GlobalSettingService.OAUTH_PUBLIC_KEY, buildPublicOauthJson());
+		boolean ok = globalSettingService.publish(values);
+		log.info("检测到设置快照缺失，已自动重建: keys={}, redisWritten={}", values.size(), ok);
+		return true;
 	}
 
 	/**
@@ -294,7 +330,9 @@ public class SysSettingService {
 				dto.setSource("DEFAULT");
 			}
 		}
-		dto.setPendingPublish(!Objects.equals(dbValue, snapshotValue));
+		// 待发布 = 库内 已保存值 != 已发布值（与 Redis 无关，快照丢失不影响判断）
+		String publishedValue = row == null ? null : row.getPublishedValue();
+		dto.setPendingPublish(!Objects.equals(dbValue, publishedValue));
 		dto.setImplemented(meta.implemented);
 		return dto;
 	}

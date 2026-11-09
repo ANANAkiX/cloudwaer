@@ -14,8 +14,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  */
 @SpringBootApplication(scanBasePackages = "com.cloudwaer")
 @EnableFeignClients(basePackages = "com.cloudwaer.admin.api.feign")
-@MapperScan(basePackages = { "com.cloudwaer.admin.serve.mapper", "com.cloudwaer.flowable.serve.mapper",
-		"com.cloudwaer.codegen.serve.mapper", "com.cloudwaer.blog.serve.mapper", "com.cloudwaer.wiki.serve.mapper" })
+@MapperScan(basePackages = { "com.cloudwaer.admin.serve.mapper", "com.cloudwaer.codegen.serve.mapper",
+		"com.cloudwaer.blog.serve.mapper", "com.cloudwaer.wiki.serve.mapper", "com.cloudwaer.workflow.serve.mapper" })
 public class CloudwaerBootApplication {
 
 	public static void main(String[] args) {

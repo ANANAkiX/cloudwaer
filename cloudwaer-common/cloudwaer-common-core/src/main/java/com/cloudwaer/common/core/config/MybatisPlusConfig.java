@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.cloudwaer.common.core.util.SecurityContextUtil;
 import com.cloudwaer.common.core.util.SnowflakeIdGenerator;
 import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.context.annotation.Bean;
@@ -46,6 +47,8 @@ public class MybatisPlusConfig {
 				}
 				this.strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
 				this.strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+				this.strictInsertFill(metaObject, "createUser", Long.class, SecurityContextUtil.getCurrentUserId());
+
 			}
 
 			/**
@@ -54,6 +57,8 @@ public class MybatisPlusConfig {
 			@Override
 			public void updateFill(MetaObject metaObject) {
 				this.strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+				this.strictInsertFill(metaObject, "updateTUser", Long.class, SecurityContextUtil.getCurrentUserId());
+
 			}
 		};
 	}
