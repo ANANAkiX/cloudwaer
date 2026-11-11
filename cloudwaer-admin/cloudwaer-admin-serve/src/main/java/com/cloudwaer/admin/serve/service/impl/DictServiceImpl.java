@@ -145,8 +145,9 @@ public class DictServiceImpl implements DictService {
 		if (dict == null) {
 			return false;
 		}
-		dict.setStatus(CommonConstants.STATUS_DELETE);
-		dictMapper.updateById(dict);
+		// @TableLogic 列不会被 updateById 写入，必须用 UpdateWrapper 显式置删除标记
+		dictMapper.update(null, new LambdaUpdateWrapper<Dict>().eq(Dict::getId, id)
+			.set(Dict::getStatus, CommonConstants.STATUS_DELETE));
 		LambdaUpdateWrapper<DictItem> uw = new LambdaUpdateWrapper<>();
 		uw.eq(DictItem::getDictId, id).set(DictItem::getStatus, CommonConstants.STATUS_DELETE);
 		dictItemMapper.update(null, uw);
@@ -198,8 +199,9 @@ public class DictServiceImpl implements DictService {
 		if (item == null) {
 			return false;
 		}
-		item.setStatus(CommonConstants.STATUS_DELETE);
-		int r = dictItemMapper.updateById(item);
+		// @TableLogic 列不会被 updateById 写入，必须用 UpdateWrapper 显式置删除标记
+		int r = dictItemMapper.update(null, new LambdaUpdateWrapper<DictItem>().eq(DictItem::getId, id)
+			.set(DictItem::getStatus, CommonConstants.STATUS_DELETE));
 		rebuildCache();
 		return r > 0;
 	}

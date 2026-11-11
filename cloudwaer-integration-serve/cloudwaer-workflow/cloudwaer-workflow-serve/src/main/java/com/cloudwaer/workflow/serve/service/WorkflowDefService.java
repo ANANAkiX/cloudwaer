@@ -27,6 +27,9 @@ public interface WorkflowDefService {
 
 	boolean deleteDef(Long id);
 
+	/** 恢复历史版本：以该版本内容生成新的草稿版本（历史不变） */
+	Long rollback(Long id);
+
 	WorkflowDefDTO getByKeyAndVersion(String defKey, Integer version);
 
 }

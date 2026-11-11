@@ -18,7 +18,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -71,8 +73,9 @@ public class WorkflowDefServiceImpl implements WorkflowDefService {
 		if (def == null) {
 			throw new BusinessException("流程定义不存在");
 		}
-		if (def.getDefStatus() != null && def.getDefStatus() == STATUS_ARCHIVED) {
-			throw new BusinessException("归档版本不可编辑");
+		// 版本不可变：非草稿（已发布/已归档/已下线）一律不许原地改写
+		if (def.getDefStatus() != null && def.getDefStatus() != STATUS_DRAFT) {
+			throw new BusinessException("该版本不可直接修改，请使用「另存为新版本」或「恢复」生成新草稿");
 		}
 
 		def.setDefName(dto.getDefName());
@@ -83,10 +86,6 @@ public class WorkflowDefServiceImpl implements WorkflowDefService {
 		def.setFormKey(dto.getFormKey());
 		def.setEndTime(dto.getEndTime());
 		def.setRemark(dto.getRemark());
-		if (def.getDefStatus() != null && def.getDefStatus() == STATUS_PUBLISHED) {
-			// 编辑已发布版本 → 创建工作副本
-			def.setDefStatus(STATUS_DRAFT);
-		}
 		defMapper.updateById(def);
 
 		// 保存节点和连线
@@ -143,20 +142,32 @@ public class WorkflowDefServiceImpl implements WorkflowDefService {
 	@Override
 	public PageResult<WorkflowDefDTO> list(PageDTO pageDTO, String category, String keyword) {
 		Page<WfDefinition> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
-		LambdaQueryWrapper<WfDefinition> wrapper = new LambdaQueryWrapper<>();
-		wrapper.ne(WfDefinition::getDefStatus, STATUS_ARCHIVED);
-		if (category != null && !category.isBlank() && !"all".equals(category)) {
-			wrapper.eq(WfDefinition::getCategory, category);
-		}
-		if (keyword != null && !keyword.isBlank()) {
-			wrapper.and(w -> w.like(WfDefinition::getDefKey, keyword).or().like(WfDefinition::getDefName, keyword));
-		}
-		wrapper.orderByDesc(WfDefinition::getUpdateTime);
-		IPage<WfDefinition> result = defMapper.selectPage(page, wrapper);
+		String cat = (category == null || category.isBlank() || "all".equals(category)) ? null : category.trim();
+		String kw = (keyword == null || keyword.isBlank()) ? null : keyword.trim();
+		// 主列表按 defKey 聚合：每个流程一行（已发布 > 最新草稿 > 最新已下线）
+		IPage<WfDefinition> result = defMapper.selectRepresentatives(page, cat, kw);
 
-		List<WorkflowDefDTO> records = result.getRecords().stream().map(def -> {
+		List<WfDefinition> rows = result.getRecords();
+		// 标记「有未发布草稿」的流程（避免草稿被聚合隐藏后不可发现）
+		Map<String, WfDefinition> drafts = new HashMap<>();
+		if (!rows.isEmpty()) {
+			List<String> keys = rows.stream().map(WfDefinition::getDefKey).distinct().toList();
+			// orderByDesc(version) 后 putIfAbsent：每 key 取最高版本草稿
+			defMapper
+				.selectList(new LambdaQueryWrapper<WfDefinition>().in(WfDefinition::getDefKey, keys)
+					.eq(WfDefinition::getDefStatus, STATUS_DRAFT)
+					.orderByDesc(WfDefinition::getVersion))
+				.forEach(d -> drafts.putIfAbsent(d.getDefKey(), d));
+		}
+
+		List<WorkflowDefDTO> records = rows.stream().map(def -> {
 			WorkflowDefDTO dto = new WorkflowDefDTO();
 			BeanUtils.copyProperties(def, dto);
+			WfDefinition draft = drafts.get(def.getDefKey());
+			if (draft != null && !draft.getId().equals(def.getId())) {
+				dto.setDraftId(draft.getId());
+				dto.setDraftVersion(draft.getVersion());
+			}
 			return dto;
 		}).toList();
 		return new PageResult<>(records, result.getTotal(), result.getCurrent(), result.getSize());
@@ -222,6 +233,18 @@ public class WorkflowDefServiceImpl implements WorkflowDefService {
 		edgeMapper.delete(new LambdaQueryWrapper<WfEdge>().eq(WfEdge::getDefId, id));
 		defMapper.deleteById(id);
 		return true;
+	}
+
+	@Override
+	@Transactional(rollbackFor = Exception.class)
+	public Long rollback(Long id) {
+		WorkflowDefDTO source = getDetail(id);
+		if (source == null) {
+			throw new BusinessException("流程定义不存在");
+		}
+		// 以历史版本内容生成新的草稿版本（历史行保持不动）
+		source.setId(null);
+		return saveDef(source);
 	}
 
 	@Override

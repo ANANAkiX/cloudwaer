@@ -11,6 +11,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 表单控制器
  */
@@ -49,6 +53,28 @@ public class WorkflowFormController {
 	@Operation(summary = "删除表单")
 	public Result<Boolean> delete(@RequestParam Long id) {
 		return Result.success(formService.deleteForm(id));
+	}
+
+	@PostMapping("/batch-delete")
+	@PermissionCode("workflow:form:delete")
+	@Operation(summary = "批量删除表单")
+	public Result<Map<String, Integer>> batchDelete(@RequestBody List<Long> ids) {
+		int success = 0;
+		int failed = 0;
+		for (Long id : ids) {
+			try {
+				formService.deleteForm(id);
+				success++;
+			}
+			catch (Exception e) {
+				failed++;
+			}
+		}
+		Map<String, Integer> r = new HashMap<>();
+		r.put("success", success);
+		r.put("failed", failed);
+		r.put("skipped", 0);
+		return Result.success(r);
 	}
 
 }

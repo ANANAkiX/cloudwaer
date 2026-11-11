@@ -95,7 +95,9 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
 		Page<WfTask> page = new Page<>(pageDTO.getCurrent(), pageDTO.getSize());
 		LambdaQueryWrapper<WfTask> wrapper = new LambdaQueryWrapper<>();
 		wrapper.eq(WfTask::getAssignee, username);
-		wrapper.in(WfTask::getTaskStatus, TaskStatus.COMPLETED.getCode(), TaskStatus.REJECTED.getCode());
+		// 已办 = 我办理过的动作终态：同意/驳回/转办/退回（转办退回不再从我的视图消失）
+		wrapper.in(WfTask::getTaskStatus, TaskStatus.COMPLETED.getCode(), TaskStatus.REJECTED.getCode(),
+				TaskStatus.TRANSFERRED.getCode(), TaskStatus.RETURNED.getCode());
 		wrapper.orderByDesc(WfTask::getCompleteTime);
 		IPage<WfTask> result = taskMapper.selectPage(page, wrapper);
 		return toPageResult(result);
@@ -340,6 +342,7 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
 		}
 		task.setTaskStatus(TaskStatus.TRANSFERRED.getCode());
 		task.setComment(dto.getComment());
+		task.setCompleteTime(LocalDateTime.now());
 		taskMapper.updateById(task);
 		processEngine.recordHistory(task.getInstanceId(), task.getTaskId(), task.getNodeId(), task.getNodeName(),
 				"user_task", "transfer", username, "转办给 " + dto.getTargetUser(), null);
@@ -362,6 +365,7 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
 	private boolean handleReturn(WfTask task, TaskCompleteDTO dto, String username) {
 		task.setTaskStatus(TaskStatus.RETURNED.getCode());
 		task.setComment(dto.getComment());
+		task.setCompleteTime(LocalDateTime.now());
 		taskMapper.updateById(task);
 		processEngine.recordHistory(task.getInstanceId(), task.getTaskId(), task.getNodeId(), task.getNodeName(),
 				"user_task", "return", username, "退回", null);

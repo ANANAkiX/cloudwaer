@@ -13,13 +13,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 站内信（用户自助：收件箱/已读/删除）
@@ -69,6 +72,33 @@ public class MessageController {
 	@Operation(summary = "删除收件箱条目")
 	public Result<Boolean> remove(@PathVariable("recipientId") Long recipientId) {
 		return Result.success(messageService.remove(SecurityContextUtil.getCurrentUserId(), recipientId));
+	}
+
+	@PostMapping("/batch-delete")
+	@RequireLogin
+	@Operation(summary = "批量删除收件箱条目")
+	public Result<Map<String, Integer>> batchRemove(@RequestBody List<Long> recipientIds) {
+		Long userId = SecurityContextUtil.getCurrentUserId();
+		int success = 0;
+		int failed = 0;
+		for (Long rid : recipientIds) {
+			try {
+				if (messageService.remove(userId, rid)) {
+					success++;
+				}
+				else {
+					failed++;
+				}
+			}
+			catch (Exception e) {
+				failed++;
+			}
+		}
+		Map<String, Integer> r = new HashMap<>();
+		r.put("success", success);
+		r.put("failed", failed);
+		r.put("skipped", 0);
+		return Result.success(r);
 	}
 
 }

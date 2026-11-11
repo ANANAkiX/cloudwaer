@@ -48,6 +48,12 @@ public class WorkflowDefDTO {
 	@Schema(description = "备注")
 	private String remark;
 
+	@Schema(description = "未发布草稿版本ID（主列表聚合标记）")
+	private Long draftId;
+
+	@Schema(description = "未发布草稿版本号（主列表聚合标记）")
+	private Integer draftVersion;
+
 	@Schema(description = "节点列表")
 	private List<WorkflowNodeDTO> nodes;
 
