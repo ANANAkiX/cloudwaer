@@ -1,3 +1,6 @@
+server:
+  port: 5003
+
 spring:
   application:
     name: cloudwaer-codegen-serve
@@ -12,9 +15,10 @@ spring:
         server-addr: localhost:8848
         namespace: ""
         file-extension: yml
-        import-check:
-          enabled: false
         shared-configs:
+          - data-id: application-common.yml
+            group: DEFAULT_GROUP
+            refresh: true
           # 加载服务特定配置文件
           - data-id: application-cloudwaer-codegen-serve-dev.yml
             group: DEFAULT_GROUP

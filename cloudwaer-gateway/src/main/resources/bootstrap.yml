@@ -16,8 +16,6 @@ spring:
         server-addr: localhost:8848
         namespace: ""
         file-extension: yml
-        import-check:
-          enabled: false
         shared-configs:
           - data-id: application-common.yml
             group: DEFAULT_GROUP

@@ -11,7 +11,7 @@
  Target Server Version : 80018 (8.0.18)
  File Encoding         : 65001
 
- Date: 10/11/2026 05:14:02
+ Date: 12/11/2026 21:32:14
 */
 
 SET NAMES utf8mb4;
@@ -44,11 +44,12 @@ CREATE TABLE `sys_dict`  (
 INSERT INTO `sys_dict` VALUES (1992000000000001000, 'status', '状态', 0, '状态字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
 INSERT INTO `sys_dict` VALUES (1992000000000002000, 'delete_flag', '删除标识', 0, '删除标识字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
 INSERT INTO `sys_dict` VALUES (1992000000000003000, 'boolean', '布尔', 0, '布尔字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict` VALUES (1992000000000004000, 'flowable_type', '流程类型', 0, '流程类型字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict` VALUES (1992000000000004000, 'flowable_type', '流程类型', 0, '流程类型字典', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 0);
 INSERT INTO `sys_dict` VALUES (2013029000000000001, 'permission_type', '权限类型', 0, '权限类型字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
-INSERT INTO `sys_dict` VALUES (2013029000000000003, 'flowable_priority', '任务优先级', 0, '流程任务优先级字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict` VALUES (2013029000000000003, 'flowable_priority', '任务优先级', 0, '流程任务优先级字典', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 0);
 INSERT INTO `sys_dict` VALUES (2026021400000020001, 'workflow_form_category', '流程表单分类', 1, '流程表单分类字典', '2026-11-03 07:25:45', 'admin', '2026-11-03 07:25:45', NULL, 1);
 INSERT INTO `sys_dict` VALUES (2026021400000020002, 'workflow_form_status', '流程表单状态', 2, '流程表单状态字典', '2026-11-03 07:25:45', 'admin', '2026-11-03 07:25:45', NULL, 1);
+INSERT INTO `sys_dict` VALUES (2120489282651189250, 'workflow_def_category', '流程模型分类', 7, '流程模型分类字典', '2026-11-11 20:10:16', NULL, '2026-11-11 20:10:16', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_dict_item
@@ -83,9 +84,9 @@ INSERT INTO `sys_dict_item` VALUES (1992000000000002001, 1992000000000002000, '0
 INSERT INTO `sys_dict_item` VALUES (1992000000000002002, 1992000000000002000, '1', '1', '已删除', 1, '删除标识-已删除', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (1992000000000003001, 1992000000000003000, 'true', 'true', '是', 0, '布尔-是', '2025-11-21 20:40:17', 'system', '2025-11-21 22:23:50', NULL, 1);
 INSERT INTO `sys_dict_item` VALUES (1992000000000003002, 1992000000000003000, 'false', 'false', '否', 1, '布尔-否', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (1992000000000004001, 1992000000000004000, 'leave', 'leave', '请假类型', 0, '流程类型-请假', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (1992000000000004002, 1992000000000004000, 'ea', 'ea', '审批类型', 1, '流程类型-审批', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (1992000000000004003, 1992000000000004000, 'expense', 'expense', '报销类型', 2, '流程类型-报销', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004001, 1992000000000004000, 'leave', 'leave', '请假类型', 0, '流程类型-请假', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 0);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004002, 1992000000000004000, 'ea', 'ea', '审批类型', 1, '流程类型-审批', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 0);
+INSERT INTO `sys_dict_item` VALUES (1992000000000004003, 1992000000000004000, 'expense', 'expense', '报销类型', 2, '流程类型-报销', '2025-11-21 20:40:17', 'system', '2025-11-21 20:40:17', 'system', 0);
 INSERT INTO `sys_dict_item` VALUES (2013028106117353473, 2013027807789092865, 'running', '0', '运行中', 0, '', '2026-01-19 07:17:55', NULL, '2026-01-19 07:17:55', NULL, 0);
 INSERT INTO `sys_dict_item` VALUES (2013028154754502658, 2013027807789092865, 'completed', '1', '已完成', 1, '', '2026-01-19 07:18:07', NULL, '2026-01-19 07:19:34', NULL, 0);
 INSERT INTO `sys_dict_item` VALUES (2013028202070446082, 2013027807789092865, 'suspended', '2', '已挂起', 2, '', '2026-01-19 07:18:18', NULL, '2026-01-19 07:19:43', NULL, 0);
@@ -95,10 +96,10 @@ INSERT INTO `sys_dict_item` VALUES (2013028468014485506, 2013027807789092865, 'c
 INSERT INTO `sys_dict_item` VALUES (2013029000000000101, 2013029000000000001, '1', '1', '菜单', 0, '权限类型-菜单', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000102, 2013029000000000001, '2', '2', '页面', 1, '权限类型-页面', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000103, 2013029000000000001, '3', '3', '操作', 2, '权限类型-操作', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (2013029000000000301, 2013029000000000003, 'low', 'low', '低级', 0, '任务优先级-低级', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (2013029000000000302, 2013029000000000003, 'normal', 'normal', '正常', 1, '任务优先级-正常', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (2013029000000000303, 2013029000000000003, 'urgent', 'urgent', '紧急', 2, '任务优先级-紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
-INSERT INTO `sys_dict_item` VALUES (2013029000000000304, 2013029000000000003, 'very_urgent', 'very_urgent', '非常紧急', 3, '任务优先级-非常紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 1);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000301, 2013029000000000003, 'low', 'low', '低级', 0, '任务优先级-低级', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 0);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000302, 2013029000000000003, 'normal', 'normal', '正常', 1, '任务优先级-正常', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 0);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000303, 2013029000000000003, 'urgent', 'urgent', '紧急', 2, '任务优先级-紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 0);
+INSERT INTO `sys_dict_item` VALUES (2013029000000000304, 2013029000000000003, 'very_urgent', 'very_urgent', '非常紧急', 3, '任务优先级-非常紧急', '2026-01-23 00:00:00', 'system', '2026-01-23 00:00:00', 'system', 0);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000401, 2013029000000000004, '0', '0', '草稿', 0, '模型版本-草稿', '2026-10-23 23:21:38', 'system', '2026-10-23 23:21:38', 'system', 0);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000402, 2013029000000000004, '1', '1', '已发布', 1, '模型版本-已发布', '2026-10-23 23:21:38', 'system', '2026-10-23 23:21:38', 'system', 0);
 INSERT INTO `sys_dict_item` VALUES (2013029000000000403, 2013029000000000004, '2', '2', '已归档', 2, '模型版本-已归档', '2026-10-23 23:21:38', 'system', '2026-10-23 23:21:38', 'system', 0);
@@ -113,6 +114,11 @@ INSERT INTO `sys_dict_item` VALUES (2026021400000021005, 2026021400000020001, 'o
 INSERT INTO `sys_dict_item` VALUES (2026021400000022001, 2026021400000020002, 'draft', '0', '草稿', 1, '草稿状态', '2026-11-03 07:25:45', 'admin', '2026-11-03 07:25:45', NULL, 1);
 INSERT INTO `sys_dict_item` VALUES (2026021400000022002, 2026021400000020002, 'enabled', '1', '启用', 2, '启用状态', '2026-11-03 07:25:45', 'admin', '2026-11-03 07:25:45', NULL, 1);
 INSERT INTO `sys_dict_item` VALUES (2026021400000022003, 2026021400000020002, 'disabled', '2', '停用', 3, '停用状态', '2026-11-03 07:25:45', 'admin', '2026-11-03 07:25:45', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2120489282919624706, 2120489282651189250, 'leave', 'leave', '请假', 1, '', '2026-11-11 20:10:17', NULL, '2026-11-11 20:10:17', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2120489282974150658, 2120489282651189250, 'expense', 'expense', '报销', 2, '', '2026-11-11 20:10:17', NULL, '2026-11-11 20:10:17', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2120489283037065217, 2120489282651189250, 'purchase', 'purchase', '采购', 3, '', '2026-11-11 20:10:17', NULL, '2026-11-11 20:10:17', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2120489283099979777, 2120489282651189250, 'attendance', 'attendance', '考勤', 4, '', '2026-11-11 20:10:17', NULL, '2026-11-11 20:10:17', NULL, 1);
+INSERT INTO `sys_dict_item` VALUES (2120489283297112065, 2120489282651189250, 'other', 'other', '其他', 9, '', '2026-11-11 20:10:17', NULL, '2026-11-11 20:10:17', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_file
@@ -223,14 +229,14 @@ CREATE TABLE `sys_gateway_route`  (
 INSERT INTO `sys_gateway_route` VALUES (1, 'cloudwaer-authentication', 'lb://cloudwaer-authentication', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/auth/**\"}}]', NULL, 0, '鉴权服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:11', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (2, 'cloudwaer-admin-serve', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/admin/**\"}}]', NULL, 0, '后台管理服务服务的网关转发配置', '2025-11-20 18:52:12', NULL, '2025-11-21 00:38:00', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (10, 'cloudwaer-blog-serve', 'lb://cloudwaer-blog-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/blog/**\"}}]', NULL, 0, '博客服务路由', '2026-10-24 00:00:00', NULL, '2026-10-24 00:00:00', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (11, 'ws-cloudwaer-admin-serve', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/ws/**\"}}]', NULL, 0, '平台 WS 握手（admin-serve /ws 端点，仅 WebSocket 转发，勿 StripPrefix）', '2026-11-12 19:55:27', NULL, '2026-11-12 19:55:27', NULL, 1);
+INSERT INTO `sys_gateway_route` VALUES (12, 'cloudwaer-admin-serve-message', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/message/**\"}}]', NULL, 0, '站内信用户端接口（/message/**）转发 admin-serve，勿 StripPrefix', '2026-11-12 19:55:27', NULL, '2026-11-12 19:55:27', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (1991546479613448194, 'cloudwaer-codegen-serve', 'lb://cloudwaer-codegen-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/codegen/**\"}}]', NULL, 0, '代码生成服务的网关转发配置', '2025-11-21 00:37:37', NULL, '2025-11-21 00:37:37', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (1992205324727853058, 'ws-cloudwaer-im-service', 'lb:ws://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/ws/**\"}}]', NULL, 0, '仅让 WebSocket 握手走这条，避免影响 REST 调用\n', '2025-11-22 20:15:37', NULL, '2026-01-06 05:56:00', NULL, 0);
 INSERT INTO `sys_gateway_route` VALUES (1992239401883295746, 'rest-cloudwaer-im-service', 'lb://cloudwaer-im-service', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/im/**\"}}]', NULL, 1, '处理 /im/** 的 HTTP 接口', '2025-11-22 22:31:02', NULL, '2026-01-06 05:56:13', NULL, 0);
-INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', NULL, 0, 'cloudwaer-flowable-serve 的基础网关转发（与 admin/codegen 一致，保留 /flowable 前缀，勿加 StripPrefix）', '2026-01-14 23:19:48', NULL, '2026-11-12 00:00:00', NULL, 2);
+INSERT INTO `sys_gateway_route` VALUES (2011458231829864450, 'cloudwaer-flowable-serve', 'lb://cloudwaer-flowable-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/flowable/**\"}}]', NULL, 0, 'cloudwaer-flowable-serve 的基础网关转发（与 admin/codegen 一致，保留 /flowable 前缀，勿加 StripPrefix）', '2026-01-14 23:19:48', NULL, '2026-11-12 19:55:27', NULL, 2);
 INSERT INTO `sys_gateway_route` VALUES (2115773090837475330, 'cloudwaer-wiki-serve', 'lb://cloudwaer-wiki-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/wiki/**\"}}]', NULL, 0, 'cloudwaer-wiki-serve的基础网关转发', '2026-10-29 19:49:49', NULL, '2026-10-29 19:49:49', NULL, 1);
 INSERT INTO `sys_gateway_route` VALUES (2117316762494214145, 'cloudwaer-workflow-serve', 'lb://cloudwaer-workflow-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/workflow/**\"}}]', NULL, 0, 'cloudwaer-admin-serve 的基础网关转发', '2026-11-03 02:03:49', NULL, '2026-11-03 02:03:49', NULL, 1);
-INSERT INTO `sys_gateway_route` VALUES (11, 'ws-cloudwaer-admin-serve', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/ws/**\"}}]', NULL, 0, '平台 WS 握手（admin-serve /ws 端点，Upgrade 时自动转 ws 协议代理）', '2026-11-12 00:00:00', NULL, '2026-11-12 00:00:00', NULL, 1);
-INSERT INTO `sys_gateway_route` VALUES (12, 'cloudwaer-admin-serve-message', 'lb://cloudwaer-admin-serve', '[{\"name\":\"Path\",\"args\":{\"pattern\":\"/message/**\"}}]', NULL, 0, '站内信用户端接口（/message/**）转发 admin-serve，勿 StripPrefix', '2026-11-12 00:00:00', NULL, '2026-11-12 00:00:00', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_message
@@ -281,6 +287,13 @@ INSERT INTO `sys_message` VALUES (2119881119845507073, 'SYSTEM', '新任务提�
 INSERT INTO `sys_message` VALUES (2119883165600505857, 'SYSTEM', '工作流测试·待办提醒', '您有一条新的审批流程待处理（通知动作触发）', 'workflow_instance', '5274c808db4b4dd3801feaace0e91a8c', NULL, '系统', '2026-11-10 04:01:47', NULL, '2026-11-10 04:01:47', NULL, 1);
 INSERT INTO `sys_message` VALUES (2119883165722140673, 'SYSTEM', '新任务提醒', '您有新的待办任务: 审批节点', 'workflow_instance', '5274c808db4b4dd3801feaace0e91a8c', NULL, '系统', '2026-11-10 04:01:47', NULL, '2026-11-10 04:01:47', NULL, 1);
 INSERT INTO `sys_message` VALUES (2119883174442098690, 'SYSTEM', '工作流测试·已处理', '审批任务已由 smoke_u1 处理完成（通知动作触发）', 'workflow_instance', '5274c808db4b4dd3801feaace0e91a8c', NULL, '系统', '2026-11-10 04:01:49', NULL, '2026-11-10 04:01:49', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120469138424135682, 'SYSTEM', '工作流测试·待办提醒', '您有一条新的审批流程待处理（通知动作触发）', 'workflow_instance', 'e93ea33428da47309ebcd500e128b8dd', NULL, '系统', '2026-11-11 18:50:14', NULL, '2026-11-11 18:50:14', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120469138612879362, 'SYSTEM', '新任务提醒', '您有新的待办任务: 审批节点', 'workflow_instance', 'e93ea33428da47309ebcd500e128b8dd', NULL, '系统', '2026-11-11 18:50:14', NULL, '2026-11-11 18:50:14', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120469147303477249, 'SYSTEM', '工作流测试·已处理', '审批任务已由 smoke_u1 处理完成（通知动作触发）', 'workflow_instance', 'e93ea33428da47309ebcd500e128b8dd', NULL, '系统', '2026-11-11 18:50:16', NULL, '2026-11-11 18:50:16', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120469147378974722, 'SYSTEM', '有人抄送给您', 'smoke_u1 在流程中抄送给您，请查阅。', 'workflow_instance', 'e93ea33428da47309ebcd500e128b8dd', NULL, '系统', '2026-11-11 18:50:16', NULL, '2026-11-11 18:50:16', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120858588060794882, 'SYSTEM', '微服务消息测试 ①', '这是一条纯文本系统提示，用于验证微服务链路（gateway → admin-serve → 落库 + WS 推送）。', NULL, NULL, NULL, '系统', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120858588186624002, 'SYSTEM', '微服务消息测试 ②（带跳转）', '这条消息带 bizType=biz_profile，点击「查看」应跳到个人主页。', 'blog_profile', '1', NULL, '系统', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
+INSERT INTO `sys_message` VALUES (2120858588253732866, 'NOTICE', '微服务消息测试 ③（公告）', '公告类型消息（msgType=NOTICE），收件箱应正常展示。', NULL, NULL, NULL, '系统', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_message_recipient
@@ -326,9 +339,16 @@ INSERT INTO `sys_message_recipient` VALUES (2116180558763712514, 211618055876371
 INSERT INTO `sys_message_recipient` VALUES (2116185907847704578, 2116185907847704577, 2116180125353697281, 1, '2026-10-30 23:55:44', '2026-10-30 23:10:12', NULL, '2026-10-30 23:10:12', NULL, 1);
 INSERT INTO `sys_message_recipient` VALUES (2119881119644180483, 2119881119644180482, 2119789131196428290, 1, '2026-11-10 03:57:43', '2026-11-10 03:53:39', NULL, '2026-11-10 03:57:43', NULL, 0);
 INSERT INTO `sys_message_recipient` VALUES (2119881119845507074, 2119881119845507073, 1, 1, '2026-11-10 03:55:33', '2026-11-10 03:53:39', NULL, '2026-11-10 03:55:42', NULL, 0);
-INSERT INTO `sys_message_recipient` VALUES (2119883165600505858, 2119883165600505857, 1, 1, '2026-11-10 04:02:13', '2026-11-10 04:01:47', NULL, '2026-11-10 04:01:47', NULL, 1);
-INSERT INTO `sys_message_recipient` VALUES (2119883165722140674, 2119883165722140673, 1, 1, '2026-11-10 04:02:23', '2026-11-10 04:01:47', NULL, '2026-11-10 04:01:47', NULL, 1);
-INSERT INTO `sys_message_recipient` VALUES (2119883174442098691, 2119883174442098690, 1, 1, '2026-11-10 04:02:24', '2026-11-10 04:01:49', NULL, '2026-11-10 04:01:49', NULL, 1);
+INSERT INTO `sys_message_recipient` VALUES (2119883165600505858, 2119883165600505857, 1, 1, '2026-11-10 04:02:13', '2026-11-10 04:01:47', NULL, '2026-11-11 18:53:48', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2119883165722140674, 2119883165722140673, 1, 1, '2026-11-10 04:02:23', '2026-11-10 04:01:47', NULL, '2026-11-11 18:53:47', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2119883174442098691, 2119883174442098690, 1, 1, '2026-11-10 04:02:24', '2026-11-10 04:01:49', NULL, '2026-11-11 18:53:47', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2120469138487050241, 2120469138424135682, 1, 1, '2026-11-11 18:50:45', '2026-11-11 18:50:14', NULL, '2026-11-11 20:04:12', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2120469138612879363, 2120469138612879362, 1, 1, '2026-11-11 18:50:44', '2026-11-11 18:50:14', NULL, '2026-11-11 19:25:48', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2120469147303477250, 2120469147303477249, 1, 1, '2026-11-11 18:50:42', '2026-11-11 18:50:16', NULL, '2026-11-11 19:25:48', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2120469147437694977, 2120469147378974722, 1, 1, '2026-11-11 18:50:36', '2026-11-11 18:50:16', NULL, '2026-11-11 19:25:48', NULL, 0);
+INSERT INTO `sys_message_recipient` VALUES (2120858588123709442, 2120858588060794882, 1, 1, '2026-11-12 20:41:13', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
+INSERT INTO `sys_message_recipient` VALUES (2120858588186624003, 2120858588186624002, 1, 1, '2026-11-12 20:41:16', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
+INSERT INTO `sys_message_recipient` VALUES (2120858588253732867, 2120858588253732866, 1, 1, '2026-11-12 20:38:10', '2026-11-12 20:37:46', NULL, '2026-11-12 20:37:46', NULL, 1);
 
 -- ----------------------------
 -- Table structure for sys_oauth_provider
@@ -885,7 +905,7 @@ CREATE TABLE `sys_setting`  (
 -- ----------------------------
 -- Records of sys_setting
 -- ----------------------------
-INSERT INTO `sys_setting` VALUES (2115000000000000101, 'captcha.enabled', 'false', 'false', 'BOOL', 'captcha', '登录验证码开关（覆盖 yml cloudwaer.captcha.enabled）', '2026-10-29 20:46:00', 'system', '2026-10-29 20:46:00', 'system', 1);
+INSERT INTO `sys_setting` VALUES (2115000000000000101, 'captcha.enabled', 'true', 'true', 'BOOL', 'captcha', '登录验证码开关（覆盖 yml cloudwaer.captcha.enabled）', '2026-10-29 20:46:00', 'system', '2026-10-29 20:46:00', 'system', 1);
 INSERT INTO `sys_setting` VALUES (2115000000000000102, 'captcha.expire-seconds', '60', '60', 'INT', 'captcha', '验证码有效期（秒），覆盖 cloudwaer.captcha.expire-seconds', '2026-10-29 20:46:00', 'system', '2026-10-29 20:46:00', 'system', 1);
 INSERT INTO `sys_setting` VALUES (2115000000000000103, 'jwt.expiration', NULL, NULL, 'LONG', 'jwt', 'Token 有效期（毫秒），覆盖 jwt.expiration', '2026-10-29 20:46:00', 'system', '2026-10-29 20:46:00', 'system', 1);
 INSERT INTO `sys_setting` VALUES (2115000000000000104, 'jwt.allow-multiple-login', 'true', 'true', 'BOOL', 'jwt', '是否允许多处登录，覆盖 jwt.allow-multiple-login', '2026-10-29 20:46:00', 'system', '2026-10-29 20:46:00', 'system', 1);
@@ -923,7 +943,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
-INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$QglwBinM.wSdYblvNtTIveMDfltN./vRjPczrA9FnZNQwU1SnvwU6', '管理员', 'chen_a_nan@qq.com', '', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/11/10/e924ef1d29f6427da38222ac2a1596c1.jpg', '2025-11-18 18:45:43', NULL, '2026-01-12 07:32:35', NULL, 1);
+INSERT INTO `sys_user` VALUES (1, 'admin', '$2a$10$QglwBinM.wSdYblvNtTIveMDfltN./vRjPczrA9FnZNQwU1SnvwU6', '管理员', 'chen_a_nan@qq.com', '13333333333', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/11/10/e924ef1d29f6427da38222ac2a1596c1.jpg', '2025-11-18 18:45:43', NULL, '2026-01-12 07:32:35', NULL, 1);
 INSERT INTO `sys_user` VALUES (1992208936665325569, 'test', '$2a$10$B6/HWEMm37XBm3vAJDpIduGCMam.iF8LspVQg21weWSTghugFz.he', '这是测试账号', 'wx-gpt-plus@qq.com', '', 'https://cloudwaer-ui.oss-cn-guangzhou.aliyuncs.com/uploads/2026/10/26/8c887bf5a46243cc91852d8852681890.jpg', '2025-11-22 20:29:59', NULL, '2026-01-12 07:32:39', NULL, 1);
 INSERT INTO `sys_user` VALUES (2119789131196428290, 'smoke_u1', '$2a$10$f6phXTfmdGA8S5/j.F83U.lieW/QQMh/AdKXTYGJ8S.CHb6fsOqQq', 'smoke_u1', NULL, NULL, NULL, '2026-11-09 21:48:07', NULL, '2026-11-09 21:48:07', NULL, 1);
 INSERT INTO `sys_user` VALUES (2119789131762659329, 'smoke_u2', '$2a$10$115F4N9FBdxK3ym7Yhsu.e2Si9KAyfvYtS9Do8vrM8ST5ilzXm8Ci', 'smoke_u2', NULL, NULL, NULL, '2026-11-09 21:48:07', NULL, '2026-11-09 21:48:07', NULL, 1);
@@ -986,6 +1006,6 @@ INSERT INTO `sys_user_role` VALUES (2114732977282048002, 1992208936665325569, 2,
 INSERT INTO `sys_user_role` VALUES (2114732977344962561, 1992208936665325569, 4, '2026-10-26 22:56:46', NULL, '2026-10-26 22:56:46', NULL, 1);
 INSERT INTO `sys_user_role` VALUES (2119881197402382338, 2119789131762659329, 1, '2026-11-10 03:53:58', NULL, '2026-11-10 03:53:58', NULL, 1);
 INSERT INTO `sys_user_role` VALUES (2119881197666623489, 2119789132618297345, 1, '2026-11-10 03:53:58', NULL, '2026-11-10 03:53:58', NULL, 1);
-INSERT INTO `sys_user_role` VALUES (2119883165009108993, 2119789131196428290, 1, '2026-11-10 04:01:47', NULL, '2026-11-10 04:01:47', NULL, 1);
+INSERT INTO `sys_user_role` VALUES (2120469137312645122, 2119789131196428290, 1, '2026-11-11 18:50:13', NULL, '2026-11-11 18:50:13', NULL, 1);
 
 SET FOREIGN_KEY_CHECKS = 1;
