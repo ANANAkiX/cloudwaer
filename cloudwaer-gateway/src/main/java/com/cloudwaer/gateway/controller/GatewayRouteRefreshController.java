@@ -43,6 +43,8 @@ public class GatewayRouteRefreshController implements ApplicationEventPublisherA
 	 */
 	@PostMapping("/refresh")
 	public Mono<ResponseEntity<String>> refresh() {
+		// 先失效定位器本地缓存，否则刷新事件落在缓存窗口内会重载旧路由
+		this.routeDefinitionLocator.invalidateCache();
 		// 直接发布刷新事件，让Spring Cloud Gateway重新加载所有RouteDefinitionLocator的路由
 		this.publisher.publishEvent(new RefreshRoutesEvent(this));
 		log.info("路由刷新事件已发布");

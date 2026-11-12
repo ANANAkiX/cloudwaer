@@ -97,6 +97,16 @@ public class DynamicRouteDefinitionLocator
 	}
 
 	/**
+	 * 失效本地路由缓存，使下一次 getRouteDefinitions 立即重新加载。
+	 * <p>
+	 * 显式刷新（/actuator/gateway/refresh）前必须调用：否则刷新事件落在 cacheDurationMs
+	 * 窗口内时会拿到旧缓存，路由变更看似「刷了没生效」。
+	 */
+	public void invalidateCache() {
+		this.lastLoadTime = 0;
+	}
+
+	/**
 	 * 异步加载路由
 	 */
 	private Flux<RouteDefinition> loadRoutesAsync() {

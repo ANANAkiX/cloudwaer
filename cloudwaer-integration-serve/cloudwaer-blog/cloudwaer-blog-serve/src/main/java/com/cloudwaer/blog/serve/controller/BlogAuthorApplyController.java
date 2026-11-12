@@ -35,7 +35,6 @@ public class BlogAuthorApplyController {
 	 */
 	@PostMapping("/apply")
 	@RequireLogin
-	@PermissionCode("blog:author:apply")
 	@Operation(summary = "申请成为博客主", description = "登录访客自助申请，待管理员在用户页分配 BLOGGER")
 	public Result<Long> apply(@RequestParam(value = "reason", required = false) String reason) {
 		return Result.success(blogAuthorApplyService.apply(reason));
